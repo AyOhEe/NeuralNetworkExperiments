@@ -1,0 +1,34 @@
+Genomes are composed of several "Genes". These aren't genes in the biological sense, 
+but they instead describe connections or nodes in a network.
+
+Genes are separated into groups of bits, depending on what kind of gene it is. 
+For example, the gene:
+
+00100101101010010110101011100011
+(0x25A96AE3)
+
+is separated into groups of:
+[0][0][1][0010110101][0010110101][011100011]
+
+A gene must always be split into at least two groups(although it may be more depending on
+the gene type): in this sim it's the first bit, and the last thirty-one bits. 
+the first bit determines the gene type, and a result, what the rest of the bits will be separated into.
+
+in this sim, the gene types are as follows:
+Gene types:
+    - Note: all genes have a "Group 0" composed of the first bit which determines the gene type. 
+      this isn't mentioned in the group guide for each gene type, as it's always present
+    - [0]: Connection gene: [0][0][0][0000000000][0000000000][000000000]
+        - Group 1: Connection Source bit: 0 for inputs, 1 for nodes
+        - Group 2: Connection Target bit: 0 for nodes, 1 for outputs
+        - Group 3: Connection Source node id: unsigned integer of size "CONN GENE SOURCE ID BITS" representing the id of the source (modulo the total number of sources)
+        - Group 4: Connection Target node id: unsigned integer of size "CONN GENE TARGET ID BITS" representing the id of the target (modulo the total number of targets)
+        - Group 5: Connection Weight: signed integer of size "CONN GENE WEIGHT BITS" divided by "CONN GENE WEIGHT DIVISOR"
+    
+    - [1]: Node Gene: [0][00][0000000000000]
+        - Group 1: Activation function: Ranges from 0 to 3, each value describing a different activation function
+            - 00: Tanh
+            - 01: Sigmoid
+            - 10: Swish
+            - 11: Relu
+        - Group 2: Node bias: signed integer of size "NODE GENE BIAS BITS" divided by "NODE GENE DIVISOR"
