@@ -3,6 +3,8 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <stdio.h>
+#include <iomanip>
 
 //creates a network based on the .genome file at GenomePath
 Network::Network(std::string GenomePath)
@@ -18,23 +20,32 @@ Network::Network(std::string GenomePath)
 	if (!GenomeReader)
 	{
 		//No, log an error in console
-		std::string err("Error Opening Genome \"");
-		err.append(GenomePath);
-		err.append("\"");
-		throw err.c_str();
+		std::stringstream err;
+        err << "Error Opening Genome \"" << GenomePath << "\"";
+		throw err.str().c_str();
 	}
 
 	//start reading the genome
 	char byte;
+    GenomeReader.get(byte);
+    std::stringstream stream;
+    const char* HexMap = "0123456789ABCDEF";
 	while (!GenomeReader.eof())
 	{
-		GenomeReader.get(byte);
-		std::cout << byte;
+        unsigned short int ushortByte = (unsigned short int)byte;
+        GenomeReader.get(byte);
+        std::cout << "Char 1 index: " << ((ushortByte >> 4) % 16) << std::endl;
+        std::cout << "Char 2 index: " << (ushortByte % 16) << std::endl;
+        stream << HexMap[(ushortByte >> 4) % 16] << HexMap[ushortByte % 16];
 	}
+    std::cout << stream.str() << std::endl;
 }
 
 //creates an empty network
-Network::Network() 
-{
+//Network::Network() {}
 
-}
+//creates a network from a pre-existing vector of Node and Connection Genes
+/*Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes)
+{
+    
+}*/

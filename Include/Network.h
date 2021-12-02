@@ -27,6 +27,7 @@ struct NodeGene
 //a network composed of nodes and connections
 class Network 
 {
+public:
     //creates a network based on the .genome file at GenomePath
 	Network(std::string GenomePath);
 

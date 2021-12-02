@@ -3,5 +3,7 @@
 
 int main() 
 {
-	Network network();
+	Network network = Network("test_genome_small.genome");
+    
+    return 0;
 } 
