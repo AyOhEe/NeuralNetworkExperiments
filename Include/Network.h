@@ -5,7 +5,10 @@
  */
 
 #include <string>
+#include <fstream>
 #include <vector>
+#include <iostream>
+#include <sstream>
 
 //a gene representing a connection between two nodes in a network
 struct ConnectionGene
@@ -27,6 +30,11 @@ struct NodeGene
 //a network composed of nodes and connections
 class Network 
 {
+	enum GeneType 
+	{
+		Connection,
+		Node
+	};
 public:
     //creates a network based on the .genome file at GenomePath
 	Network(std::string GenomePath);

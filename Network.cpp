@@ -1,11 +1,5 @@
 #include "Include/Network.h"
 
-#include <fstream>
-#include <vector>
-#include <iostream>
-#include <stdio.h>
-#include <iomanip>
-
 //creates a network based on the .genome file at GenomePath
 Network::Network(std::string GenomePath)
 {
@@ -27,18 +21,48 @@ Network::Network(std::string GenomePath)
 
 	//start reading the genome
 	char byte;
-    GenomeReader.get(byte);
-    std::stringstream stream;
-    const char* HexMap = "0123456789ABCDEF";
+	int byteIndex = 0;
 	while (!GenomeReader.eof())
 	{
-        unsigned short int ushortByte = (unsigned short int)byte;
+		//get the start of the next gene
         GenomeReader.get(byte);
-        std::cout << "Char 1 index: " << ((ushortByte >> 4) % 16) << std::endl;
-        std::cout << "Char 2 index: " << (ushortByte % 16) << std::endl;
-        stream << HexMap[(ushortByte >> 4) % 16] << HexMap[ushortByte % 16];
+
+		//decide what we should do based on the gene type(False: Connection. True: Node.)
+		std::cout << (int)byte << " " << byteIndex << std::endl;
+		if ((((int)byte & 0b10000000) >> 7) == 1)
+		{
+			//Node gene
+			std::cout << "Found Node gene at byte " << byteIndex << "-" << byteIndex + 1 << std::endl;
+			int gene[2];
+
+			//get the rest of the gene
+			gene[0] = (int)byte;
+			GenomeReader.get(byte);
+			gene[1] = (int)byte;
+			byteIndex += 1;
+
+			std::cout << gene[0] << ":" << gene[1] << std::endl;
+		}
+		else
+		{
+			//Connection Gene
+			std::cout << "Found Connection gene at byte " << byteIndex << "-" << byteIndex + 3 << std::endl;
+			int gene[4];
+
+			//get the rest of the gene
+			gene[0] = (int)byte;
+			GenomeReader.get(byte);
+			gene[1] = (int)byte;
+			GenomeReader.get(byte);
+			gene[2] = (int)byte;
+			GenomeReader.get(byte);
+			gene[3] = (int)byte;
+			byteIndex += 3;
+
+			std::cout << gene[0] << ":" << gene[1] << ":" << gene[2] << ":" << gene[3] << std::endl;
+		}
+		byteIndex++;
 	}
-    std::cout << stream.str() << std::endl;
 }
 
 //creates an empty network
