@@ -20,15 +20,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Network.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Genome.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Network.h" />
+    <None Include="config.json" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.json" />
+    <ClInclude Include="Include\json.hpp" />
+    <ClInclude Include="Include\Network.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
