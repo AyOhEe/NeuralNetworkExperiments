@@ -27,12 +27,10 @@ Network::Network(std::string GenomePath)
 		//get the start of the next gene
         GenomeReader.get(byte);
 
-		//decide what we should do based on the gene type(False: Connection. True: Node.)
-		std::cout << (int)byte << " " << byteIndex << std::endl;
+		//decide what we should do based on the gene type(True: Node, False: Connection)
 		if ((((int)byte & 0b10000000) >> 7) == 1)
 		{
 			//Node gene
-			std::cout << "Found Node gene at byte " << byteIndex << "-" << byteIndex + 1 << std::endl;
 			int gene[2];
 
 			//get the rest of the gene
@@ -41,12 +39,19 @@ Network::Network(std::string GenomePath)
 			gene[1] = (int)byte;
 			byteIndex += 1;
 
-			std::cout << gene[0] << ":" << gene[1] << std::endl;
+            //exit if we find that we've overread
+            if(GenomeReader.eof())
+            {
+                //we've overread. we can ignore this gene as it's incomplete
+                break;
+            }
+
+			std::cout << "Found Node gene at byte " << byteIndex << "-" << byteIndex + 1 << std::endl;
+			std::cout << gene[0] << " " << gene[1] << std::endl;
 		}
 		else
 		{
 			//Connection Gene
-			std::cout << "Found Connection gene at byte " << byteIndex << "-" << byteIndex + 3 << std::endl;
 			int gene[4];
 
 			//get the rest of the gene
@@ -59,7 +64,15 @@ Network::Network(std::string GenomePath)
 			gene[3] = (int)byte;
 			byteIndex += 3;
 
-			std::cout << gene[0] << ":" << gene[1] << ":" << gene[2] << ":" << gene[3] << std::endl;
+            //exit if we find that we've overread
+            if(GenomeReader.eof())
+            {
+                //we've overread. we can ignore this gene as it's incomplete
+                break;
+            }
+
+            std::cout << "Found Connection gene at byte " << byteIndex << "-" << byteIndex + 3 << std::endl;
+			std::cout << gene[0] << " " << gene[1] << " " << gene[2] << " " << gene[3] << std::endl;
 		}
 		byteIndex++;
 	}
