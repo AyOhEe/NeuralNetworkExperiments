@@ -25,10 +25,5 @@ Gene types:
         - Group 4: Connection Target node id: unsigned integer of size "CONN GENE TARGET ID BITS" representing the id of the target (modulo the total number of targets)
         - Group 5: Connection Weight: signed integer of size "CONN GENE WEIGHT BITS" divided by "CONN GENE WEIGHT DIVISOR"
     
-    - [1]: Node Gene: [1][00][0000000000000]
-        - Group 1: Activation function: Ranges from 0 to 3, each value describing a different activation function
-            - 00: Tanh
-            - 01: Sigmoid
-            - 10: Swish
-            - 11: Relu
-        - Group 2: Node bias: signed integer of size "NODE GENE BIAS BITS" divided by "NODE GENE DIVISOR"
+    - [1]: Node Gene: [1][000000000000000]
+        - Group 1: Node bias: signed integer of size "NODE GENE BIAS BITS" divided by "NODE GENE DIVISOR"

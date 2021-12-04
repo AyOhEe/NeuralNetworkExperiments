@@ -18,13 +18,18 @@ struct ConnectionGene
 	int SourceID;
 	int TargetID;
 	float Weight;
+
+	//returns a representation of this gene as a string
+	std::string ToString();
 };
 
 //a gene representing a node in a network
 struct NodeGene 
 {
-	int(*ActivationFunction)(float);
 	float Bias;
+
+	//returns a representation of this gene as a string
+	std::string ToString();
 };
 
 //a network composed of nodes and connections

@@ -28,15 +28,15 @@ Network::Network(std::string GenomePath)
         GenomeReader.get(byte);
 
 		//decide what we should do based on the gene type(True: Node, False: Connection)
-		if ((((int)byte & 0b10000000) >> 7) == 1)
+		if (((byte & 0b10000000) >> 7) == 1)
 		{
 			//Node gene
-			int gene[2];
+			unsigned char GeneBytes[2];
 
 			//get the rest of the gene
-			gene[0] = (int)byte;
+			GeneBytes[0] = byte;
 			GenomeReader.get(byte);
-			gene[1] = (int)byte;
+			GeneBytes[1] = byte;
 			byteIndex += 1;
 
             //exit if we find that we've overread
@@ -47,21 +47,29 @@ Network::Network(std::string GenomePath)
             }
 
 			std::cout << "Found Node gene at byte " << byteIndex << "-" << byteIndex + 1 << std::endl;
-			std::cout << gene[0] << " " << gene[1] << std::endl;
+			std::cout << (int)GeneBytes[0] << " " << (int)GeneBytes[1] << std::endl;
+
+			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
+			NodeGene Gene;
+			Gene.Bias = (((GeneBytes[0] & 0b01111111) << 8) + GeneBytes[1]) / 8192.0f;
+			std::cout << "Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
+
+			//store the gene
+			NodeGenes.push_back(Gene);
 		}
 		else
 		{
 			//Connection Gene
-			int gene[4];
+			unsigned char GeneBytes[4];
 
 			//get the rest of the gene
-			gene[0] = (int)byte;
+			GeneBytes[0] = byte;
 			GenomeReader.get(byte);
-			gene[1] = (int)byte;
+			GeneBytes[1] = byte;
 			GenomeReader.get(byte);
-			gene[2] = (int)byte;
+			GeneBytes[2] = byte;
 			GenomeReader.get(byte);
-			gene[3] = (int)byte;
+			GeneBytes[3] = byte; //i shouldn't have to do this, but it ensures the byte is stored correctly
 			byteIndex += 3;
 
             //exit if we find that we've overread
@@ -72,9 +80,29 @@ Network::Network(std::string GenomePath)
             }
 
             std::cout << "Found Connection gene at byte " << byteIndex << "-" << byteIndex + 3 << std::endl;
-			std::cout << gene[0] << " " << gene[1] << " " << gene[2] << " " << gene[3] << std::endl;
+			std::cout << (int)GeneBytes[0] << " " << (int)GeneBytes[1] << " " << (int)GeneBytes[2] << " " << (int)GeneBytes[3] << std::endl;
+
+			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
+			ConnectionGene Gene;
+			Gene.SourceType = (GeneBytes[0] & 0b01000000) == 0b01000000;
+			Gene.TargetType = (GeneBytes[0] & 0b00100000) == 0b00100000;
+			Gene.SourceID = ((GeneBytes[0] & 0b00011111) << 5) + ((GeneBytes[1] & 0b11111000) >> 3);
+			Gene.TargetID = ((GeneBytes[1] & 0b00000111) << 7) + ((GeneBytes[2] & 0b11111110) >> 1);
+			Gene.Weight = ((GeneBytes[2] & 0b00000001) == 0b00000001 ? -1 : 1) * (GeneBytes[3] / 128.0f);
+			std::cout << "Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
+
+			//store the gene
+			ConnectionGenes.push_back(Gene);
 		}
 		byteIndex++;
+	}
+	//close the reader now that we've finished reading the file
+	GenomeReader.close();
+
+	//now that we have all of the node and connection genes, we need to create the nodes
+	for (std::vector<NodeGene>::iterator GeneIter = NodeGenes.begin(); GeneIter != NodeGenes.end(); GeneIter++) 
+	{
+		
 	}
 }
 
@@ -86,3 +114,22 @@ Network::Network(std::string GenomePath)
 {
     
 }*/
+
+//returns a representation of this gene as a string
+std::string ConnectionGene::ToString()
+{
+	std::stringstream str;
+	str << (SourceType ? "Hidden" : "Input");
+	str << ", " << (TargetType ? "Output" : "Hidden");
+	str << ", " << SourceID;
+	str << ", " << TargetID;
+	str << ", " << Weight;
+	return str.str();
+}
+//returns a representation of this gene as a string
+std::string NodeGene::ToString()
+{
+	std::stringstream str;
+	str << Bias;
+	return str.str();
+}
