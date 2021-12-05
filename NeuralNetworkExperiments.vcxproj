@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="Node.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Genome.txt" />
@@ -31,6 +32,7 @@
   <ItemGroup>
     <ClInclude Include="Include\json.hpp" />
     <ClInclude Include="Include\Network.h" />
+    <ClInclude Include="Include\Node.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
