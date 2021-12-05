@@ -1,12 +1,15 @@
 #include "Include/Network.h"
 
 //creates a network based on the .genome file at GenomePath
-Network::Network(std::string GenomePath)
+Network::Network(std::string GenomePath, float (*ActivationFunction)(float))
 {
 	//all of the connection genes in this network
 	std::vector<ConnectionGene> ConnectionGenes;
 	//all of the node genes in this network
 	std::vector<NodeGene> NodeGenes;
+
+	//store the activation function
+	ActivationFunction = ActivationFunction;
 
 	//create the file stream
 	std::ifstream GenomeReader(GenomePath, std::ios::binary | std::ios::in);
@@ -110,8 +113,10 @@ Network::Network(std::string GenomePath)
 //Network::Network() {}
 
 //creates a network from a pre-existing vector of Node and Connection Genes
-/*Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes)
+/*Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, float (*ActivationFunction)(float))
 {
+	//store the activation function
+	ActivationFunction = ActivationFunction;
     
 }*/
 

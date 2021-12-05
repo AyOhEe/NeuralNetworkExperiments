@@ -41,14 +41,14 @@ class Network
 		Node
 	};
 public:
+	//the activation function for this network
+	float(*ActivationFunction)(float);
+
     //creates a network based on the .genome file at GenomePath
-	Network(std::string GenomePath);
+	Network(std::string GenomePath, float(*ActivationFunction)(float));
 
 	//creates a network from a pre-existing vector of Node and Connection Genes
-	Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes);
-
-	//creates an empty network
-	Network();
+	Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, float(*ActivationFunction)(float));
 };
 
 #endif
