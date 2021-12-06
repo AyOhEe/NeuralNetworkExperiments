@@ -6,27 +6,41 @@
 #include <vector>
 #include "Network.h"
 
- //a connection between two nodes in a network
-struct Connection
+//forward declaration of Node class so that std::vector<Node> isn't seen as std::vector<error-type>
+class Node;
+//forward declaration of Genes so that we're clear to use them
+struct ConnectionGene;
+struct NodeGene;
+//forward declaration of network so that we're clear to use it
+class Network;
+
+//a connection between two nodes in a network
+class Connection
 {
+	//nodes require full access to connections
+	friend Node;
+
 	//the weight of this connection
-	float weight;
+	float Weight;
 
 	//the source node of this connection
 	Node* Source;
-
+public:
 	//constructs a connection from a gene
-	Connection(ConnectionGene Gene, std::vector<Node> &Nodes);
+	Connection(ConnectionGene Gene, Network &Network);
 };
 
 //a node in a network
 class Node
 {
+	//connections need access to the connection array in their constructors
+	friend Connection::Connection(ConnectionGene Gene, Network &Network);
+
 	//the connections pointing to this node
 	std::vector<Connection> Connections;
 
 	//the bias of this node
-	float bias;
+	float Bias;
 
 	//the value of this node once it's been calculated
 	float Value;

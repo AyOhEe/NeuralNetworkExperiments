@@ -10,6 +10,12 @@
 #include <iostream>
 #include <sstream>
 
+#include "Node.h"
+
+//forward declaration of node and connection so we're clear to use it
+class Node;
+class Connection;
+
 //a gene representing a connection between two nodes in a network
 struct ConnectionGene
 {
@@ -35,11 +41,12 @@ struct NodeGene
 //a network composed of nodes and connections
 class Network 
 {
-	enum GeneType 
-	{
-		Connection,
-		Node
-	};
+	//connections need access to the node array
+	friend Connection;
+
+	//all of the nodes in this network
+	std::vector<Node> Nodes;
+
 public:
 	//the activation function for this network
 	float(*ActivationFunction)(float);

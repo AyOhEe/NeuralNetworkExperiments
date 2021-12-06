@@ -105,8 +105,13 @@ Network::Network(std::string GenomePath, float (*ActivationFunction)(float))
 	//now that we have all of the node and connection genes, we need to create the nodes
 	for (std::vector<NodeGene>::iterator GeneIter = NodeGenes.begin(); GeneIter != NodeGenes.end(); GeneIter++) 
 	{
-		
+		//create a node from the current gene
+		Nodes.push_back(Node(*GeneIter));
 	}
+
+	//we can safely discard the node genes now, as we've used them
+	NodeGenes.clear();  
+
 }
 
 //creates an empty network
