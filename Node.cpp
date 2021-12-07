@@ -21,18 +21,21 @@ float Node::CalculateValue(Network &Network)
 	{
 		//yes, iterate through our connections and sum the return values
 		CalculatingValue = true;
-		Value = 0;
+		float NetValue = 0;
 		for (std::vector<Connection>::iterator iter = Connections.begin(); iter != Connections.end(); iter++)
 		{
-			Value += iter->Weight * iter->Source->CalculateValue(Network);
+			NewValue += iter->Weight * iter->Source->CalculateValue(Network);
 		}
 		//and put the sum through the activation function, along side this node's bias
-		Value = Bias + Network.ActivationFunction(Value);
+		NewValue = Bias + Network.ActivationFunction(Value);
 
 		//we nolonger need to recalcuate, as we've already recalculated
 		NeedsToRecalculate = false;
-		//we're also nolonger calculating
+		//we're also no longer calculating
 		CalculatingValue = false;
+		
+		//store the new value as the actual value
+		Value = NewValue;
 	}
 	else 
 	{
