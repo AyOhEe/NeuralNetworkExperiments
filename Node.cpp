@@ -21,7 +21,7 @@ float Node::CalculateValue(Network &Network)
 	{
 		//yes, iterate through our connections and sum the return values
 		CalculatingValue = true;
-		float NetValue = 0;
+		float NewValue = 0;
 		for (std::vector<Connection>::iterator iter = Connections.begin(); iter != Connections.end(); iter++)
 		{
 			NewValue += iter->Weight * iter->Source->CalculateValue(Network);
