@@ -1,2 +1,2 @@
 language = "cpp"
-run = "clang -lstdc++ Network.cpp main.cpp -o main; ./main"
+run = "clang -lstdc++ Node.cpp Network.cpp main.cpp -o main; ./main"
