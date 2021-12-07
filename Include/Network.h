@@ -46,16 +46,24 @@ class Network
 
 	//all of the nodes in this network
 	std::vector<Node> Nodes;
+	//all of the input nodes for this network
+	std::vector<Node> InputNodes;
+	std::vector<Node> OutputNodes;
 
 public:
 	//the activation function for this network
 	float(*ActivationFunction)(float);
 
     //creates a network based on the .genome file at GenomePath
-	Network(std::string GenomePath, float(*ActivationFunction)(float));
+	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float));
 
 	//creates a network from a pre-existing vector of Node and Connection Genes
-	Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, float(*ActivationFunction)(float));
+	Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, int inputs, int outputs, float(*ActivationFunction)(float));
+
+	//returns the values of all of the output nodes
+	std::vector<float> GetResults();
+	//sets the values of all of the input nodes
+	void SetInputs(std::vector<float> &Inputs);
 };
 
 #endif

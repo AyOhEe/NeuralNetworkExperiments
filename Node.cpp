@@ -49,7 +49,18 @@ Connection::Connection(ConnectionGene Gene, Network &Network)
 {
 	//store the weight
 	Weight = Gene.Weight;
-
-	//get and store the source node
-	Source = &(Network.Nodes[0]);
+	
+	//determine how we should get the source node
+	if (Gene.SourceType) 
+	{
+		//nodes, we can use the network's node array
+		//we modulo the gene's source id to ensure it always gets a node, no matter what the value is
+		Source = &(Network.Nodes[Gene.SourceID % Network.Nodes.size()]);
+	}
+	else 
+	{
+		//inputs, we can use the network's input node array
+		//we modulo the gene's source id to ensure it always gets a node, no matter what the value is
+		Source = &(Network.InputNodes[Gene.SourceID % Network.Nodes.size()]);
+	}
 }

@@ -1,7 +1,7 @@
 #include "Include/Network.h"
 
 //creates a network based on the .genome file at GenomePath
-Network::Network(std::string GenomePath, float (*ActivationFunction)(float))
+Network::Network(std::string GenomePath, int inputs, int outputs, float (*ActivationFunction)(float))
 {
 	//all of the connection genes in this network
 	std::vector<ConnectionGene> ConnectionGenes;
@@ -108,10 +108,80 @@ Network::Network(std::string GenomePath, float (*ActivationFunction)(float))
 		//create a node from the current gene
 		Nodes.push_back(Node(*GeneIter));
 	}
-
 	//we can safely discard the node genes now, as we've used them
-	NodeGenes.clear();  
+	NodeGenes.clear();
 
+	//create the input and output nodes
+	NodeGene BlankGene = NodeGene();
+	for(int i = 0; i < inputs; i++)
+	{
+		//create a node based on the blank gene
+		InputNodes.push_back(Node(BlankGene));
+	}
+	for(int i = 0; i < outputs; i++)
+	{
+		//create a node based on the blank gene
+		OutputNodes.push_back(Node(BlankGene));
+	}
+
+	//now that we have all of the nodes created, we need to create the connections between them
+	for(std::vector<ConnectionGene>::iterator GeneIter = ConnectionGenes.begin(); GeneIter != ConnectionGenes.end(); GeneIter++)
+	{
+		//what kind of target does the gene have
+		if (GeneIter->TargetType)
+		{
+			//output, we can use the network's output node array
+			//we modulo the gene's target id to ensure it always gets a node, no matter what the value is
+			OutputNodes[GeneIter->TargetID % OutputNodes.size()].Connections.push_back(Connection(*GeneIter, *this));
+		}
+		else 
+		{
+			//node, we can use the network's node array
+			//we modulo the gene's target id to ensure it always gets a node, no matter what the value is
+			Nodes[GeneIter->TargetID % Nodes.size()].Connections.push_back(Connection(*GeneIter, *this));
+		}
+	}
+	//we can safely discard the connection genes now, as we've used them
+	ConnectionGenes.clear();
+}
+
+//returns the values of all of the output nodes
+std::vector<float> Network::GetResults() 
+{
+	//vector to store the values in the nodes
+	std::vector<float> Values;
+
+	//iterate through the nodes and store their values
+	for(std::vector<Node>::iterator NodeIter = OutputNodes.begin(); NodeIter != OutputNodes.end(); NodeIter++)
+	{
+		//store the value for this node
+		Values.push_back(NodeIter->Value);
+	}
+
+	//return the values we got
+	return Values;
+}
+
+//sets the values of all of the input nodes
+void Network::SetInputs(std::vector<float> &Inputs) 
+{
+	//do we have the same number of inputs as input nodes?
+	if (Inputs.size() == InputNodes.size()) 
+	{
+		//yes, carry on and set the inputs
+		std::vector<float>::iterator InputIter = Inputs.begin();
+		std::vector<Node>::iterator NodeIter = InputNodes.begin();
+		for(; NodeIter != InputNodes.end(); InputIter++, NodeIter++)
+		{
+			//set the value for this input node to it's corresponding input value
+			NodeIter->Value = *InputIter;
+		}
+	}
+	else 
+	{
+		//Nope, throw an exception
+		throw std::exception("Invalid number of inputs to network");
+	}
 }
 
 //creates an empty network

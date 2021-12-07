@@ -33,8 +33,11 @@ public:
 //a node in a network
 class Node
 {
-	//connections need access to the connection array in their constructors
+	//connections need access to private members in their constructors
 	friend Connection::Connection(ConnectionGene Gene, Network &Network);
+
+	//networks also need access to private members
+	friend Network;
 
 	//the connections pointing to this node
 	std::vector<Connection> Connections;

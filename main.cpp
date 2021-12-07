@@ -9,7 +9,7 @@ float Sigmoid(float x)
 
 int main() 
 {
-	Network network = Network("test_genome_smallMOD.genome", Sigmoid);
+	Network network = Network("test_genome_smallMOD.genome", 2, 1, Sigmoid);
     
     return 0;
 } 
