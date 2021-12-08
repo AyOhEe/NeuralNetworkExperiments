@@ -60,6 +60,9 @@ public:
 	//creates a network from a pre-existing vector of Node and Connection Genes
 	Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, int inputs, int outputs, float(*ActivationFunction)(float));
 
+	//creates a blank network
+	Network();
+
 	//returns the values of all of the output nodes
 	std::vector<float> GetResults();
 	//sets the values of all of the input nodes

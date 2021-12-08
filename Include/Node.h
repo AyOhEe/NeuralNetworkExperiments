@@ -48,8 +48,6 @@ class Node
 	//the value of this node once it's been calculated
 	float Value;
 
-	//is this node currently in the process of calculating it's value?
-	bool CalculatingValue;
 	//does this node need to recalculate it's value?
 	bool NeedsToRecalculate;
 public:

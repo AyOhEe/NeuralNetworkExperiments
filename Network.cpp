@@ -1,7 +1,7 @@
 #include "Include/Network.h"
 
 //creates a network based on the .genome file at GenomePath
-Network::Network(std::string GenomePath, int inputs, int outputs, float (*ActivationFunction)(float))
+Network::Network(std::string GenomePath, int inputs, int outputs, float (*ActivationFunction)(float)) : Nodes(), InputNodes(), OutputNodes()
 {
 	//all of the connection genes in this network
 	std::vector<ConnectionGene> ConnectionGenes;
@@ -19,7 +19,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 		//No, log an error in console
 		std::stringstream err;
         err << "Error Opening Genome \"" << GenomePath << "\"";
-		throw err.str().c_str();
+		throw std::exception(err.str().c_str());
 	}
 
 	//start reading the genome
@@ -117,12 +117,16 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 	{
 		//create a node based on the blank gene
 		InputNodes.push_back(Node(BlankGene));
+		std::cout << "Input Node _ Created: " << i << std::endl;
 	}
 	for(int i = 0; i < outputs; i++)
 	{
 		//create a node based on the blank gene
 		OutputNodes.push_back(Node(BlankGene));
+		std::cout << "Output Node _ Created: " << i << std::endl;
 	}
+	std::cout << "Input Node Size: " << InputNodes.size() << std::endl;
+	std::cout << "Output Node Size: " << OutputNodes.size() << std::endl;
 
 	//now that we have all of the nodes created, we need to create the connections between them
 	for(std::vector<ConnectionGene>::iterator GeneIter = ConnectionGenes.begin(); GeneIter != ConnectionGenes.end(); GeneIter++)
@@ -180,12 +184,16 @@ void Network::SetInputs(std::vector<float> &Inputs)
 	else 
 	{
 		//Nope, throw an exception
+		std::cout << "Invalid number of inputs to network" << std::endl;
 		throw std::exception("Invalid number of inputs to network");
 	}
 }
 
-//creates an empty network
-//Network::Network() {}
+//creates a blank network
+Network::Network() 
+{
+
+}
 
 //creates a network from a pre-existing vector of Node and Connection Genes
 /*Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, float (*ActivationFunction)(float))
