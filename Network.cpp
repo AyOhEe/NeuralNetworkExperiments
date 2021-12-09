@@ -203,6 +203,12 @@ Network::Network()
     
 }*/
 
+//saves the network to a file on disk
+void SaveNetwork(std::string GenomePath) 
+{
+	
+}
+
 //returns a representation of this gene as a string
 std::string ConnectionGene::ToString()
 {
@@ -220,4 +226,22 @@ std::string NodeGene::ToString()
 	std::stringstream str;
 	str << Bias;
 	return str.str();
+}
+
+
+//appends this gene to a filestream
+void ConnectionGene::AppendGene(std::ofstream stream) 
+{
+	
+}
+
+//appends this gene to a filestream
+void NodeGene::AppendGene(std::ofstream stream) 
+{
+	//get this gene as a byte array
+	unsigned char Gene[2];
+
+	//store the gene's component parts in the byte array
+	Gene[0] += 0b10000000;
+	Gene[1] += 
 }
