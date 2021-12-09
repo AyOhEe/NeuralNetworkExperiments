@@ -19,7 +19,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 		//No, log an error in console
 		std::stringstream err;
         err << "Error Opening Genome \"" << GenomePath << "\"";
-		throw std::exception(err.str().c_str());
+		throw std::runtime_error(err.str().c_str());
 	}
 
 	//start reading the genome
@@ -185,7 +185,7 @@ void Network::SetInputs(std::vector<float> &Inputs)
 	{
 		//Nope, throw an exception
 		std::cout << "Invalid number of inputs to network" << std::endl;
-		throw std::exception("Invalid number of inputs to network");
+		throw std::runtime_error("Invalid number of inputs to network");
 	}
 }
 
