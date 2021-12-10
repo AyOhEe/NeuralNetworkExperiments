@@ -4,9 +4,9 @@
  * Contains the `Node` Class and a Connection class
  */
 #include <vector>
-#include "Network.h"
+#include <algorithm>
 
-#define NODE_GENE_BIAS_DIVISOR 8192.0f
+#include "Network.h"
 
 //forward declaration of Node class so that std::vector<Node> isn't seen as std::vector<error-type>
 class Node;
@@ -30,6 +30,9 @@ class Connection
 public:
 	//constructs a connection from a gene
 	Connection(ConnectionGene Gene, Network &Network);
+	
+	//returns this connection as a gene
+	ConnectionGene AsGene(Network *Network, bool TargetType, int TargetID);
 };
 
 //a node in a network
@@ -59,6 +62,9 @@ public:
 
 	//constructs a node from a node gene
 	Node(NodeGene Gene);
+
+	//returns this node as a gene
+	NodeGene AsGene();
 };
 
 #endif
