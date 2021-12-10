@@ -54,7 +54,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 
 			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
 			NodeGene Gene;
-			Gene.Bias = (((GeneBytes[0] & 0b01111111) << 8) + GeneBytes[1]) / 8192.0f;
+			Gene.Bias = (((GeneBytes[0] & 0b01111111) << 8) + GeneBytes[1]) / NODE_GENE_BIAS_DIVISOR;
 			std::cout << "Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
 
 			//store the gene
@@ -243,5 +243,5 @@ void NodeGene::AppendGene(std::ofstream stream)
 
 	//store the gene's component parts in the byte array
 	Gene[0] += 0b10000000;
-	Gene[1] += 
+	Gene[0] += 0b0111111111111111 & (int)(Bias * NODE_GENE_BIAS_DIVISOR);
 }

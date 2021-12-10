@@ -6,6 +6,8 @@
 #include <vector>
 #include "Network.h"
 
+#define NODE_GENE_BIAS_DIVISOR 8192.0f
+
 //forward declaration of Node class so that std::vector<Node> isn't seen as std::vector<error-type>
 class Node;
 //forward declaration of Genes so that we're clear to use them
