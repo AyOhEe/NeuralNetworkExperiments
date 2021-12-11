@@ -33,7 +33,7 @@ struct ConnectionGene
 	std::string ToString();
 
 	//appends this gene to a filestream
-	void AppendGene(std::ofstream &stream);
+	void AppendGene(std::ofstream &stream, bool verbose = false);
 };
 
 //a gene representing a node in a network
@@ -45,7 +45,7 @@ struct NodeGene
 	std::string ToString();
 
 	//appends this gene to a filestream
-	void AppendGene(std::ofstream &stream);
+	void AppendGene(std::ofstream &stream, bool verbose = false);
 };
 
 //a network composed of nodes and connections
@@ -73,13 +73,16 @@ public:
 	//creates a blank network
 	Network();
 
+	//destroys the network
+	~Network();
+
 	//returns the values of all of the output nodes
 	std::vector<float> GetResults();
 	//sets the values of all of the input nodes
 	void SetInputs(std::vector<float> &Inputs);
 
 	//saves the network to a file on disk
-	void SaveNetwork(std::string GenomePath);
+	void SaveNetwork(std::string GenomePath, bool verbose = false);
 };
 
 #endif

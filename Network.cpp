@@ -9,7 +9,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 	std::vector<NodeGene> NodeGenes;
 
 	//store the activation function
-	ActivationFunction = ActivationFunction;
+	this->ActivationFunction = ActivationFunction;
 
 	//create the file stream
 	std::ifstream GenomeReader(GenomePath, std::ios::in | std::ios::binary);
@@ -24,7 +24,8 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 
 	//start reading the genome
 	char byte;
-	int byteIndex = 0;
+	long long int byteIndex = 0;
+	unsigned char GeneBytes[4];
 	while (!GenomeReader.eof())
 	{
 		//get the start of the next gene
@@ -34,13 +35,12 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 		if (((byte & 0b10000000) >> 7) == 1)
 		{
 			//Node gene
-			unsigned char GeneBytes[2];
 
 			//get the rest of the gene
 			GeneBytes[0] = byte;
 			GenomeReader.get(byte);
 			GeneBytes[1] = byte;
-			byteIndex += 1;
+			byteIndex += 2;
 
             //exit if we find that we've overread
             if(GenomeReader.eof())
@@ -69,7 +69,6 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 		else
 		{
 			//Connection Gene
-			unsigned char GeneBytes[4];
 
 			//get the rest of the gene
 			GeneBytes[0] = byte;
@@ -79,7 +78,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 			GeneBytes[2] = byte;
 			GenomeReader.get(byte);
 			GeneBytes[3] = byte; //i shouldn't have to do this, but it ensures the byte is stored correctly
-			byteIndex += 3;
+			byteIndex += 4;
 
             //exit if we find that we've overread
             if(GenomeReader.eof())
@@ -108,7 +107,6 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 			//store the gene
 			ConnectionGenes.push_back(Gene);
 		}
-		byteIndex++;
 	}
 	//close the reader now that we've finished reading the file
 	GenomeReader.close();
@@ -179,7 +177,7 @@ std::vector<float> Network::GetResults()
 	for(std::vector<Node*>::iterator NodeIter = OutputNodes.begin(); NodeIter != OutputNodes.end(); NodeIter++)
 	{
 		//store the value for this node
-		Values.push_back((*NodeIter)->Value);
+		Values.push_back((*NodeIter)->CalculateValue(this));
 	}
 
 	//return the values we got
@@ -200,6 +198,18 @@ void Network::SetInputs(std::vector<float> &Inputs)
 			//set the value for this input node to it's corresponding input value
 			(*NodeIter)->Value = *InputIter;
 		}
+
+		//and also set all of our nodes and output nodes to need to recalculate their values
+		for (NodeIter = Nodes.begin(); NodeIter != Nodes.end(); NodeIter++) 
+		{
+			//tell this node that it needs to recalculate
+			(*NodeIter)->NeedsToRecalculate = true;
+		}
+		for (NodeIter = OutputNodes.begin(); NodeIter != OutputNodes.end(); NodeIter++)
+		{
+			//tell this node that it needs to recalculate
+			(*NodeIter)->NeedsToRecalculate = true;
+		}
 	}
 	else 
 	{
@@ -207,6 +217,32 @@ void Network::SetInputs(std::vector<float> &Inputs)
 		std::cout << "Invalid number of inputs to network" << std::endl;
 		throw std::runtime_error("Invalid number of inputs to network");
 	}
+}
+
+//destroys the network
+Network::~Network() 
+{
+	//iterate through all of the nodes and delete them
+	for (Node* Node : InputNodes) 
+	{
+		delete Node;
+	}
+	for (Node* Node : Nodes)
+	{
+		delete Node;
+	}
+	for (Node* Node : OutputNodes)
+	{
+		delete Node;
+	}
+	
+	//clear all of the pointer vectors
+	if(!InputNodes.empty())
+		InputNodes.clear();
+	if (!Nodes.empty())
+		Nodes.clear();
+	if (!OutputNodes.empty())
+		OutputNodes.clear();
 }
 
 //creates a blank network
@@ -224,7 +260,7 @@ Network::Network()
 }*/
 
 //saves the network to a file on disk
-void Network::SaveNetwork(std::string GenomePath) 
+void Network::SaveNetwork(std::string GenomePath, bool verbose)
 {
 	//open the file at the genome path
 	std::ofstream GenomeFile(GenomePath.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
@@ -240,10 +276,10 @@ void Network::SaveNetwork(std::string GenomePath)
 			ConnectionIter++) 
 		{
 			//save this connection in the file
-			ConnectionIter->AsGene(this, false, NodeIter - Nodes.begin()).AppendGene(GenomeFile);
+			ConnectionIter->AsGene(this, false, NodeIter - Nodes.begin()).AppendGene(GenomeFile, verbose);
 		}
 		//save this node in the file
-		(*NodeIter)->AsGene().AppendGene(GenomeFile);
+		(*NodeIter)->AsGene().AppendGene(GenomeFile, verbose);
 	}
 
 	//iterate through all of the output nodes in the network to save ONLY their connections
@@ -257,7 +293,7 @@ void Network::SaveNetwork(std::string GenomePath)
 			ConnectionIter++)
 		{
 			//save this connection in the file
-			ConnectionIter->AsGene(this, false, NodeIter - OutputNodes.begin()).AppendGene(GenomeFile);
+			ConnectionIter->AsGene(this, true, NodeIter - OutputNodes.begin()).AppendGene(GenomeFile, verbose);
 		}
 	}
 
@@ -286,13 +322,13 @@ std::string NodeGene::ToString()
 
 
 //appends this gene to a filestream
-void ConnectionGene::AppendGene(std::ofstream &stream) 
+void ConnectionGene::AppendGene(std::ofstream &stream, bool verbose)
 {
 	//get this gene as a byte array
-	unsigned char Gene[4];
+	unsigned char Gene[4] = {0, 0, 0, 0};
 
-	//get this gene's weight as an integer
-	int IntWeight = (int)(Weight * CONNECTION_GENE_WEIGHT_DIVISOR);
+	//get this gene's weight and sign as an integer
+	int IntWeight = roundl(abs(Weight * CONNECTION_GENE_WEIGHT_DIVISOR));
 
 	//store the gene's component parts in the byte array
 	Gene[0] += 0b01000000 * SourceType; // gene source type
@@ -301,28 +337,41 @@ void ConnectionGene::AppendGene(std::ofstream &stream)
 	Gene[1] += (SourceID & 0b00011111) << 3; // last 5 bits of source id
 	Gene[1] += (TargetID >> 7) & 0b00000111; // first 3 bits of target id
 	Gene[2] += (TargetID & 0b01111111) << 1; // last 7 bits of target id
-	Gene[2] += IntWeight < 0 ? 0b00000001 : 0; // sign of int weight
-	Gene[3] += IntWeight & 0b11111111; // all 8(9, but we exclude the sign here, so 8) bits of weight
+	Gene[2] += Weight < 0 ? 0b00000001 : 0; // sign of int weight
+	Gene[3] = (unsigned char)IntWeight; // and we can just store the rest of the weight here
 
 	//send the bytes to the stream
 	stream << Gene[0] << Gene[1] << Gene[2] << Gene[3];
+
+	if (verbose) 
+	{
+		std::cout << "Appended gene to file: " << ToString() << std::endl;
+		std::cout << "BIN: " << (int)Gene[0] << ", " << (int)Gene[1] << ", " << (int)Gene[2] << ", " << (int)Gene[3] << std::endl << std::endl;
+	}
 }
 
 //appends this gene to a filestream
-void NodeGene::AppendGene(std::ofstream &stream) 
+void NodeGene::AppendGene(std::ofstream &stream, bool verbose)
 {
 	//get this gene as a byte array
-	unsigned char Gene[2];
+	unsigned char Gene[2] = {0, 0};
 	
 	//get this gene's bias as an integer
-	int IntBias = (int)(Bias * NODE_GENE_BIAS_DIVISOR);
+	int IntBias = roundl(Bias * NODE_GENE_BIAS_DIVISOR);
 
 	//store the gene's component parts in the byte array
 	Gene[0] += 0b10000000; // this is a node gene
 	Gene[0] += IntBias < 0 ? 0b01000000 : 0; //sign bit
-	Gene[0] += (IntBias >> 8) & 0b00111111; // first 6 bits of the number
-	Gene[1] += IntBias & 0b11111111; // rest of the number
+	Gene[0] += (IntBias & 0b0011111100000000) >> 8; // first 6 bits of the number
+	Gene[1] += IntBias & 0b0000000011111111; // rest of the number
+
 
 	//send the bytes to the stream
 	stream << Gene[0] << Gene[1];
+
+	if (verbose)
+	{
+		std::cout << "Appended gene to file: " << ToString() << std::endl;
+		std::cout << "BIN: " << (int)Gene[0] << ", " << (int)Gene[1] << std::endl << std::endl; 
+	}
 }

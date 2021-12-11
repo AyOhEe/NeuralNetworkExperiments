@@ -7,7 +7,7 @@ Node::Node(NodeGene Gene)
 }
 
 //returns the value of this node(by calculation, if required)
-float Node::CalculateValue(Network &Network) 
+float Node::CalculateValue(Network *Network) 
 {
 	//do we need to recalculate this node's value?
 	if (NeedsToRecalculate) 
@@ -21,7 +21,7 @@ float Node::CalculateValue(Network &Network)
 			NewValue += iter->Weight * iter->Source->CalculateValue(Network);
 		}
 		//and put the sum through the activation function, along side this node's bias
-		NewValue = Bias + Network.ActivationFunction(Value);
+		NewValue = Bias + Network->ActivationFunction(Value);
 		
 		//store the new value as the actual value
 		Value = NewValue;
@@ -29,6 +29,16 @@ float Node::CalculateValue(Network &Network)
 
 	//return our value now that it's guaranteed to be correct
 	return Value;
+}
+
+//destroys the node and it's connections
+Node::~Node() 
+{
+	//clear the connections vector
+	if (!Connections.empty()) 
+	{
+		Connections.clear();
+	}
 }
 
 //constructs a connection from a gene
@@ -53,7 +63,7 @@ Connection::Connection(ConnectionGene Gene, Network &Network)
 }
 
 //returns this node as a gene
-NodeGene Node::AsGene() 
+NodeGene Node::AsGene()
 {
 	//the gene to return
 	NodeGene Gene;
@@ -66,7 +76,7 @@ NodeGene Node::AsGene()
 }
 
 //returns this connection as a gene
-ConnectionGene Connection::AsGene(Network *Network, bool TargetType, int TargetID) 
+ConnectionGene Connection::AsGene(Network *Network, bool TargetType, int TargetID)
 {
 	//the gene to return
 	ConnectionGene Gene;

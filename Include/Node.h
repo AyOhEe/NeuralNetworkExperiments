@@ -58,10 +58,13 @@ class Node
 public:
 
 	//returns the value of this node(by calculation, if required)
-	float CalculateValue(Network &Network);
+	float CalculateValue(Network *Network);
 
 	//constructs a node from a node gene
 	Node(NodeGene Gene);
+
+	//destroys the node and it's connections
+	~Node();
 
 	//returns this node as a gene
 	NodeGene AsGene();
