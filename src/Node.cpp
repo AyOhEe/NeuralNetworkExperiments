@@ -1,4 +1,4 @@
-#include "Include/Node.h"
+#include "../Include/Node.h"
 
 //constructs a node from a node gene
 Node::Node(NodeGene Gene) 

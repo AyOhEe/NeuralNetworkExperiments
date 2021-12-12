@@ -1,4 +1,4 @@
-#include "Include/Network.h"
+#include "../Include/Network.h"
 #include <math.h>
 
 //returns sigmoid(x)

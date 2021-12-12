@@ -1,4 +1,4 @@
-#include "Include/Network.h"
+#include "../Include/Network.h"
 
 //creates a network based on the .genome file at GenomePath
 Network::Network(std::string GenomePath, int inputs, int outputs, float (*ActivationFunction)(float), bool Verbose) : Nodes(), InputNodes(), OutputNodes()
