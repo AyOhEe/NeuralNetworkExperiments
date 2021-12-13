@@ -75,7 +75,7 @@ def _norm_weight(x):
 #class for reading and constructing a network from a genome
 class GenomeReader:
     #read the genome file at path and extract the genes
-    def __init__(self, path, inputs, outputs):
+    def __init__(self, path, filename, inputs, outputs):
         #start the graph
         g = igraph.Graph().as_directed()
 
@@ -124,7 +124,7 @@ class GenomeReader:
                 color=((1 - _norm_weight(gene[4])) / 2, (_norm_weight(gene[4]) + 1) / 2, 0))
 
         #plot the graph and save it as a file
-        igraph.plot(g, f"../GenomeGrapher/Renders/{path}.svg", edge_curved=True, bbox=(500,500), margin=64, layout="kamada_kawai")
+        igraph.plot(g, f"../GenomeGrapher/Renders/{filename}.svg", edge_curved=True, bbox=(500,500), margin=64, layout="kamada_kawai")
 
 
 if __name__ == "__main__":
@@ -149,4 +149,4 @@ if __name__ == "__main__":
     #once we've escaped the loop we have a valid choice
     print(f"Genome Selected: {genome_paths[selection]}")
 
-    reader = GenomeReader(GENOME_DIR + genome_paths[selection], 2, 1)
+    reader = GenomeReader(GENOME_DIR + genome_paths[selection], genome_paths[selection], 2, 1)
