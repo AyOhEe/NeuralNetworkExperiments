@@ -13,7 +13,7 @@ class BinaryReader:
 
         #initialize variables
         self.current_byte = self.file.read(1)
-        self.bits_left = 
+        self.bits_left = 8
 
     #reads n_bite bits from the open file
     def read(self, n_bits=1):
