@@ -18,3 +18,8 @@ class BinaryReader:
     #reads n_bite bits from the open file
     def read(self, n_bits=1):
         pass
+
+    #close the file for this reader
+    def close(self):
+        #close the file
+        self.file.close()
