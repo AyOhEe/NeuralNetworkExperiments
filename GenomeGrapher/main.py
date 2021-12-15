@@ -87,7 +87,6 @@ class GenomeReader:
         connection_genes = []
         for gene_type, gene in _iterate_genes(path):
             #the gene type determines our next step
-            print(gene)
             if gene_type:
                 #node gene. add a vertex to the graph
                 color = (0, (gene[0] / 4), 0) if gene[0] > 0 else ((gene[0] / 4), 0, 0)
@@ -114,17 +113,16 @@ class GenomeReader:
                 target_index = (len(g.vs) - outputs) + (gene[3] % outputs)
             else:
                 target_index = inputs + (gene[3] % (len(g.vs) - inputs))
-            print(source_index, target_index, gene[4])
             #add an edge between the appropriate vertices with the correct weight
             g.add_edge(
                 source_index,
                 target_index,
                 weight=gene[4],
-                arrow_width=abs(gene[4]),
+                arrow_width=abs(gene[4]) + 0.001,
                 color=((1 - _norm_weight(gene[4])) / 2, (_norm_weight(gene[4]) + 1) / 2, 0))
 
         #plot the graph and save it as a file
-        igraph.plot(g, f"../GenomeGrapher/Renders/{filename}.svg", edge_curved=True, bbox=(500,500), margin=64, layout="kamada_kawai")
+        igraph.plot(g, f"Renders/{filename}.svg", edge_curved=True, bbox=(500,500), margin=64, layout="fruchterman_reingold")
 
 
 if __name__ == "__main__":
