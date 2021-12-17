@@ -29,7 +29,6 @@ class BinaryReader:
             as_byte = self.file.read(1) #read in a byte
             if as_byte == b"": #check if the byte is empty
                 #yep, it's empty. close the file and exit
-                print("LN32")
                 self._open = False
                 return 0
 

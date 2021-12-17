@@ -31,13 +31,10 @@ def _iterate_genes(path):
 
             #yield the gene
             if br.open():
-                print("LN34")
                 yield gene_type, (bias,)
             else:
-                print("LN37")
                 break
         else: #connection gene
-            print("LN40")
             #separate the gene into it's component parts
             source_type = br.read(1)
             target_type = br.read(1)
@@ -47,10 +44,8 @@ def _iterate_genes(path):
 
             #yield the gene
             if br.open():
-                print("LN47")
                 yield gene_type, (source_type, target_type, source_id, target_id, weight)
             else:
-                print("LN50")
                 break
     #we're finished with this file. close it and return
     br.close()
@@ -74,7 +69,6 @@ class GenomeReader:
         #iterate through the genes in the file
         connection_genes = []
         for gene_type, gene in _iterate_genes(path):
-            print(gene_type, gene)
             #the gene type determines our next step
             if gene_type:
                 #node gene. add a vertex to the graph
