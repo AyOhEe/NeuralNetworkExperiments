@@ -6,6 +6,7 @@ Graphs a .genome file and stores the resulting graph as a .svg image
 
 import igraph
 import os
+from binaryreader import BinaryReader
 
 NODE_GENE_BIAS_DIVISOR = 8192.0
 CONN_GENE_WEIGHT_DIVISOR = 128.0
@@ -13,59 +14,46 @@ CONN_GENE_WEIGHT_DIVISOR = 128.0
 #iterates through the genes found in the file open in filestream
 def _iterate_genes(path):
     #open the file
-    file_stream = open(path, "rb")
+    br = BinaryReader(path)
 
     #guard clause: make sure we don't continue with an invalid stream
-    if not file_stream:
+    if not br.open():
         return
 
     #read until the file is empty
-    byte = b""
-    try:
-        while (byte := file_stream.read(1)) != b"":
-            #we're only interested in the first(only) byte we read
-            byte = byte[0]
+    while br.open():
+        #determine the type of the gene
+        bit = br.read(1)
+        gene_type = bit == 1
+        if gene_type: # node gene
+            #get the bias
+            bias = br.read(15) / NODE_GENE_BIAS_DIVISOR
 
-            #determine the type of the gene
-            gene_type = (byte & 0x80) == 0x80
-            if gene_type: # node gene
-                #get all the bytes for this gene
-                gene_bytes = [byte] #store the single byte we already have
-                additional_bytes = file_stream.read(1) #read in the rest of the bytes
-                if additional_bytes != b"": #append them, only if we actually read something
-                    gene_bytes += additional_bytes
-                else: #invalid gene, we've reached the end of the file
-                    return
-
-                #separate the gene into its component parts
-                bias = ((int(gene_bytes[0] & 0x7F) << 8) + int(gene_bytes[1])) / NODE_GENE_BIAS_DIVISOR
-
-                #yield the gene
+            #yield the gene
+            if br.open():
+                print("LN34")
                 yield gene_type, (bias,)
-            else: #connection gene
-                #get all the bytes for this gene
-                gene_bytes = [byte] #store the single byte we already have
-                additional_bytes = file_stream.read(3) #read in the rest of the bytes
-                if additional_bytes != b"": #append them, only if we actually read something
-                    gene_bytes += additional_bytes
-                else: #invalid gene, we've reached the end of the file
-                    return
+            else:
+                print("LN37")
+                break
+        else: #connection gene
+            print("LN40")
+            #separate the gene into it's component parts
+            source_type = br.read(1)
+            target_type = br.read(1)
+            source_id = br.read(10)
+            target_id = br.read(10)
+            weight = ((-1 if (br.read(1) == 1) else 1) * br.read(8)) / CONN_GENE_WEIGHT_DIVISOR
 
-                #separate the gene into it's component parts
-                source_type = (gene_bytes[0] & 0x40) == 0x40
-                target_type = (gene_bytes[0] & 0x20) == 0x20
-                source_id = ((gene_bytes[0] & 0x1F) << 5) + ((gene_bytes[1] & 0xF8) >> 3)
-                target_id = ((gene_bytes[1] & 0x07) << 7) + ((gene_bytes[2] & 0xFE) >> 1)
-                weight = ((-1 if (gene_bytes[2] & 0x01) else 1) * gene_bytes[3]) / CONN_GENE_WEIGHT_DIVISOR
-
-                #yield the gene
+            #yield the gene
+            if br.open():
+                print("LN47")
                 yield gene_type, (source_type, target_type, source_id, target_id, weight)
-    except IndexError:
-        #end of file, we couldn't read another byte.
-        #we can just silently ignore this and continue without finishing that gene.
-        pass
+            else:
+                print("LN50")
+                break
     #we're finished with this file. close it and return
-    file_stream.close()
+    br.close()
     return
 
 #returns the normalised weight of weight x
@@ -86,6 +74,7 @@ class GenomeReader:
         #iterate through the genes in the file
         connection_genes = []
         for gene_type, gene in _iterate_genes(path):
+            print(gene_type, gene)
             #the gene type determines our next step
             if gene_type:
                 #node gene. add a vertex to the graph
