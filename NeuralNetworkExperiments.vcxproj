@@ -25,6 +25,7 @@
     <None Include="config.json" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\BinaryReader.h" />
     <ClInclude Include="Include\json.hpp" />
     <ClInclude Include="Include\Network.h" />
     <ClInclude Include="Include\Node.h" />

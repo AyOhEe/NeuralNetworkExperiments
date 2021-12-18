@@ -1,7 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 /* Network.H
- * Contains the `Node` Class and a Connection class
+ * Contains the `Node` Class and a Connection and Node class
  */
 #include <vector>
 #include <algorithm>
