@@ -5,6 +5,12 @@
  */
 
 #include <fstream>
+#include <math.h>
+
+//ensure that we always have a valid int type
+#ifndef BR_RETURN_INT_TYPE
+#define BR_RETURN_INT_TYPE int
+#endif
 
 //acts like a regular filestream, but returns bits at a time instead of bytes
 class BinaryReader
@@ -12,22 +18,22 @@ class BinaryReader
 	//the filestream for this object
 	std::ifstream filestream;
 
-	char RemainderByte; //the byte left over from the last read
+	char* RemainderByte; //the byte left over from the last read
 	int BitsRemaining; //the bits left in RemainderByte
 
 public:
 
 	//reads in bits bits
-	char* Read(int bits);
+	BR_RETURN_INT_TYPE Read(unsigned BR_RETURN_INT_TYPE bits);
 
 	//ifstream functions
-	bool good() { return filestream.good(); }
-	bool eof() { return filestream.eof(); }
-	bool fail() { return filestream.fail(); }
-	bool bad() { return filestream.bad(); }
+	bool good();
+	bool eof();
+	bool fail();
+	bool bad();
 	//operators
-	operator bool() { return filestream.operator bool; }
-	bool operator!() { return filestream.operator!; }
+	operator bool();
+	bool operator!();
 };
 
 #endif
