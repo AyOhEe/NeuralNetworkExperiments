@@ -12,6 +12,7 @@
 #include <math.h>
 
 #include "Node.h"
+#include "BinaryReader.h"
 
 #define NODE_GENE_BIAS_DIVISOR 8192.0f
 #define CONNECTION_GENE_WEIGHT_DIVISOR 128.0f

@@ -12,7 +12,8 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 	this->ActivationFunction = ActivationFunction;
 
 	//create the file stream
-	std::ifstream GenomeReader(GenomePath, std::ios::in | std::ios::binary);
+	//std::ifstream GenomeReader(GenomePath, std::ios::in | std::ios::binary);
+	BinaryReader GenomeReader(GenomePath);
 	//did we successfully open the genome file	?
 	if (!GenomeReader)
 	{
@@ -23,44 +24,29 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 	}
 
 	//start reading the genome
-	char byte;
-	long long int byteIndex = 0;
-	unsigned char GeneBytes[4];
 	while (!GenomeReader.eof())
 	{
 		//get the start of the next gene
-        GenomeReader.get(byte);
+        bool GeneType = GenomeReader.Read(1) == 1;
 
 		//decide what we should do based on the gene type(True: Node, False: Connection)
-		if (((byte & 0b10000000) >> 7) == 1)
+		if (GeneType)
 		{
 			//Node gene
 
-			//get the rest of the gene
-			GeneBytes[0] = byte;
-			GenomeReader.get(byte);
-			GeneBytes[1] = byte;
-			byteIndex += 2;
-
-            //exit if we find that we've overread
-            if(GenomeReader.eof())
-            {
-                //we've overread. we can ignore this gene as it's incomplete
-                break;
-            }
-
-			if (Verbose) 
-			{
-				std::cout << "Found Node gene at byte " << byteIndex << "-" << byteIndex + 1 << std::endl;
-				std::cout << (int)GeneBytes[0] << " " << (int)GeneBytes[1] << std::endl;
-			}
-
 			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
 			NodeGene Gene;
-			Gene.Bias = (((GeneBytes[0] & 0b01111111) << 8) + GeneBytes[1]) / NODE_GENE_BIAS_DIVISOR;
+			Gene.Bias = GenomeReader.Read(15) / NODE_GENE_BIAS_DIVISOR;
 			if (Verbose) 
 			{
-				std::cout << "Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
+				std::cout << "Node Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
+			}
+
+			//exit if we find that we've overread
+			if (GenomeReader.eof())
+			{
+				//we've overread. we can ignore this gene as it's incomplete
+				break;
 			}
 
 			//store the gene
@@ -70,38 +56,23 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 		{
 			//Connection Gene
 
-			//get the rest of the gene
-			GeneBytes[0] = byte;
-			GenomeReader.get(byte);
-			GeneBytes[1] = byte;
-			GenomeReader.get(byte);
-			GeneBytes[2] = byte;
-			GenomeReader.get(byte);
-			GeneBytes[3] = byte; //i shouldn't have to do this, but it ensures the byte is stored correctly
-			byteIndex += 4;
-
-            //exit if we find that we've overread
-            if(GenomeReader.eof())
-            {
-                //we've overread. we can ignore this gene as it's incomplete
-                break;
-            }
-			if (Verbose)
-			{
-				std::cout << "Found Connection gene at byte " << byteIndex << "-" << byteIndex + 3 << std::endl;
-				std::cout << (int)GeneBytes[0] << " " << (int)GeneBytes[1] << " " << (int)GeneBytes[2] << " " << (int)GeneBytes[3] << std::endl;
-			}
-
 			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
 			ConnectionGene Gene;
-			Gene.SourceType = (GeneBytes[0] & 0b01000000) == 0b01000000;
-			Gene.TargetType = (GeneBytes[0] & 0b00100000) == 0b00100000;
-			Gene.SourceID = ((GeneBytes[0] & 0b00011111) << 5) + ((GeneBytes[1] & 0b11111000) >> 3);
-			Gene.TargetID = ((GeneBytes[1] & 0b00000111) << 7) + ((GeneBytes[2] & 0b11111110) >> 1);
-			Gene.Weight = ((GeneBytes[2] & 0b00000001) == 0b00000001 ? -1 : 1) * (GeneBytes[3] / CONNECTION_GENE_WEIGHT_DIVISOR);
+			Gene.SourceType = GenomeReader.Read(1) == 1;
+			Gene.TargetType = GenomeReader.Read(1) == 1;
+			Gene.SourceID = GenomeReader.Read(10);
+			Gene.TargetID = GenomeReader.Read(10);
+			Gene.Weight = GenomeReader.Read(9) / CONNECTION_GENE_WEIGHT_DIVISOR;
 			if (Verbose)
 			{
-				std::cout << "Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
+				std::cout << "Connection Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
+			}
+
+			//exit if we find that we've overread
+			if (GenomeReader.eof())
+			{
+				//we've overread. we can ignore this gene as it's incomplete
+				break;
 			}
 
 			//store the gene
