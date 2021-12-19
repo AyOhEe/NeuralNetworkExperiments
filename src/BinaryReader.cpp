@@ -1,5 +1,7 @@
 #include "../Include/BinaryReader.h"
 
+#include <iostream>
+
 //open a binary reader at path
 BinaryReader::BinaryReader(std::string filepath)
 {
@@ -28,33 +30,41 @@ BinaryReader::operator bool() { return filestream ? true : false; }
 bool BinaryReader::operator!() { return !filestream; }
 
 //reads in bits bits
-BR_RETURN_INT_TYPE BinaryReader::Read(unsigned BR_RETURN_INT_TYPE bits)
+BR_RETURN_INT_TYPE BinaryReader::Read(unsigned int bits)
 {
+
+	std::cout << "READ WITH _ BITS REMAINING : " << BitsRemaining << std::endl;
+
 	//do we have remainder bits?
 	if (BitsRemaining <= 0) 
 	{
 		//no, read in a new remainder byte
 		filestream.read(RemainderByte, 1);
+		std::cout << (int)(*RemainderByte) << std::endl;
 		BitsRemaining = 8;
+		std::cout << "REMAINDER INSUFFICIENT" << std::endl;
 	}
 
 	//evaluate how many bits we are required to read in
 	int requiredNewBits = bits - BitsRemaining;
+	std::cout << bits << " - " << BitsRemaining << " = " << requiredNewBits << std::endl;
 
 	//do we already have enough bits?
 	if (requiredNewBits <= 0) 
 	{
 		//yes, return the required number of bits
-		int result = *RemainderByte & (int)(pow(2, bits) - 1); // mask the remainder
+		BR_RETURN_INT_TYPE result = (unsigned int)*RemainderByte & (int)(pow(2, bits) - 1); // mask the remainder
 		*RemainderByte >>= bits; // shift the remainder
 		BitsRemaining -= bits; // lower the remainder count
+		std::cout << "RETURNING " << result << std::endl << std::endl;
 		return result;
 	}
 
 	//determine how many bytes we have to read in
 	int requiredNewBytes = (int)ceil(requiredNewBits / 8.0);
+	std::cout << "REQUIRE _ BYTES, _ BITS: " << requiredNewBytes << ", " << requiredNewBits << std::endl;
 	//allocate space for and read in the new bytes
-	char* newBytes = (char*)malloc(sizeof(char) * requiredNewBytes);
+	char* newBytes = new char[requiredNewBytes];
 	filestream.read(newBytes, requiredNewBytes); 
 
 	//begin answer construction
@@ -67,15 +77,18 @@ BR_RETURN_INT_TYPE BinaryReader::Read(unsigned BR_RETURN_INT_TYPE bits)
 	//iterate through the data
 	for (int i = 0; i < requiredNewBytes; i++) 
 	{
+		std::cout << (int)(newBytes[i]) << std::endl;
+
 		//make room for the next byte
 		result <<= 8;
 		//add the next byte
-		result += (int)newBytes[i];
+		result += (unsigned int)(newBytes[i]);
 	}
 
 	//free up the space we allocated for the data
-	free((void*)newBytes);
+	delete[] newBytes;
 
 	//return the result
+	std::cout << "RETURNING " << result << std::endl << std::endl;
 	return result;
 }

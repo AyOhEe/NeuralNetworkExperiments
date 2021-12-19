@@ -9,7 +9,7 @@
 
 //ensure that we always have a valid int type
 #ifndef BR_RETURN_INT_TYPE
-#define BR_RETURN_INT_TYPE int
+#define BR_RETURN_INT_TYPE unsigned int
 #endif
 
 //acts like a regular filestream, but returns bits at a time instead of bytes
@@ -29,7 +29,7 @@ public:
 	~BinaryReader();
 
 	//reads in bits bits
-	BR_RETURN_INT_TYPE Read(unsigned BR_RETURN_INT_TYPE bits);
+	BR_RETURN_INT_TYPE Read(unsigned int bits);
 
 	//ifstream functions
 	bool good();

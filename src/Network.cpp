@@ -27,7 +27,9 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 	while (!GenomeReader.eof())
 	{
 		//get the start of the next gene
-        bool GeneType = GenomeReader.Read(1) == 1;
+		int bit = GenomeReader.Read(1);
+		std::cout << bit << std::endl;
+        bool GeneType = bit == 1;
 
 		//decide what we should do based on the gene type(True: Node, False: Connection)
 		if (GeneType)
