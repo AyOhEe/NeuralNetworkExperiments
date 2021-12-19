@@ -23,6 +23,9 @@ class BinaryReader
 
 public:
 
+	//open a binary reader at path
+	BinaryReader(std::string filepath);
+
 	//reads in bits bits
 	BR_RETURN_INT_TYPE Read(unsigned BR_RETURN_INT_TYPE bits);
 

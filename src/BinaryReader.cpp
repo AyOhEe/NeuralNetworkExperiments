@@ -1,5 +1,12 @@
 #include "../Include/BinaryReader.h"
 
+//open a binary reader at path
+BinaryReader::BinaryReader(std::string filepath)
+{
+	//open the filestream
+	filestream = std::ifstream(filepath, std::ios::binary | std::ios::in);
+}
+
 //ifstream functions
 bool BinaryReader::good() { return filestream.good(); }
 bool BinaryReader::eof() { return filestream.eof(); }
@@ -10,7 +17,7 @@ BinaryReader::operator bool() { return filestream.operator bool; }
 bool BinaryReader::operator!() { return filestream.operator!; }
 
 //reads in bits bits
-int BinaryReader::Read(unsigned int bits) 
+BR_RETURN_INT_TYPE BinaryReader::Read(unsigned BR_RETURN_INT_TYPE bits)
 {
 	//do we have remainder bits?
 	if (BitsRemaining <= 0) 
