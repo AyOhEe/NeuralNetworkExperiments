@@ -24,8 +24,8 @@ bool BinaryReader::fail() { return filestream.fail(); }
 bool BinaryReader::bad() { return filestream.bad(); }
 void BinaryReader::close() { filestream.close(); }
 //operators
-BinaryReader::operator bool() { return filestream.operator bool; }
-bool BinaryReader::operator!() { return filestream.operator!; }
+BinaryReader::operator bool() { return filestream ? true : false; }
+bool BinaryReader::operator!() { return !filestream; }
 
 //reads in bits bits
 BR_RETURN_INT_TYPE BinaryReader::Read(unsigned BR_RETURN_INT_TYPE bits)
@@ -52,13 +52,13 @@ BR_RETURN_INT_TYPE BinaryReader::Read(unsigned BR_RETURN_INT_TYPE bits)
 	}
 
 	//determine how many bytes we have to read in
-	int requiredNewBytes = ceil(requiredNewBits / 8.0);
+	int requiredNewBytes = (int)ceil(requiredNewBits / 8.0);
 	//allocate space for and read in the new bytes
 	char* newBytes = (char*)malloc(sizeof(char) * requiredNewBytes);
 	filestream.read(newBytes, requiredNewBytes); 
 
 	//begin answer construction
-	BR_RETURN_INT_TYPE result;
+	BR_RETURN_INT_TYPE result = 0;
 
 	//start with all of the remainder bits
 	result += (int)RemainderByte;

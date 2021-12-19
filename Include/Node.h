@@ -4,7 +4,6 @@
  * Contains the `Node` Class and a Connection and Node class
  */
 #include <vector>
-#include <algorithm>
 
 #include "Network.h"
 

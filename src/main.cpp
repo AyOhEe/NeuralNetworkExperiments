@@ -1,10 +1,13 @@
 #include "../Include/Network.h"
+
 #include <math.h>
+#include <iostream>
+#include <vector>
 
 //returns sigmoid(x)
 float Sigmoid(float x) 
 {
-	return 1 / (1 + pow(2.718, -x));
+	return (float)(1 / (1 + pow(2.718, -x)));
 }
 
 int main()

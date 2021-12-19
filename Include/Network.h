@@ -5,11 +5,9 @@
  */
 
 #include <string>
-#include <fstream>
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include <math.h>
 
 #include "Node.h"
 #include "BinaryReader.h"
