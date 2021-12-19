@@ -5,6 +5,16 @@ BinaryReader::BinaryReader(std::string filepath)
 {
 	//open the filestream
 	filestream = std::ifstream(filepath, std::ios::binary | std::ios::in);
+	//allocate RemainderByte
+	RemainderByte = (char*)malloc(sizeof(char));
+}
+//destroy the binary reader
+BinaryReader::~BinaryReader() 
+{
+	//close the filestream
+	filestream.close();
+	//free the RemainderByte
+	free(RemainderByte);
 }
 
 //ifstream functions
@@ -12,6 +22,7 @@ bool BinaryReader::good() { return filestream.good(); }
 bool BinaryReader::eof() { return filestream.eof(); }
 bool BinaryReader::fail() { return filestream.fail(); }
 bool BinaryReader::bad() { return filestream.bad(); }
+void BinaryReader::close() { filestream.close(); }
 //operators
 BinaryReader::operator bool() { return filestream.operator bool; }
 bool BinaryReader::operator!() { return filestream.operator!; }

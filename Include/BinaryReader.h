@@ -34,6 +34,7 @@ public:
 	bool eof();
 	bool fail();
 	bool bad();
+	void close();
 	//operators
 	operator bool();
 	bool operator!();
