@@ -32,21 +32,21 @@ bool BinaryReader::operator!() { return !filestream; }
 //reads in bits bits
 BR_RETURN_INT_TYPE BinaryReader::Read(unsigned int bits)
 {
-	std::cout << "READ WITH _ BITS REMAINING AND REMAINDER _ : " << BitsRemaining << ", " << (unsigned int)RemainderByte << std::endl;
+	//std::cout << "READ WITH _ BITS REMAINING AND REMAINDER _ : " << BitsRemaining << ", " << (unsigned int)RemainderByte << std::endl;
 
 	//do we have remainder bits?
 	if (BitsRemaining <= 0) 
 	{
 		//no, read in a new remainder byte
 		filestream.read((char*)&RemainderByte, 1);
-		std::cout << (unsigned int)RemainderByte << std::endl;
+		//std::cout << (unsigned int)RemainderByte << std::endl;
 		BitsRemaining = 8;
-		std::cout << "REMAINDER INSUFFICIENT" << std::endl;
+		//std::cout << "REMAINDER INSUFFICIENT" << std::endl;
 	}
 
 	//evaluate how many bits we are required to read in
 	int requiredNewBits = bits - BitsRemaining;
-	std::cout << bits << " - " << BitsRemaining << " = " << requiredNewBits << std::endl;
+	//std::cout << bits << " - " << BitsRemaining << " = " << requiredNewBits << std::endl;
 
 	//do we already have enough bits?
 	if (requiredNewBits <= 0) 
@@ -55,13 +55,13 @@ BR_RETURN_INT_TYPE BinaryReader::Read(unsigned int bits)
 		BR_RETURN_INT_TYPE result = (RemainderByte >> (8 - bits)); // mask the remainder
 		RemainderByte <<= bits; // shift the remainder
 		BitsRemaining -= bits; // lower the remainder count
-		std::cout << "EARLY RETURNING " << result << std::endl << std::endl;
+		//std::cout << "EARLY RETURNING " << result << std::endl << std::endl;
 		return result;
 	}
 
 	//determine how many bytes we have to read in
 	int requiredNewBytes = (int)ceil(requiredNewBits / 8.0);
-	std::cout << "REQUIRE _ BYTES, _ BITS: " << requiredNewBytes << ", " << requiredNewBits << std::endl;
+	//std::cout << "REQUIRE _ BYTES, _ BITS: " << requiredNewBytes << ", " << requiredNewBits << std::endl;
 	//allocate space for and read in the new bytes
 	unsigned char* newBytes = new unsigned char[requiredNewBytes];
 	filestream.read((char*)newBytes, requiredNewBytes); 
@@ -71,13 +71,13 @@ BR_RETURN_INT_TYPE BinaryReader::Read(unsigned int bits)
 
 	//start with all of the remainder bits
 	result += RemainderByte >> (8 - BitsRemaining);
-	std::cout << "STARTING RESULT AS " << result << std::endl;
+	//std::cout << "STARTING RESULT AS " << result << std::endl;
 	BitsRemaining = 0;
 
 	//iterate through the data(excluding the last byte)
 	for (int i = 0; i < requiredNewBytes - 1; i++) 
 	{
-		std::cout << (int)(newBytes[i]) << std::endl;
+		//std::cout << (int)(newBytes[i]) << std::endl;
 
 		//make room for the next byte
 		result <<= 8;
@@ -86,7 +86,7 @@ BR_RETURN_INT_TYPE BinaryReader::Read(unsigned int bits)
 	}
 	//calculate how many more bits we need
 	int FinalRequiredBits = requiredNewBits - ((requiredNewBytes - 1) * 8);
-	std::cout << "REQUIRE " << FinalRequiredBits << " BITS AT END" << std::endl;
+	//std::cout << "REQUIRE " << FinalRequiredBits << " BITS AT END" << std::endl;
 	//add on those bits
 	result <<= FinalRequiredBits;
 	result += newBytes[requiredNewBytes - 1] >> (8 - FinalRequiredBits);
@@ -99,6 +99,6 @@ BR_RETURN_INT_TYPE BinaryReader::Read(unsigned int bits)
 	delete[] newBytes;
 
 	//return the result
-	std::cout << "LATE RETURNING " << result << std::endl << std::endl;
+	//std::cout << "LATE RETURNING " << result << std::endl << std::endl;
 	return result;
 }
