@@ -18,7 +18,7 @@ class BinaryReader
 	//the filestream for this object
 	std::ifstream filestream;
 
-	char* RemainderByte; //the byte left over from the last read
+	unsigned char RemainderByte; //the byte left over from the last read
 	int BitsRemaining; //the bits left in RemainderByte
 
 public:
