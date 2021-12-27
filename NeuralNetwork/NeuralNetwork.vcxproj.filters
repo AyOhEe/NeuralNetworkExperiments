@@ -20,11 +20,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.json">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Include\Network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
