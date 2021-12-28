@@ -47,6 +47,9 @@ struct NodeGene
 	void AppendGene(std::ofstream &stream, bool verbose = false);
 };
 
+//TODO: this function
+float(*GetActivationFunctionPointer)(int Index);
+
 //a network composed of nodes and connections
 class Network 
 {
@@ -65,6 +68,7 @@ public:
 
     //creates a network based on the .genome file at GenomePath
 	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose = false);
+	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
 
 	//creates a network from a pre-existing vector of Node and Connection Genes
 	Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, int inputs, int outputs, float(*ActivationFunction)(float));

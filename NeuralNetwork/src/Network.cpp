@@ -1,6 +1,13 @@
 #include "../Include/Network.h"
 
 //creates a network based on the .genome file at GenomePath
+Network::Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose)
+	: Network(GenomePath, inputs, outputs, GetActivationFunctionPointer(ActivationFunctionIndex), Verbose) 
+{
+	//this can actually have an empty body, we're done here
+}
+
+//creates a network based on the .genome file at GenomePath
 Network::Network(std::string GenomePath, int inputs, int outputs, float (*ActivationFunction)(float), bool Verbose) : Nodes(), InputNodes(), OutputNodes()
 {
 	//all of the connection genes in this network
