@@ -18,17 +18,17 @@ class Network;
 //a connection between two nodes in a network
 class Connection
 {
-	//nodes require full access to connections
-	friend Node;
-
+public:
 	//the weight of this connection
 	float Weight;
 
 	//the source node of this connection
 	Node* Source;
-public:
+
 	//constructs a connection from a gene
 	Connection(ConnectionGene Gene, Network &Network);
+	//constructs a connection from a weight and a source node
+	Connection(float weight, Node* source);
 	
 	//returns this connection as a gene
 	ConnectionGene AsGene(Network *Network, bool TargetType, int TargetID);
@@ -61,6 +61,8 @@ public:
 
 	//constructs a node from a node gene
 	Node(NodeGene Gene);
+	//constructs the node from a bias
+	Node(float Bias);
 
 	//destroys the node and it's connections
 	~Node();

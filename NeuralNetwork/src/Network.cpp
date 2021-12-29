@@ -231,6 +231,7 @@ Network::Network()
 
 }
 
+//TODO: this
 //creates a network from a pre-existing vector of Node and Connection Genes
 /*Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, float (*ActivationFunction)(float))
 {
@@ -356,14 +357,218 @@ void NodeGene::AppendGene(std::ofstream &stream, bool verbose)
 	}
 }
 
-//the number of inputs and outputs in the network
-int Network::Inputs() 
+//the number of inputs, outputs and nodes in the network
+int Network::InputCount() 
 {
 	return InputNodes.size();
 }
-int Network::Outputs() 
+int Network::OutputCount() 
 {
 	return OutputNodes.size();
+}
+int Network::NodeCount()
+{
+	return Nodes.size();
+}
+
+//adds a node between a connectionto the network
+bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex, float bias) 
+{
+	//ensure the target node index is valid
+	if (TargetNodeIndex > NodeCount() + OutputCount()) 
+	{
+		//invalid, exit out
+		return false;
+	}
+
+	//get the source node
+	Node* Target;
+	if (TargetNodeIndex > NodeCount()) 
+	{
+		Target = OutputNodes[TargetNodeIndex - NodeCount()];
+	}
+	else 
+	{
+		Target = Nodes[TargetNodeIndex];
+	}
+
+	//ensure the connection index is valid
+	if (ConnectionIndex > Target->Connections.size()) 
+	{
+		//invalid, exit out
+		return false;
+	}
+
+	//get the connection
+	Connection OldConnection = Target->Connections[ConnectionIndex % Target->Connections.size()];
+
+	//create the new node and add it to the nodes vector
+	Node* NewNode = new Node(bias);
+	Nodes.push_back(NewNode);
+
+	//create a new connection with the source of the old connection
+	NewNode->Connections.push_back(Connection(1, OldConnection.Source));
+	//set the source of the old connection to the new node
+	OldConnection.Source = NewNode;
+
+	//we completed the operation okay, return true
+	return true;
+}
+//adds a connection between nodes to the network
+bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex, float weight) 
+{
+	//ensure the source node index is valid
+	if (SourceNodeIndex > InputCount() + NodeCount())
+	{
+		//invalid, exit out
+		return false;
+	}
+	//ensure the target node index is valid
+	if (TargetNodeIndex > NodeCount() + OutputCount())
+	{
+		//invalid, exit out
+		return false;
+	}
+
+	//get the source node
+	Node* Source;
+	if (SourceNodeIndex > InputCount())
+	{
+		Source = Nodes[SourceNodeIndex - InputCount()];
+	}
+	else
+	{
+		Source = InputNodes[SourceNodeIndex];
+	}
+	//get the target node
+	Node* Target;
+	if (TargetNodeIndex > NodeCount())
+	{
+		Target = OutputNodes[TargetNodeIndex - NodeCount()];
+	}
+	else
+	{
+		Target = Nodes[TargetNodeIndex];
+	}
+
+	//create the connection and add it to the target node
+	Target->Connections.push_back(Connection(weight, Source));
+
+	//we completed the operation okay, return true
+	return true;
+}
+
+//gets the bias of a node
+float Network::GetNodeBias(int NodeIndex) 
+{
+	//ensure the node index is valid
+	if (NodeIndex > NodeCount())
+	{
+		//invalid, exit out
+		return 0;
+	}
+
+	//get the node and return it's bias
+	return Nodes[NodeIndex]->Bias;
+}
+//sets the bias of a node
+void Network::SetNodeBias(int NodeIndex, float bias) 
+{
+	//ensure the node index is valid
+	if (NodeIndex > NodeCount())
+	{
+		//invalid, exit out
+		return;
+	}
+
+	//get the node and set it's bias
+	Nodes[NodeIndex - NodeCount()]->Bias = bias;
+}
+//get the total number of connections into a node
+int Network::GetTotalNodeConnections(int TargetNodeIndex) 
+{
+	//ensure the target node index is valid
+	if (TargetNodeIndex > NodeCount() + OutputCount())
+	{
+		//invalid, exit out
+		return -1;
+	}
+
+	//get the target node
+	Node* Target;
+	if (TargetNodeIndex > NodeCount())
+	{
+		Target = OutputNodes[TargetNodeIndex - NodeCount()];
+	}
+	else
+	{
+		Target = Nodes[TargetNodeIndex];
+	}
+
+	//return it's number of connections
+	return Target->Connections.size();
+}
+//gets the weight of a connection
+float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex) 
+{
+	//ensure the target node index is valid
+	if (TargetNodeIndex > NodeCount() + OutputCount())
+	{
+		//invalid, exit out
+		return 0;
+	}
+
+	//get the target node
+	Node* Target;
+	if (TargetNodeIndex > NodeCount())
+	{
+		Target = OutputNodes[TargetNodeIndex - NodeCount()];
+	}
+	else
+	{
+		Target = Nodes[TargetNodeIndex];
+	}
+
+	//ensure the connection index is valid
+	if (ConnectionIndex > Target->Connections.size())
+	{
+		//invalid, exit out
+		return 0;
+	}
+
+	//get and the connection's weight
+	return Target->Connections[ConnectionIndex % Target->Connections.size()].Weight;
+}
+//sets the weight of a connection
+void Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight) 
+{
+	//ensure the target node index is valid
+	if (TargetNodeIndex > NodeCount() + OutputCount())
+	{
+		//invalid, exit out
+		return;
+	}
+
+	//get the target node
+	Node* Target;
+	if (TargetNodeIndex > NodeCount())
+	{
+		Target = OutputNodes[TargetNodeIndex - NodeCount()];
+	}
+	else
+	{
+		Target = Nodes[TargetNodeIndex];
+	}
+
+	//ensure the connection index is valid
+	if (ConnectionIndex > Target->Connections.size())
+	{
+		//invalid, exit out
+		return;
+	}
+
+	//get and the connection's weight
+	Target->Connections[ConnectionIndex % Target->Connections.size()].Weight = weight;
 }
 
 //returns sigmoid(x)

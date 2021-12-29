@@ -89,9 +89,27 @@ public:
 	//saves the network to a file on disk
 	void SaveNetwork(std::string GenomePath, bool verbose = false);
 
-	//the number of inputs and outputs in the network
-	int Inputs();
-	int Outputs();
+	//TODO: make like half of these functions give error codes
+	//the number of inputs, outputs and nodes in the network
+	int InputCount();
+	int OutputCount();
+	int NodeCount();
+
+	//adds a node between a connection to the network
+	bool AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex, float bias);
+	//adds a connection between nodes to the network
+	bool AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex, float weight);
+
+	//gets the bias of a node
+	float GetNodeBias(int NodeIndex);
+	//sets the bias of a node
+	void SetNodeBias(int NodeIndex, float bias); 
+	//get the total number of connections going into a node
+	int GetTotalNodeConnections(int TargetNodeIndex);
+	//gets the weight of a connection
+	float GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex);
+	//sets the weight of a connection
+	void SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight);
 };
 
 #endif

@@ -6,6 +6,12 @@ Node::Node(NodeGene Gene)
 	Bias = Gene.Bias;
 }
 
+//constructs the node from a bias
+Node::Node(float Bias) 
+{
+	Bias = Bias;
+}
+
 //returns the value of this node(by calculation, if required)
 float Node::CalculateValue(Network *Network) 
 {
@@ -60,6 +66,14 @@ Connection::Connection(ConnectionGene Gene, Network &Network)
 		//we modulo the gene's source id to ensure it always gets a node, no matter what the value is
 		Source = Network.InputNodes[Gene.SourceID % Network.InputNodes.size()];
 	}
+}
+
+//constructs a connection from a weight and a source node
+Connection::Connection(float weight, Node* source) 
+{
+	//store the weight and source
+	Weight = weight;
+	Source = source;
 }
 
 //returns this node as a gene
