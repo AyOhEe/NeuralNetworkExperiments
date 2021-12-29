@@ -47,8 +47,10 @@ struct NodeGene
 	void AppendGene(std::ofstream &stream, bool verbose = false);
 };
 
-//TODO: this function
-float(*GetActivationFunctionPointer)(int Index);
+//returns sigmoid(x)
+float Sigmoid(float x);
+//returns an activation function pointer based on it's index
+float(*GetActivationFunctionPointer(int Index))(float);
 
 //a network composed of nodes and connections
 class Network 
@@ -86,6 +88,10 @@ public:
 
 	//saves the network to a file on disk
 	void SaveNetwork(std::string GenomePath, bool verbose = false);
+
+	//the number of inputs and outputs in the network
+	int Inputs();
+	int Outputs();
 };
 
 #endif

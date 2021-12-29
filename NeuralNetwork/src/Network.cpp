@@ -308,7 +308,7 @@ void ConnectionGene::AppendGene(std::ofstream &stream, bool verbose)
 	unsigned char Gene[4] = {0, 0, 0, 0};
 
 	//get this gene's weight and sign as an integer
-	int IntWeight = roundl(abs(Weight * CONNECTION_GENE_WEIGHT_DIVISOR));
+	int IntWeight = (int)roundl(abs(Weight * CONNECTION_GENE_WEIGHT_DIVISOR));
 
 	//store the gene's component parts in the byte array
 	Gene[0] += 0b01000000 * SourceType; // gene source type
@@ -337,7 +337,7 @@ void NodeGene::AppendGene(std::ofstream &stream, bool verbose)
 	unsigned char Gene[2] = {0, 0};
 	
 	//get this gene's bias as an integer
-	int IntBias = roundl(Bias * NODE_GENE_BIAS_DIVISOR);
+	int IntBias = (int)roundl(Bias * NODE_GENE_BIAS_DIVISOR);
 
 	//store the gene's component parts in the byte array
 	Gene[0] += 0b10000000; // this is a node gene
@@ -353,5 +353,32 @@ void NodeGene::AppendGene(std::ofstream &stream, bool verbose)
 	{
 		std::cout << "Appended gene to file: " << ToString() << std::endl;
 		std::cout << "BIN: " << (int)Gene[0] << ", " << (int)Gene[1] << std::endl << std::endl; 
+	}
+}
+
+//the number of inputs and outputs in the network
+int Network::Inputs() 
+{
+	return InputNodes.size();
+}
+int Network::Outputs() 
+{
+	return OutputNodes.size();
+}
+
+//returns sigmoid(x)
+float Sigmoid(float x)
+{
+	return (float)(1 / (1 + pow(2.718, -x)));
+}
+
+//returns an activation function pointer based on it's index
+float (*GetActivationFunctionPointer(int Index))(float)
+{
+	switch (Index) 
+	{
+	default:
+		return Sigmoid;
+		break;
 	}
 }
