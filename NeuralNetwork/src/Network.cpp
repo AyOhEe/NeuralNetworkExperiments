@@ -194,7 +194,7 @@ void Network::SetInputs(std::vector<float> &Inputs)
 	else 
 	{
 		//Nope, throw an exception
-		std::cout << "Invalid number of inputs to network" << std::endl;
+		std::cout << "Invalid number of inputs to network: \n\t Expected " << InputNodes.size() << " but got " << Inputs.size() << std::endl;
 		throw std::runtime_error("Invalid number of inputs to network");
 	}
 }

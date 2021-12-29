@@ -5,12 +5,6 @@
 #include <iostream>
 #include <vector>
 
-//returns sigmoid(x)
-float Sigmoid(float x) 
-{
-	return (float)(1 / (1 + pow(2.718, -x)));
-}
-
 int main()
 {
 	//create a network
