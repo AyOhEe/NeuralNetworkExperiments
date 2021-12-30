@@ -26,7 +26,7 @@ public:
 	Node* Source;
 
 	//constructs a connection from a gene
-	Connection(ConnectionGene Gene, Network &Network);
+	Connection(ConnectionGene Gene, Network* Network);
 	//constructs a connection from a weight and a source node
 	Connection(float weight, Node* source);
 	
@@ -38,7 +38,7 @@ public:
 class Node
 {
 	//connections need access to private members in their constructors
-	friend Connection::Connection(ConnectionGene Gene, Network &Network);
+	friend Connection::Connection(ConnectionGene Gene, Network* Network);
 
 	//networks also need access to private members
 	friend Network;

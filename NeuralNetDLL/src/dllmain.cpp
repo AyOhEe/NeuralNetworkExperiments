@@ -15,7 +15,7 @@
 
 #define VALIDATE_HANDLE_BOOL \
 /*ensure the handle is valid*/ \
-std::map<unsigned int, Network>::iterator handleLocation = __NETWORKS.find(handle); \
+std::map<unsigned int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
@@ -24,7 +24,7 @@ if (handleLocation == __NETWORKS.end()) \
 
 #define VALIDATE_HANDLE_VOID \
 /*ensure the handle is valid*/ \
-std::map<unsigned int, Network>::iterator handleLocation = __NETWORKS.find(handle); \
+std::map<unsigned int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
@@ -33,7 +33,7 @@ if (handleLocation == __NETWORKS.end()) \
 
 #define VALIDATE_HANDLE_INT \
 /*ensure the handle is valid*/ \
-std::map<unsigned int, Network>::iterator handleLocation = __NETWORKS.find(handle); \
+std::map<unsigned int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
@@ -41,21 +41,21 @@ if (handleLocation == __NETWORKS.end()) \
 } \
 
 //all networks alive
-std::map<unsigned int, Network> __NETWORKS = std::map<unsigned int, Network>();
+std::map<unsigned int, Network*> __NETWORKS = std::map<unsigned int, Network*>();
 
 extern "C"
 {
 	//creates a network and returns a handle
-	unsigned int NEURALNET_API CREATE_NETWORK(const char* GenomePath, int Inputs, int Outputs, int ActivationFunctionIndex)
+	unsigned int NEURALNET_API CREATE_NETWORK(const char* GenomePath, int Inputs, int Outputs, int ActivationFunctionIndex, bool Verbose)
 	{
 		//create the new network
-		Network Net = Network(std::string(GenomePath), Inputs, Outputs, ActivationFunctionIndex);
+		Network* Net = new Network(std::string(GenomePath), Inputs, Outputs, ActivationFunctionIndex, Verbose);
 
 		//insert it into the vector
-		__NETWORKS[(unsigned int)&Net] = Net;
+		__NETWORKS[(unsigned int)Net] = Net;
 
 		//return the "handle" which is really just the memory address of the network(guaranteed to be unique)
-		return (unsigned int)&Net;
+		return (unsigned int)Net;
 	}
 
 	//removes a network if it exists
@@ -64,6 +64,7 @@ extern "C"
 		VALIDATE_HANDLE_BOOL
 
 		//valid handle, delete the network and remove it from the vector
+		delete handleLocation->second;
 		__NETWORKS.erase(handleLocation);
 
 		//indicate success
@@ -76,7 +77,7 @@ extern "C"
 		VALIDATE_HANDLE_BOOL
 
 		//validate n_inputs
-		if (n_inputs != handleLocation->second.InputCount())
+		if (n_inputs != handleLocation->second->InputCount())
 		{
 			return FALSE;
 		}
@@ -86,7 +87,7 @@ extern "C"
 		std::copy(inputs, inputs + n_inputs, std::back_inserter(Inputs));
 
 		//set the inputs
-		handleLocation->second.SetInputs(Inputs);
+		handleLocation->second->SetInputs(Inputs);
 		return TRUE;
 	}
 
@@ -96,13 +97,13 @@ extern "C"
 		VALIDATE_HANDLE_BOOL
 
 		//validate n_outputs
-		if (n_outputs != handleLocation->second.OutputCount())
+		if (n_outputs != handleLocation->second->OutputCount())
 		{
 			return FALSE;
 		}
 
 		//copy over the network outputs to the output array
-		std::vector<float> Outputs = handleLocation->second.GetResults();
+		std::vector<float> Outputs = handleLocation->second->GetResults();
 		std::copy(Outputs.begin(), Outputs.end(), outputs);
 
 		return TRUE;
@@ -114,19 +115,19 @@ extern "C"
 	{
 		VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second.InputCount();
+		return handleLocation->second->InputCount();
 	}
 	int NEURALNET_API GET_NETWORK_NODE_COUNT(unsigned int handle)
 	{
 		VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second.NodeCount();
+		return handleLocation->second->NodeCount();
 	}
 	int NEURALNET_API GET_NETWORK_OUTPUT_COUNT(unsigned int handle)
 	{
 		VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second.OutputCount();
+		return handleLocation->second->OutputCount();
 	}
 
 	//adds a node between a connection to a network
@@ -134,7 +135,7 @@ extern "C"
 	{
 		VALIDATE_HANDLE_BOOL
 
-		handleLocation->second.AddNodeBetweenConnection(TargetNodeIndex, ConnectionIndex, bias);
+		handleLocation->second->AddNodeBetweenConnection(TargetNodeIndex, ConnectionIndex, bias);
 		return TRUE;
 	}
 
@@ -143,7 +144,7 @@ extern "C"
 	{
 		VALIDATE_HANDLE_BOOL
 			
-		handleLocation->second.AddConnectionBetweenNodes(SourceNodeIndex, TargetNodeIndex, weight);
+		handleLocation->second->AddConnectionBetweenNodes(SourceNodeIndex, TargetNodeIndex, weight);
 		return TRUE;
 	}
 
@@ -152,14 +153,14 @@ extern "C"
 	{
 		VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second.GetNodeBias(NodeIndex);
+		return handleLocation->second->GetNodeBias(NodeIndex);
 	}
 	//sets the bias of a node
 	BOOL NEURALNET_API SET_NODE_BIAS(unsigned int handle, int NodeIndex, float bias)
 	{
 		VALIDATE_HANDLE_BOOL
 
-		handleLocation->second.SetNodeBias(NodeIndex, bias);
+		handleLocation->second->SetNodeBias(NodeIndex, bias);
 		return TRUE;
 	}
 
@@ -168,7 +169,7 @@ extern "C"
 	{
 		VALIDATE_HANDLE_INT
 
-		return handleLocation->second.GetTotalNodeConnections(TargetNodeIndex);
+		return handleLocation->second->GetTotalNodeConnections(TargetNodeIndex);
 	}
 
 	//gets the weight of a connection
@@ -176,14 +177,14 @@ extern "C"
 	{
 		VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second.GetConnectionWeight(TargetNodeIndex, ConnectionIndex);
+		return handleLocation->second->GetConnectionWeight(TargetNodeIndex, ConnectionIndex);
 	}
 	//sets the weight of a connection
 	BOOL NEURALNET_API SET_CONNECTION_WEIGHT(unsigned int handle, int TargetNodeIndex, int ConnectionIndex, float weight)
 	{
 		VALIDATE_HANDLE_BOOL
 
-		handleLocation->second.SetConnectionWeight(TargetNodeIndex, ConnectionIndex, weight);
+		handleLocation->second->SetConnectionWeight(TargetNodeIndex, ConnectionIndex, weight);
 		return TRUE;
 	}
 
@@ -192,10 +193,10 @@ extern "C"
 	{
 		VALIDATE_HANDLE_BOOL
 
-		handleLocation->second.SaveNetwork(std::string(path));
+		handleLocation->second->SaveNetwork(std::string(path));
 		return true;
 	}
 }
 
-//TODO: throw some definitions for these functions in a header and split this file into multiple files
+//TODO: throw some definitions for these functions in a header and split this file into multiple files(maybe?)
 //TODO: write bindings for most of these in python

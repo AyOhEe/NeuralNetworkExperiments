@@ -27,7 +27,7 @@ float Node::CalculateValue(Network *Network)
 			NewValue += iter->Weight * iter->Source->CalculateValue(Network);
 		}
 		//and put the sum through the activation function, along side this node's bias
-		NewValue = Bias + Network->ActivationFunction(Value);
+		NewValue = Network->ActivationFunction(Bias + NewValue);
 		
 		//store the new value as the actual value
 		Value = NewValue;
@@ -48,7 +48,7 @@ Node::~Node()
 }
 
 //constructs a connection from a gene
-Connection::Connection(ConnectionGene Gene, Network &Network)
+Connection::Connection(ConnectionGene Gene, Network* Network)
 {
 	//store the weight
 	Weight = Gene.Weight;
@@ -58,13 +58,13 @@ Connection::Connection(ConnectionGene Gene, Network &Network)
 	{
 		//nodes, we can use the network's node array
 		//we modulo the gene's source id to ensure it always gets a node, no matter what the value is
-		Source = Network.Nodes[Gene.SourceID % Network.Nodes.size()];
+		Source = Network->Nodes[Gene.SourceID % Network->Nodes.size()];
 	}
 	else 
 	{
 		//inputs, we can use the network's input node array
 		//we modulo the gene's source id to ensure it always gets a node, no matter what the value is
-		Source = Network.InputNodes[Gene.SourceID % Network.InputNodes.size()];
+		Source = Network->InputNodes[Gene.SourceID % Network->InputNodes.size()];
 	}
 }
 

@@ -8,13 +8,13 @@
 int main()
 {
 	//create a network
-	Network* network = new Network("Genomes/test_genome_smallMOD.genome", 2, 1, Sigmoid);
+	Network* network = new Network("Genomes/test_genome.genome", 2, 2, Sigmoid);
 
 	std::vector<std::vector<float>> Inputs = {
 		{0, 0},
-		{0, 1},
-		{1, 0},
-		{1, 1}
+		{1, 1},
+		{2, 0},
+		{3, 1}
 	};
 	std::vector<float> Results;
 

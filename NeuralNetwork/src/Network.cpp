@@ -8,7 +8,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, int Activation
 }
 
 //creates a network based on the .genome file at GenomePath
-Network::Network(std::string GenomePath, int inputs, int outputs, float (*ActivationFunction)(float), bool Verbose) : Nodes(), InputNodes(), OutputNodes()
+Network::Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose) : Nodes(), InputNodes(), OutputNodes()
 {
 	//all of the connection genes in this network
 	std::vector<ConnectionGene> ConnectionGenes;
@@ -26,7 +26,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 	{
 		//No, log an error in console
 		std::stringstream err;
-        err << "Error Opening Genome \"" << GenomePath << "\"";
+		err << "Error Opening Genome \"" << GenomePath << "\"";
 		throw std::runtime_error(err.str().c_str());
 	}
 
@@ -36,7 +36,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 		//get the start of the next gene
 		int bit = GenomeReader.Read(1);
 		//std::cout << bit << std::endl;
-        bool GeneType = bit == 1;
+		bool GeneType = bit == 1;
 
 		//decide what we should do based on the gene type(True: Node, False: Connection)
 		if (GeneType)
@@ -46,7 +46,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
 			NodeGene Gene;
 			Gene.Bias = GenomeReader.Read(15) / NODE_GENE_BIAS_DIVISOR;
-			if (Verbose) 
+			if (Verbose)
 			{
 				std::cout << "Node Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
 			}
@@ -92,7 +92,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 	GenomeReader.close();
 
 	//now that we have all of the node and connection genes, we need to create the nodes
-	for (std::vector<NodeGene>::iterator GeneIter = NodeGenes.begin(); GeneIter != NodeGenes.end(); GeneIter++) 
+	for (std::vector<NodeGene>::iterator GeneIter = NodeGenes.begin(); GeneIter != NodeGenes.end(); GeneIter++)
 	{
 		//create a node from the current gene
 		Nodes.push_back(new Node(*GeneIter));
@@ -102,7 +102,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 
 	//create the input and output nodes
 	NodeGene BlankGene = NodeGene();
-	for(int i = 0; i < inputs; i++)
+	for (int i = 0; i < inputs; i++)
 	{
 		//create a node based on the blank gene
 		InputNodes.push_back(new Node(BlankGene));
@@ -111,7 +111,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 			std::cout << "Input Node _ Created: " << i << std::endl;
 		}
 	}
-	for(int i = 0; i < outputs; i++)
+	for (int i = 0; i < outputs; i++)
 	{
 		//create a node based on the blank gene
 		OutputNodes.push_back(new Node(BlankGene));
@@ -127,24 +127,46 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float (*Activa
 	}
 
 	//now that we have all of the nodes created, we need to create the connections between them
-	for(std::vector<ConnectionGene>::iterator GeneIter = ConnectionGenes.begin(); GeneIter != ConnectionGenes.end(); GeneIter++)
+	for (std::vector<ConnectionGene>::iterator GeneIter = ConnectionGenes.begin(); GeneIter != ConnectionGenes.end(); GeneIter++)
 	{
 		//what kind of target does the gene have
 		if (GeneIter->TargetType)
 		{
 			//output, we can use the network's output node array
 			//we modulo the gene's target id to ensure it always gets a node, no matter what the value is
-			OutputNodes[GeneIter->TargetID % OutputNodes.size()]->Connections.push_back(Connection(*GeneIter, *this));
+			OutputNodes[GeneIter->TargetID % OutputNodes.size()]->Connections.push_back(Connection(*GeneIter, this));
+			if (Verbose)
+			{
+				std::cout << "Creating Connection with target output node " << GeneIter->TargetID % OutputNodes.size() << std::endl;
+			}
 		}
-		else 
+		else
 		{
 			//node, we can use the network's node array
 			//we modulo the gene's target id to ensure it always gets a node, no matter what the value is
-			Nodes[GeneIter->TargetID % Nodes.size()]->Connections.push_back(Connection(*GeneIter, *this));
+			Nodes[GeneIter->TargetID % Nodes.size()]->Connections.push_back(Connection(*GeneIter, this));
+			if (Verbose)
+			{
+				std::cout << "Creating Connection with target internal node " << GeneIter->TargetID % Nodes.size() << std::endl;
+			}
 		}
 	}
 	//we can safely discard the connection genes now, as we've used them
 	ConnectionGenes.clear();
+
+	if (Verbose) 
+	{
+		int i = 0;
+		for (std::vector<Node*>::iterator nodeiter = Nodes.begin(); nodeiter != Nodes.end(); nodeiter++, i++) 
+		{
+			std::cout << "Node " << i << " has " << (*nodeiter)->Connections.size() << "connections" << std::endl;
+		}
+		i = 0;
+		for (std::vector<Node*>::iterator nodeiter = OutputNodes.begin(); nodeiter != OutputNodes.end(); nodeiter++, i++)
+		{
+			std::cout << "Output Node " << i << " has " << (*nodeiter)->Connections.size() << "connections" << std::endl;
+		}
+	}
 }
 
 //returns the values of all of the output nodes
@@ -383,7 +405,7 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 
 	//get the source node
 	Node* Target;
-	if (TargetNodeIndex > NodeCount()) 
+	if (TargetNodeIndex >= NodeCount()) 
 	{
 		Target = OutputNodes[TargetNodeIndex - NodeCount()];
 	}
@@ -432,7 +454,7 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 
 	//get the source node
 	Node* Source;
-	if (SourceNodeIndex > InputCount())
+	if (SourceNodeIndex >= InputCount())
 	{
 		Source = Nodes[SourceNodeIndex - InputCount()];
 	}
@@ -442,7 +464,7 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 	}
 	//get the target node
 	Node* Target;
-	if (TargetNodeIndex > NodeCount())
+	if (TargetNodeIndex >= NodeCount())
 	{
 		Target = OutputNodes[TargetNodeIndex - NodeCount()];
 	}
@@ -491,12 +513,13 @@ int Network::GetTotalNodeConnections(int TargetNodeIndex)
 	if (TargetNodeIndex > NodeCount() + OutputCount())
 	{
 		//invalid, exit out
+		std::cout << "Invalid TargetNodeIndex on line " << __LINE__ << std::endl;
 		return -1;
 	}
 
 	//get the target node
 	Node* Target;
-	if (TargetNodeIndex > NodeCount())
+	if (TargetNodeIndex >= NodeCount())
 	{
 		Target = OutputNodes[TargetNodeIndex - NodeCount()];
 	}
@@ -520,7 +543,7 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex)
 
 	//get the target node
 	Node* Target;
-	if (TargetNodeIndex > NodeCount())
+	if (TargetNodeIndex >= NodeCount())
 	{
 		Target = OutputNodes[TargetNodeIndex - NodeCount()];
 	}
@@ -551,7 +574,7 @@ void Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 
 	//get the target node
 	Node* Target;
-	if (TargetNodeIndex > NodeCount())
+	if (TargetNodeIndex >= NodeCount())
 	{
 		Target = OutputNodes[TargetNodeIndex - NodeCount()];
 	}

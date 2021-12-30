@@ -110,7 +110,7 @@ class GenomeReader:
 
 if __name__ == "__main__":
     #directory where all of the genomes are stored
-    GENOME_DIR = "../Genomes/"
+    GENOME_DIR = "../NeuralNetwork/Genomes/"
 
     #get all genomes in ../Genomes
     genome_paths = [dir for dir in os.listdir(GENOME_DIR) if dir[-7:] == ".genome"]
