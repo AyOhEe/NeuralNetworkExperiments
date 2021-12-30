@@ -422,16 +422,16 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 	}
 
 	//get the connection
-	Connection OldConnection = Target->Connections[ConnectionIndex % Target->Connections.size()];
+	Connection* OldConnection = &(Target->Connections[ConnectionIndex % Target->Connections.size()]);
 
 	//create the new node and add it to the nodes vector
 	Node* NewNode = new Node(bias);
 	Nodes.push_back(NewNode);
 
 	//create a new connection with the source of the old connection
-	NewNode->Connections.push_back(Connection(1, OldConnection.Source));
+	NewNode->Connections.push_back(Connection(1, OldConnection->Source));
 	//set the source of the old connection to the new node
-	OldConnection.Source = NewNode;
+	OldConnection->Source = NewNode;
 
 	//we completed the operation okay, return true
 	return true;
@@ -504,7 +504,7 @@ void Network::SetNodeBias(int NodeIndex, float bias)
 	}
 
 	//get the node and set it's bias
-	Nodes[NodeIndex - NodeCount()]->Bias = bias;
+	Nodes[NodeIndex]->Bias = bias;
 }
 //get the total number of connections into a node
 int Network::GetTotalNodeConnections(int TargetNodeIndex) 
