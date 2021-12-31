@@ -50,7 +50,7 @@ if __name__ == "__main__":
         ctypes.c_char_p(b"../NeuralNetwork/Genomes/test_genome.genome"), #genome path
         ctypes.c_int(2), #inputs
         ctypes.c_int(1), #outputs
-        ctypes.c_int(0), #activation function index
+        ctypes.c_int(3), #activation function index
         ctypes.c_bool(False) #verbose?
     ))
     
