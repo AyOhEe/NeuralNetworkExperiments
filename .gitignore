@@ -6,6 +6,8 @@ NeuralNetDLLExample/Lib/
 NeuralNetDLLExample/Scripts/
 pyvenv.cfg
 
+NeuralNetDLL.dll
+
 #genome grapher stuff
 GenomeGrapher/Renders/
 
