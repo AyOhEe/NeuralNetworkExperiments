@@ -45,17 +45,19 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 
 			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
 			NodeGene Gene;
-			Gene.Bias = GenomeReader.Read(15) / NODE_GENE_BIAS_DIVISOR;
-			if (Verbose)
-			{
-				std::cout << "Node Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
-			}
+			Gene.Bias = GenomeReader.Read(1) == 1 ? -1 : 1;
+			Gene.Bias *= GenomeReader.Read(14) / NODE_GENE_BIAS_DIVISOR;
 
 			//exit if we find that we've overread
 			if (GenomeReader.eof())
 			{
 				//we've overread. we can ignore this gene as it's incomplete
 				break;
+			}
+
+			if (Verbose)
+			{
+				std::cout << "Node Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
 			}
 
 			//store the gene
@@ -71,17 +73,20 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 			Gene.TargetType = GenomeReader.Read(1) == 1;
 			Gene.SourceID = GenomeReader.Read(10);
 			Gene.TargetID = GenomeReader.Read(10);
-			Gene.Weight = GenomeReader.Read(9) / CONNECTION_GENE_WEIGHT_DIVISOR;
-			if (Verbose)
-			{
-				std::cout << "Connection Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
-			}
+			Gene.Weight = GenomeReader.Read(1) == 1 ? -1 : 1;
+			Gene.Weight *= GenomeReader.Read(8) / CONNECTION_GENE_WEIGHT_DIVISOR;
 
 			//exit if we find that we've overread
 			if (GenomeReader.eof())
 			{
 				//we've overread. we can ignore this gene as it's incomplete
 				break;
+			}
+
+
+			if (Verbose)
+			{
+				std::cout << "Connection Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
 			}
 
 			//store the gene
