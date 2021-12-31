@@ -66,6 +66,7 @@ if __name__ == "__main__":
     print(f"{node0_conn_count = }\n{node1_conn_count = }\n")
 
     for i in range(node_count):
+        print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
         for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
             print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
     
@@ -101,18 +102,18 @@ if __name__ == "__main__":
         handle, #network handle
         ctypes.c_int(0), #node id
         ctypes.c_int(0), #connection id
-        ctypes.c_int(-2) #bias
+        ctypes.c_float(-1.5) #bias
     )
 
     __add_connection_between_nodes(
         handle, #network handle
         ctypes.c_int(0), #source node id
         ctypes.c_int(node_count+1), #target node id
-        ctypes.c_int(2) #weight
+        ctypes.c_float(1.875) #weight
     )
 
     __set_node_bias(handle, ctypes.c_int(0), ctypes.c_float(0.5))
-    __set_connection_weight(handle, ctypes.c_int(1), ctypes.c_int(0), ctypes.c_float(-1))
+    __set_connection_weight(handle, ctypes.c_int(1), ctypes.c_int(0), ctypes.c_float(-0.875))
     
     #get new network information
     input_count = __get_network_input_count(handle)
@@ -126,6 +127,7 @@ if __name__ == "__main__":
     print(f"{node0_conn_count = }\n{node1_conn_count = }\n")
     
     for i in range(node_count):
+        print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
         for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
             print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
     
@@ -176,6 +178,7 @@ if __name__ == "__main__":
     print(f"{node0_conn_count = }\n{node1_conn_count = }\n")
 
     for i in range(node_count):
+        print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
         for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
             print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
     
