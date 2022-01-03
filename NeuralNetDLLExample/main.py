@@ -28,6 +28,11 @@ __neuralnetdll.ADD_CONNECTION_BETWEEN_NODES.restype = ctypes.c_bool
 __add_node_between_connection = __neuralnetdll.ADD_NODE_BETWEEN_CONNECTION
 __add_connection_between_nodes = __neuralnetdll.ADD_CONNECTION_BETWEEN_NODES
 
+__neuralnetdll.REMOVE_NODE.restype = ctypes.c_bool
+__neuralnetdll.REMOVE_CONNECTION.restype = ctypes.c_bool
+__remove_node = __neuralnetdll.REMOVE_NODE
+__remove_connection = __neuralnetdll.REMOVE_CONNECTION
+
 __neuralnetdll.GET_NODE_BIAS.restype = ctypes.c_float
 __neuralnetdll.SET_NODE_BIAS.restype = ctypes.c_bool
 __get_node_bias = __neuralnetdll.GET_NODE_BIAS
@@ -45,6 +50,8 @@ __neuralnetdll.SAVE_NETWORK.restype = ctypes.c_bool
 __save_network = __neuralnetdll.SAVE_NETWORK
 
 if __name__ == "__main__":
+    #-----TEST 1-----
+    print("-----TEST 1-----")
     #create the network
     handle = ctypes.c_uint64(__create_network(
         ctypes.c_char_p(b"../NeuralNetwork/Genomes/test_genome.genome"), #genome path
@@ -55,15 +62,11 @@ if __name__ == "__main__":
     ))
     
     #get network information
-    node0_conn_count = __get_node_connection_count(handle, ctypes.c_int(0))
-    node1_conn_count = __get_node_connection_count(handle, ctypes.c_int(1))
-
     input_count = __get_network_input_count(handle)
     node_count = __get_network_node_count(handle)
     output_count = __get_network_output_count(handle)
 
     print(f"\n{input_count = }\n{node_count = }\n{output_count = }\n")
-    print(f"{node0_conn_count = }\n{node1_conn_count = }\n")
 
     for i in range(node_count):
         print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
@@ -119,12 +122,8 @@ if __name__ == "__main__":
     input_count = __get_network_input_count(handle)
     node_count = __get_network_node_count(handle)
     output_count = __get_network_output_count(handle)
-    
-    node0_conn_count = __get_node_connection_count(handle, ctypes.c_int(0))
-    node1_conn_count = __get_node_connection_count(handle, ctypes.c_int(1))
 
     print(f"\n{input_count = }\n{node_count = }\n{output_count = }\n")
-    print(f"{node0_conn_count = }\n{node1_conn_count = }\n")
     
     for i in range(node_count):
         print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
@@ -157,6 +156,10 @@ if __name__ == "__main__":
     __destroy_network(handle)
 
 
+
+
+    #-----TEST 2-----
+    print("-----TEST 2-----")
     #recreate the network
     handle = ctypes.c_uint64(__create_network(
         ctypes.c_char_p(b"../NeuralNetwork/Genomes/altered_genome.genome"), #genome path
@@ -167,15 +170,9 @@ if __name__ == "__main__":
     ))
 
     #get network information
-    node0_conn_count = __get_node_connection_count(handle, ctypes.c_int(0))
-    node1_conn_count = __get_node_connection_count(handle, ctypes.c_int(1))
-
     input_count = __get_network_input_count(handle)
     node_count = __get_network_node_count(handle)
     output_count = __get_network_output_count(handle)
-
-    print(f"\n{input_count = }\n{node_count = }\n{output_count = }\n")
-    print(f"{node0_conn_count = }\n{node1_conn_count = }\n")
 
     for i in range(node_count):
         print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
@@ -201,3 +198,154 @@ if __name__ == "__main__":
             ctypes.c_int(1) #number of outputs
         )
         print(f"{outputs[0] = }\n")
+
+
+    #alter network structure
+    __add_node_between_connection(
+        handle, #network handle
+        ctypes.c_int(0), #node id
+        ctypes.c_int(0), #connection id
+        ctypes.c_float(-1.5) #bias
+    )
+
+    __add_connection_between_nodes(
+        handle, #network handle
+        ctypes.c_int(0), #source node id
+        ctypes.c_int(node_count+1), #target node id
+        ctypes.c_float(1.875) #weight
+    )
+
+    __set_node_bias(handle, ctypes.c_int(0), ctypes.c_float(0.5))
+    __set_connection_weight(handle, ctypes.c_int(1), ctypes.c_int(0), ctypes.c_float(-0.875))
+    
+    #get new network information
+    input_count = __get_network_input_count(handle)
+    node_count = __get_network_node_count(handle)
+    output_count = __get_network_output_count(handle)
+
+    print(f"\n{input_count = }\n{node_count = }\n{output_count = }\n")
+    
+    for i in range(node_count):
+        print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
+        for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
+            print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
+    
+    for i in range(node_count, node_count + output_count):
+        for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
+            print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
+
+    #test input/output again with different structure
+    for input_set in inputs:
+        __set_network_inputs(
+            handle, #network handle
+            input_set, #inputs
+            ctypes.c_int(2) #number of inputs
+        )
+
+        __get_network_outputs(
+            handle, #network handle
+            outputs, #output array
+            ctypes.c_int(1) #number of outputs
+        )
+        print(f"{outputs[0] = }\n")
+
+    #save the network
+    __save_network(handle, ctypes.c_char_p(b"../NeuralNetwork/Genomes/altered_genome.genome"))
+
+    #destroy the network now that we're done with it
+    __destroy_network(handle)
+
+
+
+
+    #-----TEST 3-----
+    print("-----TEST 3-----")
+    #recreate the network again
+    handle = ctypes.c_uint64(__create_network(
+        ctypes.c_char_p(b"../NeuralNetwork/Genomes/altered_genome.genome"), #genome path
+        ctypes.c_int(2), #inputs
+        ctypes.c_int(1), #outputs
+        ctypes.c_int(3), #activation function index
+        ctypes.c_bool(False) #verbose?
+    ))
+
+    #get network information
+    input_count = __get_network_input_count(handle)
+    node_count = __get_network_node_count(handle)
+    output_count = __get_network_output_count(handle)
+
+    print(f"\n{input_count = }\n{node_count = }\n{output_count = }\n")
+
+    for i in range(node_count):
+        print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
+        for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
+            print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
+    
+    for i in range(node_count, node_count + output_count):
+        for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
+            print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
+
+    #test input/output
+    outputs = (ctypes.c_float*1)()
+    for input_set in inputs:
+        __set_network_inputs(
+            handle, #network handle
+            input_set, #inputs
+            ctypes.c_int(2) #number of inputs
+        )
+
+        __get_network_outputs(
+            handle, #network handle
+            outputs, #output array
+            ctypes.c_int(1) #number of outputs
+        )
+        print(f"{outputs[0] = }\n")
+
+    #alter network structure
+    __remove_node(
+        handle, #network handle
+        ctypes.c_int(0), #node id
+    )
+
+    __remove_connection(
+        handle, #network handle
+        ctypes.c_int(0), #source node id
+        ctypes.c_int(0)  #connection id
+    )
+    
+    #get new network information
+    input_count = __get_network_input_count(handle)
+    node_count = __get_network_node_count(handle)
+    output_count = __get_network_output_count(handle)
+
+    print(f"\n{input_count = }\n{node_count = }\n{output_count = }\n")
+    
+    for i in range(node_count):
+        print(f"node{i}_bias = {__get_node_bias(handle, ctypes.c_int(i))}")
+        for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
+            print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
+    
+    for i in range(node_count, node_count + output_count):
+        for j in range(__get_node_connection_count(handle, ctypes.c_int(i))):
+            print(f"node{i}_conn{j}_weight = {__get_connection_weight(handle, ctypes.c_int(i), ctypes.c_int(j))}")
+
+    #test input/output again with different structure
+    for input_set in inputs:
+        __set_network_inputs(
+            handle, #network handle
+            input_set, #inputs
+            ctypes.c_int(2) #number of inputs
+        )
+
+        __get_network_outputs(
+            handle, #network handle
+            outputs, #output array
+            ctypes.c_int(1) #number of outputs
+        )
+        print(f"{outputs[0] = }\n")
+
+    #save the network
+    __save_network(handle, ctypes.c_char_p(b"../NeuralNetwork/Genomes/altered_genome.genome"))
+
+    #destroy the network now that we're done with it
+    __destroy_network(handle)
