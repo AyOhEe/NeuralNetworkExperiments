@@ -109,7 +109,7 @@ extern "C"
 		return TRUE;
 	}
 
-	//TODO: make like half of these functions give error codes and try-catch statements
+	//TODO: make like half of these functions give error codes and give them some damn try-catch statements
 	//returns the number of inputs, outputs or nodes in a network
 	int NEURALNET_API GET_NETWORK_INPUT_COUNT(unsigned int handle)
 	{
@@ -138,13 +138,29 @@ extern "C"
 		handleLocation->second->AddNodeBetweenConnection(TargetNodeIndex, ConnectionIndex, bias);
 		return TRUE;
 	}
-
 	//adds a connection between nodes to a network
 	BOOL NEURALNET_API ADD_CONNECTION_BETWEEN_NODES(unsigned int handle, int SourceNodeIndex, int TargetNodeIndex, float weight) 
 	{
 		VALIDATE_HANDLE_BOOL
 			
 		handleLocation->second->AddConnectionBetweenNodes(SourceNodeIndex, TargetNodeIndex, weight);
+		return TRUE;
+	}
+
+	//removes a node from the network
+	BOOL NEURALNET_API REMOVE_NODE(unsigned int handle, int NodeIndex) 
+	{
+		VALIDATE_HANDLE_BOOL
+
+		handleLocation->second->RemoveNode(NodeIndex);
+		return TRUE;
+	}
+	//removes a connection from the network
+	BOOL NEURALNET_API REMOVE_CONNECTION(unsigned int handle, int NodeIndex, int ConnectionIndex) 
+	{
+		VALIDATE_HANDLE_BOOL
+
+		handleLocation->second->RemoveConnection(NodeIndex, ConnectionIndex);
 		return TRUE;
 	}
 

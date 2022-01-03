@@ -101,6 +101,11 @@ public:
 	//adds a connection between nodes to the network
 	bool AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex, float weight);
 
+	//removes a node from the network
+	bool RemoveNode(int NodeIndex);
+	//removes a connection from the network
+	bool RemoveConnection(int NodeIndex, int ConnectionIndex);
+
 	//gets the bias of a node
 	float GetNodeBias(int NodeIndex);
 	//sets the bias of a node

@@ -634,3 +634,46 @@ float (*GetActivationFunctionPointer(int Index))(float)
 		break;
 	}
 }
+
+//removes a node from the network
+bool Network::RemoveNode(int NodeIndex) 
+{
+	//validate the node index
+	if (NodeIndex > Nodes.size()) 
+	{
+		//invalid index, return false
+		return false;
+	}
+
+	//get and remove the node from the network
+	delete Nodes[NodeIndex];
+	Nodes.erase(Nodes.begin() + NodeIndex);
+
+	//return true once the node has been removed
+	return true;
+}
+
+//removes a connection from the network
+bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex) 
+{
+	//validate the node index
+	if (NodeIndex > Nodes.size())
+	{
+		//invalid index, return false
+		return false;
+	}
+	//get the node
+	Node* Target = Nodes[NodeIndex];
+
+	//validate the connection index
+	if (ConnectionIndex > Target->Connections.size()) 
+	{
+		//invalid index, return false
+		return false;
+	}
+	//get and remove the connection
+	Target->Connections.erase(Target->Connections.begin() + ConnectionIndex);
+
+	//return true once the connection has been removed
+	return true;
+}
