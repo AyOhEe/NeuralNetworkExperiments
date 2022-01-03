@@ -345,7 +345,7 @@ if __name__ == "__main__":
         print(f"{outputs[0] = }\n")
 
     #save the network
-    __save_network(handle, ctypes.c_char_p(b"../NeuralNetwork/Genomes/altered_genome.genome"))
+    __save_network(handle, ctypes.c_char_p(b"../NeuralNetwork/Genomes/further_altered_genome.genome"))
 
     #destroy the network now that we're done with it
     __destroy_network(handle)
