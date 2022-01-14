@@ -23,12 +23,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\BinaryReader.h" />
+    <ClInclude Include="Include\Chromosome.h" />
     <ClInclude Include="Include\json.hpp" />
     <ClInclude Include="Include\Network.h" />
     <ClInclude Include="Include\Node.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BinaryReader.cpp" />
+    <ClCompile Include="src\Chromosome.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Network.cpp" />
     <ClCompile Include="src\Node.cpp" />
