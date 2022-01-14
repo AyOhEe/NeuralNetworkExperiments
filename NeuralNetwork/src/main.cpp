@@ -8,7 +8,7 @@
 int main()
 {
 	//create a network
-	Network* network = new Network("Genomes/test_genome.genome", 2, 1, 3);
+	Network* network = new Network("Genomes/test_genome", 2, 1, 3);
 
 	std::vector<std::vector<float>> Inputs = {
 		{0, 0},
