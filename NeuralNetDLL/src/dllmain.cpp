@@ -7,24 +7,28 @@
 #include "../../NeuralNetwork/Include/Network.h"
 #include "../../NeuralNetwork/Include/Node.h"
 
-#ifdef NEURALNETDLL_EXPORTS
-#define NEURALNET_API __declspec(dllexport)
-#else
-#define NEURALNET_API __declspec(dllimport)
+#ifdef __NT__
+    #ifdef NEURALNETDLL_EXPORTS
+    #define NEURALNET_API __declspec(dllexport)
+    #else
+    #define NEURALNET_API __declspec(dllimport)
+    #endif
+#elif __unix__
+    #define NEURALNET_API 
 #endif
 
 #define VALIDATE_HANDLE_BOOL \
 /*ensure the handle is valid*/ \
-std::map<unsigned int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
+std::map<unsigned long long int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
-	return FALSE; \
+	return false; \
 } \
 
 #define VALIDATE_HANDLE_VOID \
 /*ensure the handle is valid*/ \
-std::map<unsigned int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
+std::map<unsigned long long int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
@@ -33,7 +37,7 @@ if (handleLocation == __NETWORKS.end()) \
 
 #define VALIDATE_HANDLE_INT \
 /*ensure the handle is valid*/ \
-std::map<unsigned int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
+std::map<unsigned long long int, Network*>::iterator handleLocation = __NETWORKS.find(handle); \
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
@@ -41,25 +45,25 @@ if (handleLocation == __NETWORKS.end()) \
 } \
 
 //all networks alive
-std::map<unsigned int, Network*> __NETWORKS = std::map<unsigned int, Network*>();
+std::map<unsigned long long int, Network*> __NETWORKS = std::map<unsigned long long int, Network*>();
 
 extern "C"
 {
 	//creates a network and returns a handle
-	unsigned int NEURALNET_API CREATE_NETWORK(const char* GenomePath, int Inputs, int Outputs, int ActivationFunctionIndex, bool Verbose)
+	unsigned long long int NEURALNET_API CREATE_NETWORK(const char* GenomePath, int Inputs, int Outputs, int ActivationFunctionIndex, bool Verbose)
 	{
 		//create the new network
 		Network* Net = new Network(std::string(GenomePath), Inputs, Outputs, ActivationFunctionIndex, Verbose);
 
 		//insert it into the vector
-		__NETWORKS[(unsigned int)Net] = Net;
+		__NETWORKS[(unsigned long long int)Net] = Net;
 
 		//return the "handle" which is really just the memory address of the network(guaranteed to be unique)
-		return (unsigned int)Net;
+		return (unsigned long long int)Net;
 	}
 
 	//removes a network if it exists
-	BOOL NEURALNET_API DESTROY_NETWORK(unsigned int handle)
+    bool NEURALNET_API DESTROY_NETWORK(unsigned long long int handle)
 	{
 		VALIDATE_HANDLE_BOOL
 
@@ -68,18 +72,18 @@ extern "C"
 		__NETWORKS.erase(handleLocation);
 
 		//indicate success
-		return TRUE;
+		return true;
 	}
 
 	//sets the inputs of a network
-	BOOL NEURALNET_API SET_NETWORK_INPUTS(unsigned int handle, float* inputs, int n_inputs)
+	bool NEURALNET_API SET_NETWORK_INPUTS(unsigned long long int handle, float* inputs, int n_inputs)
 	{
 		VALIDATE_HANDLE_BOOL
 
 		//validate n_inputs
 		if (n_inputs != handleLocation->second->InputCount())
 		{
-			return FALSE;
+			return false;
 		}
 
 		//convert the inputs into a vector
@@ -88,42 +92,42 @@ extern "C"
 
 		//set the inputs
 		handleLocation->second->SetInputs(Inputs);
-		return TRUE;
+		return true;
 	}
 
 	//calculates the values of a network
-	BOOL NEURALNET_API GET_NETWORK_OUTPUTS(unsigned int handle, float* outputs, int n_outputs)
+	bool NEURALNET_API GET_NETWORK_OUTPUTS(unsigned long long int handle, float* outputs, int n_outputs)
 	{
 		VALIDATE_HANDLE_BOOL
 
 		//validate n_outputs
 		if (n_outputs != handleLocation->second->OutputCount())
 		{
-			return FALSE;
+			return false;
 		}
 
 		//copy over the network outputs to the output array
 		std::vector<float> Outputs = handleLocation->second->GetResults();
 		std::copy(Outputs.begin(), Outputs.end(), outputs);
 
-		return TRUE;
+		return true;
 	}
 
 	//TODO: make like half of these functions give error codes and give them some damn try-catch statements
 	//returns the number of inputs, outputs or nodes in a network
-	int NEURALNET_API GET_NETWORK_INPUT_COUNT(unsigned int handle)
+	int NEURALNET_API GET_NETWORK_INPUT_COUNT(unsigned long long int handle)
 	{
 		VALIDATE_HANDLE_BOOL
 
 		return handleLocation->second->InputCount();
 	}
-	int NEURALNET_API GET_NETWORK_NODE_COUNT(unsigned int handle)
+	int NEURALNET_API GET_NETWORK_NODE_COUNT(unsigned long long int handle)
 	{
 		VALIDATE_HANDLE_BOOL
 
 		return handleLocation->second->NodeCount();
 	}
-	int NEURALNET_API GET_NETWORK_OUTPUT_COUNT(unsigned int handle)
+	int NEURALNET_API GET_NETWORK_OUTPUT_COUNT(unsigned long long int handle)
 	{
 		VALIDATE_HANDLE_BOOL
 
@@ -131,57 +135,57 @@ extern "C"
 	}
 
 	//adds a node between a connection to a network
-	BOOL NEURALNET_API ADD_NODE_BETWEEN_CONNECTION(unsigned int handle, int TargetNodeIndex, int ConnectionIndex, float bias) 
+	bool NEURALNET_API ADD_NODE_BETWEEN_CONNECTION(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, float bias) 
 	{
 		VALIDATE_HANDLE_BOOL
 
 		handleLocation->second->AddNodeBetweenConnection(TargetNodeIndex, ConnectionIndex, bias);
-		return TRUE;
+		return true;
 	}
 	//adds a connection between nodes to a network
-	BOOL NEURALNET_API ADD_CONNECTION_BETWEEN_NODES(unsigned int handle, int SourceNodeIndex, int TargetNodeIndex, float weight) 
+	bool NEURALNET_API ADD_CONNECTION_BETWEEN_NODES(unsigned int handle, int SourceNodeIndex, int TargetNodeIndex, float weight) 
 	{
 		VALIDATE_HANDLE_BOOL
 			
 		handleLocation->second->AddConnectionBetweenNodes(SourceNodeIndex, TargetNodeIndex, weight);
-		return TRUE;
+		return true;
 	}
 
 	//removes a node from the network
-	BOOL NEURALNET_API REMOVE_NODE(unsigned int handle, int NodeIndex) 
+	bool NEURALNET_API REMOVE_NODE(unsigned int long long handle, int NodeIndex) 
 	{
 		VALIDATE_HANDLE_BOOL
 
 		handleLocation->second->RemoveNode(NodeIndex);
-		return TRUE;
+		return true;
 	}
 	//removes a connection from the network
-	BOOL NEURALNET_API REMOVE_CONNECTION(unsigned int handle, int NodeIndex, int ConnectionIndex) 
+	bool NEURALNET_API REMOVE_CONNECTION(unsigned long long int handle, int NodeIndex, int ConnectionIndex) 
 	{
 		VALIDATE_HANDLE_BOOL
 
 		handleLocation->second->RemoveConnection(NodeIndex, ConnectionIndex);
-		return TRUE;
+		return true;
 	}
 
 	//gets the bias of a node
-	FLOAT NEURALNET_API GET_NODE_BIAS(unsigned int handle, int NodeIndex) 
+	float NEURALNET_API GET_NODE_BIAS(unsigned long long int handle, int NodeIndex) 
 	{
 		VALIDATE_HANDLE_BOOL
 
 		return handleLocation->second->GetNodeBias(NodeIndex);
 	}
 	//sets the bias of a node
-	BOOL NEURALNET_API SET_NODE_BIAS(unsigned int handle, int NodeIndex, float bias)
+	bool NEURALNET_API SET_NODE_BIAS(unsigned long long int handle, int NodeIndex, float bias)
 	{
 		VALIDATE_HANDLE_BOOL
 
 		handleLocation->second->SetNodeBias(NodeIndex, bias);
-		return TRUE;
+		return true;
 	}
 
 	//gets the total number of connections going into a connection
-	INT NEURALNET_API GET_NODE_CONNECTION_COUNT(unsigned int handle, int TargetNodeIndex) 
+	int NEURALNET_API GET_NODE_CONNECTION_COUNT(unsigned long long int handle, int TargetNodeIndex) 
 	{
 		VALIDATE_HANDLE_INT
 
@@ -189,23 +193,23 @@ extern "C"
 	}
 
 	//gets the weight of a connection
-	FLOAT NEURALNET_API GET_CONNECTION_WEIGHT(unsigned int handle, int TargetNodeIndex, int ConnectionIndex) 
+	float NEURALNET_API GET_CONNECTION_WEIGHT(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex) 
 	{
 		VALIDATE_HANDLE_BOOL
 
 		return handleLocation->second->GetConnectionWeight(TargetNodeIndex, ConnectionIndex);
 	}
 	//sets the weight of a connection
-	BOOL NEURALNET_API SET_CONNECTION_WEIGHT(unsigned int handle, int TargetNodeIndex, int ConnectionIndex, float weight)
+	bool NEURALNET_API SET_CONNECTION_WEIGHT(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, float weight)
 	{
 		VALIDATE_HANDLE_BOOL
 
 		handleLocation->second->SetConnectionWeight(TargetNodeIndex, ConnectionIndex, weight);
-		return TRUE;
+		return true;
 	}
 
 	//saves a network
-	BOOL NEURALNET_API SAVE_NETWORK(unsigned int handle, const char* path) 
+	bool NEURALNET_API SAVE_NETWORK(unsigned long long int handle, const char* path) 
 	{
 		VALIDATE_HANDLE_BOOL
 

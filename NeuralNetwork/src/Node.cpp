@@ -7,9 +7,9 @@ Node::Node(NodeGene Gene)
 }
 
 //constructs the node from a bias
-Node::Node(float Bias) 
+Node::Node(float _Bias) 
 {
-	Bias = Bias;
+	Bias = _Bias;
 }
 
 //returns the value of this node(by calculation, if required)
@@ -98,7 +98,6 @@ ConnectionGene Connection::AsGene(Network *Network, bool TargetType, int TargetI
 	//find and store this connection's properties in the gene
 
 	//try to find the source node and index in input nodes
-	int index = -1;
 	std::vector<Node*>::iterator SourceIter = std::find(Network->InputNodes.begin(), Network->InputNodes.end(), Source);
 	if (SourceIter != Network->InputNodes.end()) 
 	{

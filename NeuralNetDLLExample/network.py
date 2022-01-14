@@ -1,9 +1,14 @@
 import ctypes
 import pathlib
 import enum
+import platform
 
 #load the library
-nnd__neuralnetdllname = str(pathlib.Path().absolute()) + "\\NeuralNetDLL.dll"
+nnd__neuralnetdllname = ""
+if platform.system() == "Windows":
+    nnd__neuralnetdllname = str(pathlib.Path().absolute()) + "\\NeuralNetDLL.dll"
+elif platform.system() == "Linux":
+    nnd__neuralnetdllname = str(pathlib.Path().absolute()) + "/NeuralNetDLL.so"
 nnd__neuralnetdll = ctypes.CDLL(nnd__neuralnetdllname)
 
 #set up bindings

@@ -9,7 +9,7 @@ if __name__ == "__main__":
     import gym
 
     #create the networks
-    networks = [Network(b"Genomes/Default.genome", 4, 1, Network.ActivationFunction.Sigmoid, verbose=True) for i in range(network_count)]
+    networks = [Network(b"Genomes/Default.genome", 4, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
 
     #start the test environment
     env = gym.make('CartPole-v0')
@@ -30,9 +30,10 @@ if __name__ == "__main__":
                 print(f"Episode for network {net_i} finished after {t+1} timesteps with {total_reward} reward")
                 break
         scores.append((net_i, total_reward))
+        env.reset()
 
     #sort the networks based on their scores
-    scores = sorted(scores, key=lambda x: x[1])
+    scores = sorted(scores, key=lambda x: x[1], reverse=True)
     print(scores)
 
     env.close()

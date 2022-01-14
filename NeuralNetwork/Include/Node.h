@@ -4,6 +4,7 @@
  * Contains the `Node` Class and a Connection and Node class
  */
 #include <vector>
+#include <algorithm>
 
 #include "Network.h"
 
@@ -62,7 +63,7 @@ public:
 	//constructs a node from a node gene
 	Node(NodeGene Gene);
 	//constructs the node from a bias
-	Node(float Bias);
+	Node(float _Bias);
 
 	//destroys the node and it's connections
 	~Node();
