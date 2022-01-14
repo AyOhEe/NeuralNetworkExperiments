@@ -27,7 +27,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 		//we couldn't open one of them, throw an exception
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unable to open Chromosomes at " << __FILE__ << ":" << __LINE__ << ". Make sure Genome is valid";
-		throw std::exception(ErrorMessage.str().c_str());
+		throw std::invalid_argument(ErrorMessage.str().c_str());
 	}
 
 	//create the input and output nodes
