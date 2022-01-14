@@ -7,7 +7,6 @@
 #include <string>
 
 //a chromosome consisting of genes in a file
-template<class GeneSegmentType>
 class Chromosome
 {
 	//the binary reader for the file
@@ -23,7 +22,7 @@ public:
 	~Chromosome();
 
 	//read the next gene
-	GeneSegmentType* ReadGene();
+	BR_RETURN_INT_TYPE* ReadGene();
 
 	//BinaryReader functions
 	bool good();

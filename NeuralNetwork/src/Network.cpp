@@ -18,8 +18,8 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	std::vector<int> ConnectionBitPattern = { 1, 1, 1, 10, 10, 9 };
 
 	//create the chromosome readers
-	Chromosome<int> NodeChromosome(GenomePath + "/Nodes.chr", NodeBitPattern);
-	Chromosome<int> ConnectionChromosome(GenomePath + "/Connections.chr", ConnectionBitPattern);
+	Chromosome NodeChromosome(GenomePath + "/Nodes.chr", NodeBitPattern);
+	Chromosome ConnectionChromosome(GenomePath + "/Connections.chr", ConnectionBitPattern);
 
 	//make sure we could open the files
 	if (!NodeChromosome | !ConnectionChromosome) 
@@ -57,7 +57,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	}
 
 	//start reading in the node chromosome
-	int* Gene;
+	BR_RETURN_INT_TYPE* Gene;
 	while (!NodeChromosome.eof()) 
 	{
 		//get the next gene
@@ -635,7 +635,7 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex)
 }
 
 //creates a connection gene from a chromosome gene
-ConnectionGene::ConnectionGene(int* Gene) 
+ConnectionGene::ConnectionGene(BR_RETURN_INT_TYPE* Gene)
 {
 	SourceType = Gene[1] == 1;
 	TargetType = Gene[2] == 1;
@@ -647,7 +647,7 @@ ConnectionGene::ConnectionGene(int* Gene)
 ConnectionGene::ConnectionGene() {}
 
 //creates a node gene from a chromosome gene
-NodeGene::NodeGene(int* Gene) 
+NodeGene::NodeGene(BR_RETURN_INT_TYPE* Gene)
 {
 	Bias = Gene[1] / NODE_GENE_BIAS_DIVISOR;
 }

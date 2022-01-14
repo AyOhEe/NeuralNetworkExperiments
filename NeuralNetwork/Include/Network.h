@@ -12,6 +12,7 @@
 
 #include "Node.h"
 #include "Chromosome.h"
+#include "BinaryReader.h"
 
 #define NODE_GENE_BIAS_DIVISOR 8192.0f
 #define CONNECTION_GENE_WEIGHT_DIVISOR 128.0f
@@ -30,7 +31,7 @@ struct ConnectionGene
 	float Weight;
 
 	//creates a connection gene from a chromosome gene
-	ConnectionGene(int* Gene);
+	ConnectionGene(BR_RETURN_INT_TYPE* Gene);
 	//default constructor
 	ConnectionGene();
 
@@ -50,7 +51,7 @@ struct NodeGene
 	std::string ToString();
 
 	//creates a node gene from a chromosome gene
-	NodeGene(int* Gene);
+	NodeGene(BR_RETURN_INT_TYPE* Gene);
 	//default constructor
 	NodeGene();
 
