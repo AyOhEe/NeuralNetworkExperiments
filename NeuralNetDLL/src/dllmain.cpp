@@ -7,11 +7,11 @@
 #include "../../NeuralNetwork/Include/Network.h"
 #include "../../NeuralNetwork/Include/Node.h"
 
-#ifdef __NT__
+#if defined(__NT__) | defined(_WIN32)
     #ifdef NEURALNETDLL_EXPORTS
-    #define NEURALNET_API __declspec(dllexport)
+		#define NEURALNET_API __declspec(dllexport)
     #else
-    #define NEURALNET_API __declspec(dllimport)
+		#define NEURALNET_API __declspec(dllimport)
     #endif
 #elif __unix__
     #define NEURALNET_API 
