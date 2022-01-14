@@ -81,6 +81,11 @@ class Network:
         #store information about the network
         self._inputs = inputs
         self._outputs = outputs
+
+    #interface for the destructor
+    def destroy(self):
+        #destroy the network on the c++ end
+        nnd__destroy_network(self.__handle)
        
     #looks at and returns the outputs from the last call of CalculateOutputs
     def PeekOutputs(self):
