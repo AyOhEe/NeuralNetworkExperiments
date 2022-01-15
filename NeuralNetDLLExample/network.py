@@ -212,7 +212,7 @@ if __name__ == "__main__":
     print("-----TEST 1-----")
     #create a network
     net = Network(
-        b"../NeuralNetwork/Genomes/test_genome.genome", #genome path
+        b"../NeuralNetwork/Genomes/test_genome", #genome path
         2,                                             #inputs
         1,                                             #outputs
         Network.ActivationFunction.LeakyReLu,          #activation function index
@@ -260,13 +260,13 @@ if __name__ == "__main__":
     print(f"{net.CalculateOutputs([1, 0]) = }")
     print(f"{net.CalculateOutputs([1, 1]) = }")
 
-    net.SaveNetwork(b"../NeuralNetwork/Genomes/altered_genome.genome")
+    net.SaveNetwork(b"../NeuralNetwork/Genomes/altered_genome")
 
     #-----TEST 2-----
     print("\n\n-----TEST 2-----")
     #create a network
     net = Network(
-        b"../NeuralNetwork/Genomes/altered_genome.genome", #genome path
+        b"../NeuralNetwork/Genomes/altered_genome", #genome path
         2,                                             #inputs
         1,                                             #outputs
         Network.ActivationFunction.LeakyReLu,          #activation function index
@@ -312,4 +312,4 @@ if __name__ == "__main__":
     print(f"{net.CalculateOutputs([1, 0]) = }")
     print(f"{net.CalculateOutputs([1, 1]) = }")
 
-    net.SaveNetwork(b"../NeuralNetwork/Genomes/further_altered_genome.genome")
+    net.SaveNetwork(b"../NeuralNetwork/Genomes/further_altered_genome")

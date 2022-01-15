@@ -9,7 +9,7 @@ if __name__ == "__main__":
     import gym
 
     #create the networks
-    networks = [Network(b"Genomes/Default.genome", 4, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
+    networks = [Network(b"Genomes/Default", 4, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
 
     #start the test environment
     env = gym.make('CartPole-v0')
