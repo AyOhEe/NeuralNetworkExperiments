@@ -15,7 +15,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 
 	//create a temporary vector to store the bit patterns
 	std::vector<int> NodeBitPattern = { 1, 1, 14 };
-	std::vector<int> ConnectionBitPattern = { 1, 1, 1, 10, 10, 9 };
+	std::vector<int> ConnectionBitPattern = { 1, 1, 1, 10, 10, 1, 8 };
 
 	//create the chromosome readers
 	Chromosome NodeChromosome(GenomePath + "/Nodes.chr", NodeBitPattern);
@@ -217,6 +217,9 @@ Network::Network()
 //saves the network to a file on disk
 void Network::SaveNetwork(std::string GenomePath, bool verbose)
 {
+	//create the directory for the genome
+	std::filesystem::create_directory(std::filesystem::path(GenomePath));
+
 	//open the files at the chromosome paths
 	std::ofstream NodeChromosomeFile(GenomePath + "/Nodes.chr", std::ios::out | std::ios::trunc | std::ios::binary);
 	std::ofstream ConnectionChromosomeFile(GenomePath + "/Connections.chr", std::ios::out | std::ios::trunc | std::ios::binary);
@@ -313,11 +316,11 @@ void NodeGene::AppendGene(std::ofstream &stream, bool verbose)
 	unsigned char Gene[2] = {0, 0};
 	
 	//get this gene's bias as an integer
-	int IntBias = (int)roundl(Bias * NODE_GENE_BIAS_DIVISOR);
+	int IntBias = (int)roundl(abs(Bias) * NODE_GENE_BIAS_DIVISOR);
 
 	//store the gene's component parts in the byte array
 	Gene[0] += 0b10000000; // this is a node gene
-	Gene[0] += IntBias < 0 ? 0b01000000 : 0; //sign bit
+	Gene[0] += Bias < 0 ? 0b01000000 : 0; //sign bit
 	Gene[0] += (IntBias & 0b0011111100000000) >> 8; // first 6 bits of the number
 	Gene[1] += IntBias & 0b0000000011111111; // rest of the number
 
@@ -633,7 +636,7 @@ ConnectionGene::ConnectionGene(BR_RETURN_INT_TYPE* Gene)
 	TargetType = Gene[2] == 1;
 	SourceID = Gene[3];
 	TargetID = Gene[4];
-	Weight = Gene[5] / CONNECTION_GENE_WEIGHT_DIVISOR;
+	Weight = (Gene[5] == 1 ? -1 : 1) * (Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR);
 }
 //default constructor
 ConnectionGene::ConnectionGene() {}
@@ -641,7 +644,7 @@ ConnectionGene::ConnectionGene() {}
 //creates a node gene from a chromosome gene
 NodeGene::NodeGene(BR_RETURN_INT_TYPE* Gene)
 {
-	Bias = Gene[1] / NODE_GENE_BIAS_DIVISOR;
+	Bias = (Gene[1] == 1 ? -1 : 1) * (Gene[2] / NODE_GENE_BIAS_DIVISOR);
 }
 //default constructor
 NodeGene::NodeGene() {}

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <math.h>
+#include <filesystem>
 
 #include "Node.h"
 #include "Chromosome.h"
