@@ -84,9 +84,6 @@ public:
 	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose = false);
 	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
 
-	//creates a network from a pre-existing vector of Node and Connection Genes
-	Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, int inputs, int outputs, float(*ActivationFunction)(float));
-
 	//creates a blank network
 	Network();
 
@@ -101,7 +98,7 @@ public:
 	//saves the network to a file on disk
 	void SaveNetwork(std::string GenomePath, bool verbose = false);
 
-	//TODO: make like half of these functions give error codes
+	//TODO(aria): make like half of these functions give error codes
 	//the number of inputs, outputs and nodes in the network
 	int InputCount();
 	int OutputCount();

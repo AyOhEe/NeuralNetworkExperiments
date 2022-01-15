@@ -31,11 +31,10 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	}
 
 	//create the input and output nodes
-	NodeGene BlankGene = NodeGene();
 	for (int i = 0; i < inputs; i++)
 	{
 		//create a node based on the blank gene
-		InputNodes.push_back(new Node(BlankGene));
+		InputNodes.push_back(new Node(0));
 		if (Verbose)
 		{
 			std::cout << "Input Node _ Created: " << i << std::endl;
@@ -44,7 +43,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	for (int i = 0; i < outputs; i++)
 	{
 		//create a node based on the blank gene
-		OutputNodes.push_back(new Node(BlankGene));
+		OutputNodes.push_back(new Node(0));
 		if (Verbose)
 		{
 			std::cout << "Output Node _ Created: " << i << std::endl;
@@ -73,7 +72,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 
 		if (Verbose)
 		{
-			std::cout << "Node gene created as " << nodeGene.ToString() << std::endl;
+			std::cout << "Node created as " << nodeGene.ToString() << std::endl;
 		}
 
 		//destroy the gene now that it's been read
@@ -96,35 +95,37 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 		ConnectionGene connectionGene = ConnectionGene(Gene);
 		if (connectionGene.TargetType) 
 		{
-			//hidden node, add this connection to the respective hidden node
-			Nodes[connectionGene.TargetID % Nodes.size()]->Connections.push_back(Connection(connectionGene, this));
+			//output node, add this connection to the respective hidden node
+			OutputNodes[connectionGene.TargetID % OutputNodes.size()]->Connections.push_back(Connection(connectionGene, this));
 		}
 		else 
 		{
-			//output node, add this connection to the respective hidden node
-			OutputNodes[connectionGene.TargetID % OutputNodes.size()]->Connections.push_back(Connection(connectionGene, this));
+			//hidden node, add this connection to the respective hidden node
+			Nodes[connectionGene.TargetID % Nodes.size()]->Connections.push_back(Connection(connectionGene, this));
 		}
 
 		if (Verbose) 
 		{
-			std::cout << "Connection gene created as " << connectionGene.ToString() << std::endl;
+			std::cout << "Connection created as " << connectionGene.ToString() << std::endl;
 		}
 
 		//destroy the gene now that it's been read
 		delete[] Gene;
 	}
+	//close the chromosome now that we're done
+	ConnectionChromosome.close();
 
 	if (Verbose) 
 	{
 		int i = 0;
 		for (std::vector<Node*>::iterator nodeiter = Nodes.begin(); nodeiter != Nodes.end(); nodeiter++, i++) 
 		{
-			std::cout << "Node " << i << " has " << (*nodeiter)->Connections.size() << "connections" << std::endl;
+			std::cout << "Node " << i << " has " << (*nodeiter)->Connections.size() << " connections" << std::endl;
 		}
 		i = 0;
 		for (std::vector<Node*>::iterator nodeiter = OutputNodes.begin(); nodeiter != OutputNodes.end(); nodeiter++, i++)
 		{
-			std::cout << "Output Node " << i << " has " << (*nodeiter)->Connections.size() << "connections" << std::endl;
+			std::cout << "Output Node " << i << " has " << (*nodeiter)->Connections.size() << " connections" << std::endl;
 		}
 	}
 }
@@ -212,15 +213,6 @@ Network::Network()
 {
 
 }
-
-//TODO: this
-//creates a network from a pre-existing vector of Node and Connection Genes
-/*Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, float (*ActivationFunction)(float))
-{
-	//store the activation function
-	ActivationFunction = ActivationFunction;
-    
-}*/
 
 //saves the network to a file on disk
 void Network::SaveNetwork(std::string GenomePath, bool verbose)

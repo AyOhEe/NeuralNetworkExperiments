@@ -26,11 +26,9 @@ float Node::CalculateValue(Network *Network)
 		{
 			NewValue += iter->Weight * iter->Source->CalculateValue(Network);
 		}
-		//and put the sum through the activation function, along side this node's bias
-		NewValue = Network->ActivationFunction(Bias + NewValue);
 		
 		//store the new value as the actual value
-		Value = NewValue;
+		Value = Network->ActivationFunction(Bias + NewValue);
 	}
 
 	//return our value now that it's guaranteed to be correct
