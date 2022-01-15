@@ -80,7 +80,7 @@ public:
 	//the activation function for this network
 	float(*ActivationFunction)(float);
 
-    //creates a network based on the .genome file at GenomePath
+    //creates a network based on the genome at GenomePath
 	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose = false);
 	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
 
