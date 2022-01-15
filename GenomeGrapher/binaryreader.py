@@ -15,9 +15,6 @@ class BinaryReader:
         #initialize variables
         self.current_bits = []
         self.bits_left = 0
-        
-        #determine if the file is even open
-        self._open = True if self.file else False
 
     #reads n_bite bits from the open file
     def read(self, n_bits=1):
@@ -29,8 +26,8 @@ class BinaryReader:
             as_byte = self.file.read(1) #read in a byte
             if as_byte == b"": #check if the byte is empty
                 #yep, it's empty. close the file and exit
-                self._open = False
-                return 0
+                self.file.close()
+                return
 
             as_int = int.from_bytes(as_byte, byteorder="big") #cast the byte to an int
             for i in range(8):
@@ -54,11 +51,11 @@ class BinaryReader:
         #close the file
         self.file.close()
 
-    #returns true if the file is closed
+    #returns true if the file is open
     def open(self):
-        return self._open
+        return (True if self.file else False) and not self.file.closed
 
 if __name__ == "__main__":
-    br = BinaryReader("../Genomes/test_genome_smallMOD.genome")
+    br = BinaryReader("../Genomes/test_genome_smallMOD/Nodes.chr")
 
     br.close()

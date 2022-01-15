@@ -6,54 +6,10 @@ Graphs a .genome file and stores the resulting graph as a .svg image
 
 import igraph
 import os
-from binaryreader import BinaryReader
+from chromosome import Chromosome
 
 NODE_GENE_BIAS_DIVISOR = 8192.0
 CONN_GENE_WEIGHT_DIVISOR = 128.0
-
-#iterates through the genes found in the file open in filestream
-def _iterate_genes(path):
-    #open the file
-    br = BinaryReader(path)
-
-    #guard clause: make sure we don't continue with an invalid stream
-    if not br.open():
-        return
-
-    #read until the file is empty
-    while br.open():
-        #determine the type of the gene
-        bit = br.read(1)
-        gene_type = bit == 1
-        if gene_type: # node gene
-            #get the bias
-            bias = br.read(15) / NODE_GENE_BIAS_DIVISOR
-
-            #yield the gene
-            if br.open():
-                yield gene_type, (bias,)
-            else:
-                break
-        else: #connection gene
-            #separate the gene into it's component parts
-            source_type = br.read(1)
-            target_type = br.read(1)
-            source_id = br.read(10)
-            target_id = br.read(10)
-            weight = ((-1 if (br.read(1) == 1) else 1) * br.read(8)) / CONN_GENE_WEIGHT_DIVISOR
-
-            #yield the gene
-            if br.open():
-                yield gene_type, (source_type, target_type, source_id, target_id, weight)
-            else:
-                break
-    #we're finished with this file. close it and return
-    br.close()
-    return
-
-#returns the normalised weight of weight x
-def _norm_weight(x):
-    return x / 2
 
 #class for reading and constructing a network from a genome
 class GenomeReader:
@@ -62,47 +18,52 @@ class GenomeReader:
         #start the graph
         g = igraph.Graph().as_directed()
 
+        #open the chromosomes
+        NodeChromosome = Chromosome(path + "\\Nodes.chr", [1, 1, 14])
+        ConnectionChromosome = Chromosome(path + "\\Connections.chr", [1, 1, 1, 10, 10, 1, 8])
+
         #add vertices for the inputs
         for i in range(inputs):
-            g.add_vertex(color=(0, 0, 1))
-
-        #iterate through the genes in the file
-        connection_genes = []
-        for gene_type, gene in _iterate_genes(path):
-            #the gene type determines our next step
-            if gene_type:
-                #node gene. add a vertex to the graph
-                color = (0, (gene[0] / 4), 0) if gene[0] > 0 else ((gene[0] / 4), 0, 0)
-                g.add_vertex(color=color)
-            else:
-                #connection gene. we need to handle these later, so for now we just store the gene
-                connection_genes.append(gene)
+            g.add_vertex(color=(0.512, 0.742, 0.867), label="Input: " + str(i))
 
         #add our output vertices
         for i in range(outputs):
-            g.add_vertex(color=(1, 0, 0))
+            g.add_vertex(color=(1, 0.5, 0.5), label="Output: " + str(i))
 
-        #now we can add our connections
-        for gene in connection_genes:
+        #iterate through the node chromosome
+        for gene in NodeChromosome.GeneIter():
+            #add a vertex for the node
+            colour = (0, 0, 0)
+            if gene[1] == 1:
+                colour = ((gene[2] / NODE_GENE_BIAS_DIVISOR) * 0.5, 0, 0)
+            else:
+                colour = (0, (gene[2] / NODE_GENE_BIAS_DIVISOR) * 0.5, 0)
+            g.add_vertex(color=colour)
+        #close the node chromosome now that we're done with it
+
+        #iterate through the connection chromosome
+        for gene in ConnectionChromosome.GeneIter():
             #determine the source and target indices depending on the source and target types
             source_index = -1
-            if gene[0]:
-                source_index = inputs + (gene[2] % (len(g.vs) - inputs))
+            if gene[1] == 1:
+                source_index = inputs + outputs + (gene[3] % (len(g.vs) - (inputs + outputs)))
             else:
-                source_index = gene[2] % inputs
+                source_index = gene[3] % inputs
 
             target_index = -1
-            if gene[1]:
-                target_index = (len(g.vs) - outputs) + (gene[3] % outputs)
+            if gene[2] == 1:
+                target_index = inputs + (gene[4] % outputs)
             else:
-                target_index = inputs + (gene[3] % (len(g.vs) - inputs))
+                target_index = inputs + outputs + (gene[4] % (len(g.vs) - (inputs + outputs)))
+
             #add an edge between the appropriate vertices with the correct weight
+            weight = (-1 if gene[5] == 1 else 1) * gene[6] / CONN_GENE_WEIGHT_DIVISOR
             g.add_edge(
                 source_index,
                 target_index,
-                weight=gene[4],
-                arrow_width=abs(gene[4]) + 0.001,
-                color=((1 - _norm_weight(gene[4])) / 2, (_norm_weight(gene[4]) + 1) / 2, 0))
+                weight=weight,
+                arrow_width=(gene[6] / CONN_GENE_WEIGHT_DIVISOR) + 0.001,
+                color=(-weight / 2, 0, 0) if weight < 0 else (0, weight / 2, 0))
 
         #plot the graph and save it as a file
         igraph.plot(g, f"Renders/{filename}.svg", edge_curved=True, bbox=(500,500), margin=64, layout="fruchterman_reingold")
@@ -113,7 +74,7 @@ if __name__ == "__main__":
     GENOME_DIR = input("Genome Directory: ")
 
     #get all genomes in ../Genomes
-    genome_paths = [dir for dir in os.listdir(GENOME_DIR) if dir[-7:] == ".genome"]
+    genome_paths = [dir for dir in os.listdir(GENOME_DIR)]
 
     #ask the user to pick a file until they pick a valid file
     print("Pick a genome to graph")
@@ -130,4 +91,4 @@ if __name__ == "__main__":
     #once we've escaped the loop we have a valid choice
     print(f"Genome Selected: {genome_paths[selection]}")
 
-    reader = GenomeReader(GENOME_DIR + genome_paths[selection], genome_paths[selection], 2, 1)
+    reader = GenomeReader(GENOME_DIR + "\\" + genome_paths[selection], genome_paths[selection], 2, 1)

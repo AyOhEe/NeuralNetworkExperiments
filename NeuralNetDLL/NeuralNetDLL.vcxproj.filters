@@ -27,6 +27,9 @@
     <ClCompile Include="..\NeuralNetwork\src\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\NeuralNetwork\src\Chromosome.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\framework.h">
