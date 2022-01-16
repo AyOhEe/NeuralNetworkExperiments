@@ -1,116 +1,40 @@
 #include "../Include/Network.h"
 
-//creates a network based on the .genome file at GenomePath
+//creates a network based on the genome at GenomePath
 Network::Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose)
 	: Network(GenomePath, inputs, outputs, GetActivationFunctionPointer(ActivationFunctionIndex), Verbose) 
 {
 	//this can actually have an empty body, we're done here
 }
 
-//creates a network based on the .genome file at GenomePath
+//creates a network based on the genome at GenomePath
 Network::Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose) : Nodes(), InputNodes(), OutputNodes()
 {
-	//all of the connection genes in this network
-	std::vector<ConnectionGene> ConnectionGenes;
-	//all of the node genes in this network
-	std::vector<NodeGene> NodeGenes;
-
 	//store the activation function
 	this->ActivationFunction = ActivationFunction;
 
-	//create the file stream
-	//std::ifstream GenomeReader(GenomePath, std::ios::in | std::ios::binary);
-	BinaryReader GenomeReader(GenomePath);
-	//did we successfully open the genome file	?
-	if (!GenomeReader)
+	//create a temporary vector to store the bit patterns
+	std::vector<int> NodeBitPattern = { 1, 1, 14 };
+	std::vector<int> ConnectionBitPattern = { 1, 1, 1, 10, 10, 1, 8 };
+
+	//create the chromosome readers
+	Chromosome NodeChromosome(GenomePath + "/Nodes.chr", NodeBitPattern);
+	Chromosome ConnectionChromosome(GenomePath + "/Connections.chr", ConnectionBitPattern);
+
+	//make sure we could open the files
+	if (!NodeChromosome | !ConnectionChromosome) 
 	{
-		//No, log an error in console
-		std::stringstream err;
-		err << "Error Opening Genome \"" << GenomePath << "\"";
-		throw std::runtime_error(err.str().c_str());
+		//we couldn't open one of them, throw an exception
+		std::stringstream ErrorMessage;
+		ErrorMessage << "Unable to open Chromosomes at " << __FILE__ << ":" << __LINE__ << ". Make sure Genome is valid";
+		throw std::invalid_argument(ErrorMessage.str().c_str());
 	}
-
-	//start reading the genome
-	while (!GenomeReader.eof())
-	{
-		//get the start of the next gene
-		int bit = GenomeReader.Read(1);
-		//std::cout << bit << std::endl;
-		bool GeneType = bit == 1;
-
-		//decide what we should do based on the gene type(True: Node, False: Connection)
-		if (GeneType)
-		{
-			//Node gene
-
-			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
-			NodeGene Gene;
-			Gene.Bias = GenomeReader.Read(1) == 1 ? -1 : 1;
-			Gene.Bias *= GenomeReader.Read(14) / NODE_GENE_BIAS_DIVISOR;
-
-			//exit if we find that we've overread
-			if (GenomeReader.eof())
-			{
-				//we've overread. we can ignore this gene as it's incomplete
-				break;
-			}
-
-			if (Verbose)
-			{
-				std::cout << "Node Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
-			}
-
-			//store the gene
-			NodeGenes.push_back(Gene);
-		}
-		else
-		{
-			//Connection Gene
-
-			//separate the gene data into it's parts using bitmasks and bitshifts and store it all in a gene object
-			ConnectionGene Gene;
-			Gene.SourceType = GenomeReader.Read(1) == 1;
-			Gene.TargetType = GenomeReader.Read(1) == 1;
-			Gene.SourceID = GenomeReader.Read(10);
-			Gene.TargetID = GenomeReader.Read(10);
-			Gene.Weight = GenomeReader.Read(1) == 1 ? -1 : 1;
-			Gene.Weight *= GenomeReader.Read(8) / CONNECTION_GENE_WEIGHT_DIVISOR;
-
-			//exit if we find that we've overread
-			if (GenomeReader.eof())
-			{
-				//we've overread. we can ignore this gene as it's incomplete
-				break;
-			}
-
-
-			if (Verbose)
-			{
-				std::cout << "Connection Gene Constructed as: " << Gene.ToString() << std::endl << std::endl;
-			}
-
-			//store the gene
-			ConnectionGenes.push_back(Gene);
-		}
-	}
-	//close the reader now that we've finished reading the file
-	GenomeReader.close();
-
-	//now that we have all of the node and connection genes, we need to create the nodes
-	for (std::vector<NodeGene>::iterator GeneIter = NodeGenes.begin(); GeneIter != NodeGenes.end(); GeneIter++)
-	{
-		//create a node from the current gene
-		Nodes.push_back(new Node(*GeneIter));
-	}
-	//we can safely discard the node genes now, as we've used them
-	NodeGenes.clear();
 
 	//create the input and output nodes
-	NodeGene BlankGene = NodeGene();
 	for (int i = 0; i < inputs; i++)
 	{
 		//create a node based on the blank gene
-		InputNodes.push_back(new Node(BlankGene));
+		InputNodes.push_back(new Node(0));
 		if (Verbose)
 		{
 			std::cout << "Input Node _ Created: " << i << std::endl;
@@ -119,7 +43,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	for (int i = 0; i < outputs; i++)
 	{
 		//create a node based on the blank gene
-		OutputNodes.push_back(new Node(BlankGene));
+		OutputNodes.push_back(new Node(0));
 		if (Verbose)
 		{
 			std::cout << "Output Node _ Created: " << i << std::endl;
@@ -131,45 +55,77 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 		std::cout << "Output Node Size: " << OutputNodes.size() << std::endl;
 	}
 
-	//now that we have all of the nodes created, we need to create the connections between them
-	for (std::vector<ConnectionGene>::iterator GeneIter = ConnectionGenes.begin(); GeneIter != ConnectionGenes.end(); GeneIter++)
+	//start reading in the node chromosome
+	BR_RETURN_INT_TYPE* Gene;
+	while (!NodeChromosome.eof()) 
 	{
-		//what kind of target does the gene have
-		if (GeneIter->TargetType)
+		//get the next gene
+		Gene = NodeChromosome.ReadGene();
+
+		//if we've hit the end of the file, ignore this gene and stop reading
+		if (NodeChromosome.eof())
+			break;
+
+		//create and add it's node
+		NodeGene nodeGene = NodeGene(Gene);
+		Nodes.push_back(new Node(nodeGene));
+
+		if (Verbose)
 		{
-			//output, we can use the network's output node array
-			//we modulo the gene's target id to ensure it always gets a node, no matter what the value is
-			OutputNodes[GeneIter->TargetID % OutputNodes.size()]->Connections.push_back(Connection(*GeneIter, this));
-			if (Verbose)
-			{
-				std::cout << "Creating Connection with target output node " << GeneIter->TargetID % OutputNodes.size() << std::endl;
-			}
+			std::cout << "Node created as " << nodeGene.ToString() << std::endl;
 		}
-		else
-		{
-			//node, we can use the network's node array
-			//we modulo the gene's target id to ensure it always gets a node, no matter what the value is
-			Nodes[GeneIter->TargetID % Nodes.size()]->Connections.push_back(Connection(*GeneIter, this));
-			if (Verbose)
-			{
-				std::cout << "Creating Connection with target internal node " << GeneIter->TargetID % Nodes.size() << std::endl;
-			}
-		}
+
+		//destroy the gene now that it's been read
+		delete[] Gene;
 	}
-	//we can safely discard the connection genes now, as we've used them
-	ConnectionGenes.clear();
+	//close the chromosome now that we're done
+	NodeChromosome.close();
+
+	//start reading in the connection chromosome
+	while (!ConnectionChromosome.eof()) 
+	{
+		//get the next gene
+		Gene = ConnectionChromosome.ReadGene();
+
+		//if we've hit the end of the file, ignore this gene and stop reading
+		if (ConnectionChromosome.eof())
+			break;
+
+		//does this node target an output or a hidden node?
+		ConnectionGene connectionGene = ConnectionGene(Gene);
+		if (connectionGene.TargetType) 
+		{
+			//output node, add this connection to the respective hidden node
+			OutputNodes[connectionGene.TargetID % OutputNodes.size()]->Connections.push_back(Connection(connectionGene, this));
+		}
+		else 
+		{
+			//hidden node, add this connection to the respective hidden node
+			Nodes[connectionGene.TargetID % Nodes.size()]->Connections.push_back(Connection(connectionGene, this));
+		}
+
+		if (Verbose) 
+		{
+			std::cout << "Connection created as " << connectionGene.ToString() << std::endl;
+		}
+
+		//destroy the gene now that it's been read
+		delete[] Gene;
+	}
+	//close the chromosome now that we're done
+	ConnectionChromosome.close();
 
 	if (Verbose) 
 	{
 		int i = 0;
 		for (std::vector<Node*>::iterator nodeiter = Nodes.begin(); nodeiter != Nodes.end(); nodeiter++, i++) 
 		{
-			std::cout << "Node " << i << " has " << (*nodeiter)->Connections.size() << "connections" << std::endl;
+			std::cout << "Node " << i << " has " << (*nodeiter)->Connections.size() << " connections" << std::endl;
 		}
 		i = 0;
 		for (std::vector<Node*>::iterator nodeiter = OutputNodes.begin(); nodeiter != OutputNodes.end(); nodeiter++, i++)
 		{
-			std::cout << "Output Node " << i << " has " << (*nodeiter)->Connections.size() << "connections" << std::endl;
+			std::cout << "Output Node " << i << " has " << (*nodeiter)->Connections.size() << " connections" << std::endl;
 		}
 	}
 }
@@ -258,20 +214,15 @@ Network::Network()
 
 }
 
-//TODO: this
-//creates a network from a pre-existing vector of Node and Connection Genes
-/*Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, float (*ActivationFunction)(float))
-{
-	//store the activation function
-	ActivationFunction = ActivationFunction;
-    
-}*/
-
 //saves the network to a file on disk
 void Network::SaveNetwork(std::string GenomePath, bool verbose)
 {
-	//open the file at the genome path
-	std::ofstream GenomeFile(GenomePath.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+	//create the directory for the genome
+	std::filesystem::create_directory(std::filesystem::path(GenomePath));
+
+	//open the files at the chromosome paths
+	std::ofstream NodeChromosomeFile(GenomePath + "/Nodes.chr", std::ios::out | std::ios::trunc | std::ios::binary);
+	std::ofstream ConnectionChromosomeFile(GenomePath + "/Connections.chr", std::ios::out | std::ios::trunc | std::ios::binary);
 
 	//iterate through all of the internal nodes in the network to save them and their connections
 	for(std::vector<Node*>::iterator NodeIter = Nodes.begin(); 
@@ -284,10 +235,10 @@ void Network::SaveNetwork(std::string GenomePath, bool verbose)
 			ConnectionIter++) 
 		{
 			//save this connection in the file
-			ConnectionIter->AsGene(this, false, NodeIter - Nodes.begin()).AppendGene(GenomeFile, verbose);
+			ConnectionIter->AsGene(this, false, NodeIter - Nodes.begin()).AppendGene(ConnectionChromosomeFile, verbose);
 		}
 		//save this node in the file
-		(*NodeIter)->AsGene().AppendGene(GenomeFile, verbose);
+		(*NodeIter)->AsGene().AppendGene(NodeChromosomeFile, verbose);
 	}
 
 	//iterate through all of the output nodes in the network to save ONLY their connections
@@ -301,12 +252,13 @@ void Network::SaveNetwork(std::string GenomePath, bool verbose)
 			ConnectionIter++)
 		{
 			//save this connection in the file
-			ConnectionIter->AsGene(this, true, NodeIter - OutputNodes.begin()).AppendGene(GenomeFile, verbose);
+			ConnectionIter->AsGene(this, true, NodeIter - OutputNodes.begin()).AppendGene(ConnectionChromosomeFile, verbose);
 		}
 	}
 
-	//close the file stream
-	GenomeFile.close();
+	//close the filestreams
+	NodeChromosomeFile.close();
+	ConnectionChromosomeFile.close();
 }
 
 //returns a representation of this gene as a string
@@ -327,7 +279,6 @@ std::string NodeGene::ToString()
 	str << Bias;
 	return str.str();
 }
-
 
 //appends this gene to a filestream
 void ConnectionGene::AppendGene(std::ofstream &stream, bool verbose)
@@ -365,11 +316,11 @@ void NodeGene::AppendGene(std::ofstream &stream, bool verbose)
 	unsigned char Gene[2] = {0, 0};
 	
 	//get this gene's bias as an integer
-	int IntBias = (int)roundl(Bias * NODE_GENE_BIAS_DIVISOR);
+	int IntBias = (int)roundl(abs(Bias) * NODE_GENE_BIAS_DIVISOR);
 
 	//store the gene's component parts in the byte array
 	Gene[0] += 0b10000000; // this is a node gene
-	Gene[0] += IntBias < 0 ? 0b01000000 : 0; //sign bit
+	Gene[0] += Bias < 0 ? 0b01000000 : 0; //sign bit
 	Gene[0] += (IntBias & 0b0011111100000000) >> 8; // first 6 bits of the number
 	Gene[1] += IntBias & 0b0000000011111111; // rest of the number
 
@@ -677,3 +628,23 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex)
 	//return true once the connection has been removed
 	return true;
 }
+
+//creates a connection gene from a chromosome gene
+ConnectionGene::ConnectionGene(BR_RETURN_INT_TYPE* Gene)
+{
+	SourceType = Gene[1] == 1;
+	TargetType = Gene[2] == 1;
+	SourceID = Gene[3];
+	TargetID = Gene[4];
+	Weight = (Gene[5] == 1 ? -1 : 1) * (Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR);
+}
+//default constructor
+ConnectionGene::ConnectionGene() {}
+
+//creates a node gene from a chromosome gene
+NodeGene::NodeGene(BR_RETURN_INT_TYPE* Gene)
+{
+	Bias = (Gene[1] == 1 ? -1 : 1) * (Gene[2] / NODE_GENE_BIAS_DIVISOR);
+}
+//default constructor
+NodeGene::NodeGene() {}

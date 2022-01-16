@@ -9,8 +9,10 @@
 #include <iostream>
 #include <sstream>
 #include <math.h>
+#include <filesystem>
 
 #include "Node.h"
+#include "Chromosome.h"
 #include "BinaryReader.h"
 
 #define NODE_GENE_BIAS_DIVISOR 8192.0f
@@ -29,6 +31,11 @@ struct ConnectionGene
 	int TargetID;
 	float Weight;
 
+	//creates a connection gene from a chromosome gene
+	ConnectionGene(BR_RETURN_INT_TYPE* Gene);
+	//default constructor
+	ConnectionGene();
+
 	//returns a representation of this gene as a string
 	std::string ToString();
 
@@ -43,6 +50,11 @@ struct NodeGene
 
 	//returns a representation of this gene as a string
 	std::string ToString();
+
+	//creates a node gene from a chromosome gene
+	NodeGene(BR_RETURN_INT_TYPE* Gene);
+	//default constructor
+	NodeGene();
 
 	//appends this gene to a filestream
 	void AppendGene(std::ofstream &stream, bool verbose = false);
@@ -69,12 +81,9 @@ public:
 	//the activation function for this network
 	float(*ActivationFunction)(float);
 
-    //creates a network based on the .genome file at GenomePath
+    //creates a network based on the genome at GenomePath
 	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose = false);
 	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
-
-	//creates a network from a pre-existing vector of Node and Connection Genes
-	Network(std::vector<ConnectionGene> &ConnectionGenes, std::vector<NodeGene> &NodeGenes, int inputs, int outputs, float(*ActivationFunction)(float));
 
 	//creates a blank network
 	Network();
@@ -90,7 +99,7 @@ public:
 	//saves the network to a file on disk
 	void SaveNetwork(std::string GenomePath, bool verbose = false);
 
-	//TODO: make like half of these functions give error codes
+	//TODO(aria): make like half of these functions give error codes
 	//the number of inputs, outputs and nodes in the network
 	int InputCount();
 	int OutputCount();
