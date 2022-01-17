@@ -216,6 +216,43 @@ extern "C"
 		handleLocation->second->SaveNetwork(std::string(path));
 		return true;
 	}
+
+    //breeds two networks together
+    bool NEURALNET_API BREED_NETWORKS(unsigned long long int handleA, unsigned long long int handleB, int inputs, int outputs, int ActivationFunctionIndex, float* _CrossoverPoints, int nCrossoverPoints, float MutationChance, bool verbose)
+    {
+        //validate the network handles
+        std::map<unsigned long long int, Network*>::iterator handleALocation = __NETWORKS.find(handleA); 
+        if (handleALocation == __NETWORKS.end()) 
+        { 
+            /*invalid handle, indicate failure*/ 
+            return false; 
+        } 
+        std::map<unsigned long long int, Network*>::iterator handleBLocation = __NETWORKS.find(handleB); 
+        if (handleBLocation == __NETWORKS.end()) 
+        { 
+            /*invalid handle, indicate failure*/ 
+            return false; 
+        }
+        //save the networks to be bred
+        handleALocation->second->SaveNetwork("Networks/BreedA");
+        handleBLocation->second->SaveNetwork("Networks/BreedB");
+
+        //copy over the crossover points into a vector
+        std::vector<float> CrossoverPoints;
+        std::copy(_CrossoverPoints, _CrossoverPoints + nCrossoverPoints, std::back_inserter(CrossoverPoints));
+        //create the breed settings struct
+        Network::BreedSettings Settings {CrossoverPoints, MutationChance};
+
+        //breed the networks
+        Network* ChildNet = new Network("Networks/BreedA", "Networks/BreedB", Settings, inputs, outputs, verbose);
+
+        //insert it into the map
+		__NETWORKS[(unsigned long long int)ChildNet] = ChildNet;
+
+		//return the "handle" which is really just the memory address of the network(guaranteed to be unique)
+		return (unsigned long long int)ChildNet;
+
+    }
 }
 
 //TODO: throw some definitions for these functions in a header and split this file into multiple files(maybe?)
