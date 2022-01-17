@@ -55,6 +55,9 @@ nnd__set_connection_weight = nnd__neuralnetdll.SET_CONNECTION_WEIGHT
 nnd__neuralnetdll.SAVE_NETWORK.restype = ctypes.c_bool
 nnd__save_network = nnd__neuralnetdll.SAVE_NETWORK
 
+nnd__neuralnetdll.BREED_NETWORKS.restype = ctypes.c_bool
+nnd__breed_networks = ndd_neuralnetdll.BREED_NETWORKS
+
 #interface class for the bindings in NeuralNetDLL.dll
 class Network:
     #enum for activation function indexes
@@ -68,19 +71,25 @@ class Network:
             return self.value
 
     #constructor
-    def __init__(self, genome_path, inputs, outputs, activation_function, verbose=False):
-        #create a network and store the handle
-        self.__handle = ctypes.c_uint64(nnd__create_network(
-            ctypes.c_char_p(genome_path),
-            ctypes.c_int(inputs),
-            ctypes.c_int(outputs),
-            ctypes.c_int(int(activation_function)),
-            ctypes.c_bool(verbose)
-        ))
+    def __init__(self, genome_path, inputs, outputs, activation_function, verbose=False, __handle=None):
+        #are we creating a new network or just storing an existing one?
+        if __handle == None:
+            #create a network and store the handle
+            self.__handle = ctypes.c_uint64(nnd__create_network(
+                ctypes.c_char_p(genome_path),
+                ctypes.c_int(inputs),
+                ctypes.c_int(outputs),
+                ctypes.c_int(int(activation_function)),
+                ctypes.c_bool(verbose)
+            ))
+        else:
+            #store the handle
+            self.__handle = ctypes.c_uint64(__handle)
 
         #store information about the network
         self._inputs = inputs
         self._outputs = outputs
+        self._activation_function = activation_function
 
     #interface for the destructor
     def destroy(self):
@@ -206,6 +215,30 @@ class Network:
             self.__handle, 
             ctypes.c_char_p(bytes(GenomePath))
         )
+    
+    #breeds this network with another with Settings and returns the new network
+    def BreedNetwork(self, OtherNetwork, Settings, verbose=False):
+        NewHandle = ctypes.c_uint64(nnd__breed_networks(
+            self.__handle, 
+            OtherNetwork.__handle, 
+            ctypes.c_int(self._inputs), 
+            ctypes.c_int(self._outputs), 
+            ctyoes.c_int(self._activation_function),
+            (ctypes.c_float)(*Settings[0]), 
+            ctypes.c_int(len(settings[0])), 
+            ctypes.c_float(Settings[1]), 
+            ctypes.c_bool(verbose)
+        )
+        #create a network with the new handle
+        return Network(
+            "",
+            self._inputs, 
+            self._outputs,
+            self._activation_function,
+            verbose,
+            NewHandle
+        )
+
 
 if __name__ == "__main__":
     #-----TEST 1-----
