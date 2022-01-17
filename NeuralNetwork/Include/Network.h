@@ -84,6 +84,16 @@ public:
     //creates a network based on the genome at GenomePath
 	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose = false);
 	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
+	
+	//settings determining how networks should be bred
+	struct BreedSettings 
+	{
+		std::vector<float> CrossoverPoints; //points where the genome that is read from is swapped. measured in percents
+		float MutationChance; //mutation chance. measured in mutations/1000 bits
+	};
+
+	//creates a network based on two genomes
+	Network(std::string GenomePathA, std::string GenomePathB, BreedSettings Settings, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
 
 	//creates a blank network
 	Network();
