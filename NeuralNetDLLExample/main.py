@@ -2,9 +2,9 @@ from network import Network
 
 if __name__ == "__main__":
     #test settings
-    network_count = 100
+    network_count = 200
     episode_length = 200
-    generation_length = 1000
+    generation_length = 2000
 
     node_add_chance = 50
     connection_add_chance = 50
@@ -16,11 +16,12 @@ if __name__ == "__main__":
 
     #import openai-gym https://gym.openai.com/docs/
     import gym
+    import math
     import random
     import ctypes
 
     #create the networks
-    networks = [Network(b"Genomes/Default", 4, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
+    networks = [Network(b"Genomes/Default", 4, 1, 0) for i in range(network_count)]
 
     #start the test environment
     env = gym.make('CartPole-v0')
@@ -34,7 +35,9 @@ if __name__ == "__main__":
             total_reward = 0
             observation, reward, done, info = (0, 0, 0, 0), 0, False, {}
             for t in range(episode_length):
-                observation, reward, done, info = env.step(int(round(networks[net_i].CalculateOutputs(observation)[0]))) #do an action
+                act = networks[net_i].CalculateOutputs(observation)[0]
+                act = act if act != math.nan else 0
+                observation, reward, done, info = env.step(int(round(act))) #do an action
                 total_reward += reward #store the reward for this iteration
 
                 if done: #exit if we've finished the episode
@@ -42,7 +45,7 @@ if __name__ == "__main__":
                     break
             scores.append((net_i, total_reward))
             env.reset()
-
+            
         #sort the networks based on their scores
         scores = sorted(scores, key=lambda x: x[1], reverse=True)
 
@@ -89,7 +92,7 @@ if __name__ == "__main__":
                 try:
                     node_index = random.randrange(0, bred_networks[-1].GetNodeCount() + bred_networks[-1].GetOutputCount())
                     connection_index = random.randrange(0, bred_networks[-1].GetNodeConnectionCount(node_index))
-                    bred_networks[-1].RemoveConnection(node_index, connection__index)
+                    bred_networks[-1].RemoveConnection(node_index, connection_index)
                 except ValueError:
                     pass
 
@@ -106,9 +109,9 @@ if __name__ == "__main__":
                     target_index = random.randrange(0, bred_networks[-1].GetNodeCount() + bred_networks[-1].GetOutputCount())
                     connection_index = random.randrange(0, bred_networks[-1].GetNodeConnectionCount(target_index))
                     bred_networks[-1].SetConnectionWeight(
-                        source_index, 
-                        connectionIndex, 
-                        bred_networks[-1].GetConnectionWeight(source_index, connectionIndex) + (random.random() - 0.5) * 0.05
+                        target_index, 
+                        connection_index, 
+                        bred_networks[-1].GetConnectionWeight(target_index, connection_index) + (random.random() - 0.5) * 0.05
                     )
                 except ValueError:
                     pass
@@ -123,8 +126,13 @@ if __name__ == "__main__":
                 except ValueError:
                     pass
 
+
         #store the next generation
         networks = good_networks + bred_networks
+
+        #TEMP ADD save all networks
+        for net_i in range(len(networks)):
+            networks[net_i].SaveNetwork(f"Networks/{gen_i}_{net_i}")
 
     #test the networks on the environment
     scores = []

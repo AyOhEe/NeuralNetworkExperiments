@@ -109,7 +109,7 @@ class Network:
         )
 
         #return the last outputs
-        return [v for v in last_outputs_array]
+        return [float(v) for v in last_outputs_array]
 
     #calculates and returns the outputs of the network given inputs
     def CalculateOutputs(self, inputs):
@@ -213,7 +213,7 @@ class Network:
     def SaveNetwork(self, GenomePath):
         nnd__save_network(
             self.__handle, 
-            ctypes.c_char_p(bytes(GenomePath))
+            ctypes.c_char_p(bytes(GenomePath, "utf-8"))
         )
     
     #breeds this network with another with Settings and returns the new network

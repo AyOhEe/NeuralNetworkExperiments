@@ -96,7 +96,7 @@ extern "C"
 	}
 
 	//calculates the values of a network
-	bool NEURALNET_API GET_NETWORK_OUTPUTS(unsigned long long int handle, float* outputs, int n_outputs)
+	bool NEURALNET_API GET_NETWORK_OUTPUTS(unsigned long long int handle, float* _outputs, int n_outputs)
 	{
 		VALIDATE_HANDLE_BOOL
 
@@ -108,7 +108,10 @@ extern "C"
 
 		//copy over the network outputs to the output array
 		std::vector<float> Outputs = handleLocation->second->GetResults();
-		std::copy(Outputs.begin(), Outputs.end(), outputs);
+		for (int i = 0; i < n_outputs & i < Outputs.size(); i++) 
+		{
+			_outputs[i] = Outputs[i];
+		}
 
 		return true;
 	}
@@ -244,7 +247,7 @@ extern "C"
 		Network::BreedSettings Settings{ CrossoverPoints, MutationChance };
 
 		//breed the networks
-		Network* ChildNet = new Network("Networks/BreedA", "Networks/BreedB", Settings, inputs, outputs, verbose);
+		Network* ChildNet = new Network("Networks/BreedA", "Networks/BreedB", Settings, inputs, outputs, ActivationFunctionIndex, verbose);
 
 		//insert it into the map
 		__NETWORKS[(unsigned long long int)ChildNet] = ChildNet;
