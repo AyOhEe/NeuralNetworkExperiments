@@ -4,8 +4,17 @@
 #include <map>
 #include <vector>
 #include <math.h>
+#include <string>
+#include <iostream>
+#include <sstream>
 
 #include "Node.h"
+#include "Chromosome.h"
+
+//forward definitions
+class Network;
+class Node;
+class Connection;
 
 class Network 
 {

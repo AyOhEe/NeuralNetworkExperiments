@@ -7,14 +7,20 @@
 
 #include <vector>
 
+//forward definitions
+class Network;
+class Node;
+class Connection;
+
 class Node 
 {
+	//networks require special access to nodes
+	friend Network;
+
 	//all of the connections going into this node
 	std::vector<Connection> Connections;
-
 	//the bias of this node
 	float Bias;
-
 	//the value of this node the last time it was calculated
 	float value;
 
@@ -30,6 +36,9 @@ public:
 
 	//gets the value of this node
 	float CalculateValue(Network* Net);
+
+	//returns Gene as a string
+	static std::string GeneAsString(BR_RETURN_INT_TYPE* Gene);
 };
 
 #endif
