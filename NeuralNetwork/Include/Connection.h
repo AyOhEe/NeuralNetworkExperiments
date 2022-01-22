@@ -25,6 +25,9 @@ public:
 	//creates a connection in network Net according to Gene
 	static void CreateConnection(BR_RETURN_INT_TYPE* Gene, Network *Net);
 
+	//appends this connection to a node chromosome
+	void AppendConnectionToChromosome(std::ofstream FileSteam);
+
 	//returns Gene as a string
 	static std::string GeneAsString(BR_RETURN_INT_TYPE* Gene);
 };

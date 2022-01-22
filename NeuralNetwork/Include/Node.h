@@ -37,6 +37,9 @@ public:
 	//gets the value of this node
 	float CalculateValue(Network* Net);
 
+	//appends this node to a node chromosome
+	void AppendNodeToChromosome(std::ofstream FileSteam);
+
 	//returns Gene as a string
 	static std::string GeneAsString(BR_RETURN_INT_TYPE* Gene);
 };
