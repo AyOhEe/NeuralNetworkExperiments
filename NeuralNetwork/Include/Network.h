@@ -32,9 +32,6 @@ public:
 	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose = false);
 	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
 
-	//destroys the network
-	~Network();
-
 	//the activation function for this network
 	float(*ActivationFunction)(float);
 
