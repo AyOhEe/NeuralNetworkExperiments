@@ -116,6 +116,174 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	}
 }
 
+//the number of inputs, outputs and nodes in the network
+int Network::InputCount() 
+{
+	return InputNodes.size();
+}
+int Network::OutputCount() 
+{
+	return OutputNodes.size();
+}
+int Network::NodeCount() 
+{
+	return Nodes.size();
+}
+
+
+//adds a node between a connection to the network
+bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex, float bias) 
+{
+	//find the connection to insert the node in between
+}
+
+//adds a connection between nodes to the network
+bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex, float weight) 
+{
+	//find the target node
+	Node* TargetNode;
+	if (TargetNodeIndex < NodeCount()) 
+	{
+		//internal node
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, SourceNodeIndex);
+		TargetNode = &(NodePlace->second);
+	}
+	else 
+	{
+		//output node
+		auto NodePlace = OutputNodes.begin();
+		std::advance(NodePlace, SourceNodeIndex - NodeCount());
+		TargetNode = &(*NodePlace);
+	}
+
+	//find the source node
+	Node* SourceNode;
+	if (SourceNodeIndex < InputCount())
+	{
+		//input node
+		auto NodePlace = InputNodes.begin();
+		std::advance(NodePlace, SourceNodeIndex);
+		SourceNode = &(*NodePlace);
+	}
+	else
+	{
+		//internal node
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, SourceNodeIndex - InputCount());
+		SourceNode = &(NodePlace->second);
+	}
+
+	//insert the connection
+	//TODO(aria): FIX THIS SHIT
+}
+
+//removes a node from the network
+bool Network::RemoveNode(int NodeIndex) 
+{
+	try 
+	{
+		//get the start of the nodes map, move by NodeIndex places, then remove that node
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, NodeIndex);
+		Nodes.erase(NodePlace);
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return false;
+	}
+}
+
+//removes a connection from the network
+bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex) 
+{
+	try
+	{
+		//get the start of the nodes map and move by NodeIndex places
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, NodeIndex);
+
+		//find and remove the connection from the vector
+		NodePlace->second.Connections.erase(NodePlace->second.Connections.begin() + ConnectionIndex);
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return false;
+	}
+}
+
+//gets the bias of a node
+float Network::GetNodeBias(int NodeIndex)
+{
+	//ensure the index is within the number of nodes
+	if (NodeIndex > NodeCount())
+		return 0; //it isn't. return 0
+
+	try
+	{
+		//get the start of the nodes map and move by NodeIndex places
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, NodeIndex);
+
+		//get and return the bias of the node
+		return NodePlace->second.Bias;
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return 0;
+	}
+}
+
+//sets the bias of a node
+void Network::SetNodeBias(int NodeIndex, float bias) 
+{
+	//ensure the index is within the number of nodes
+	if (NodeIndex > NodeCount())
+		return; //it isn't. return 0
+
+	try
+	{
+		//get the start of the nodes map and move by NodeIndex places
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, NodeIndex);
+
+		//set the bias of the node
+		NodePlace->second.Bias = bias;
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return;
+	}
+}
+
+
+//get the total number of connections going into a node
+int Network::GetTotalNodeConnections(int TargetNodeIndex)
+{
+	//ensure the index is within the number of nodes
+	if (TargetNodeIndex > NodeCount())
+		return -1; //it isn't. return -1
+
+	try
+	{
+		//get the start of the nodes map and move by NodeIndex places
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, TargetNodeIndex);
+
+		//get and return the bias of the node
+		return NodePlace->second.Connections.size();
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return -1;
+	}
+}
+
 //returns sigmoid of x
 float Sigmoid(float x)
 {
