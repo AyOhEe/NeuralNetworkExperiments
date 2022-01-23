@@ -104,7 +104,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	if (Verbose)
 	{
 		int i = 0;
-		for (std::map<unsigned long long, Node>::iterator nodeiter = Nodes.begin(); nodeiter != Nodes.end(); nodeiter++, i++)
+		for (std::map<long long, Node>::iterator nodeiter = Nodes.begin(); nodeiter != Nodes.end(); nodeiter++, i++)
 		{
 			std::cout << "Node " << i << " has " << nodeiter->second.Connections.size() << " connections" << std::endl;
 		}
@@ -134,49 +134,118 @@ int Network::NodeCount()
 //adds a node between a connection to the network
 bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex, float bias) 
 {
-	//find the connection to insert the node in between
-	//TODO(aria): FIX THIS SHIT
+	//find the target node
+	long long int TargetNodeIdentifier = 0;
+	if (TargetNodeIndex >= NodeCount()) 
+	{
+		//output node
+		TargetNodeIdentifier = -OutputCount() - (TargetNodeIndex - NodeCount());
+	}
+	else 
+	{
+		//internal node
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, TargetNodeIndex);
+		TargetNodeIdentifier = NodePlace->first;
+	}
+
+	//determine if the target is an output node or an internal node
+	if(TargetNodeIdentifier < 0)
+	{
+		//we're dealing with an output node
+
+		//ensure that the connection index is valid
+		if (ConnectionIndex >= OutputNodes[-TargetNodeIdentifier].Connections.size())
+			return false;
+
+		//create the new node
+		Node NewNode = Node(bias);
+
+		//add a connection to the node identical to the old connection
+		NewNode.Connections.push_back(Connection(OutputNodes[-TargetNodeIdentifier].Connections[ConnectionIndex]));
+
+		//set the weight of the old connection to 1
+		OutputNodes[-TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
+		
+		//add the new node to the node map
+		Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
+
+		//change the old connection's source
+		OutputNodes[-TargetNodeIdentifier].Connections[ConnectionIndex].SourceNode = UniqueNodeIndex - 1;
+	}
+	else 
+	{
+		//we're dealing with an internal node
+
+		//ensure that the connection index is valid
+		if (ConnectionIndex >= Nodes[TargetNodeIdentifier].Connections.size())
+			return false;
+
+		//create the new node
+		Node NewNode = Node(bias);
+
+		//add a connection to the node identical to the old connection
+		NewNode.Connections.push_back(Connection(Nodes[TargetNodeIdentifier].Connections[ConnectionIndex]));
+
+		//set the weight of the old connection to 1
+		Nodes[TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
+
+		//add the new node to the node map
+		Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
+
+		//change the old connection's source
+		Nodes[TargetNodeIdentifier].Connections[ConnectionIndex].SourceNode = UniqueNodeIndex - 1;
+	}
+
+	return true;
 }
 
 //adds a connection between nodes to the network
 bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex, float weight) 
 {
 	//find the target node
-	Node* TargetNode;
-	if (TargetNodeIndex < NodeCount()) 
-	{
-		//internal node
-		auto NodePlace = Nodes.begin();
-		std::advance(NodePlace, SourceNodeIndex);
-		TargetNode = &(NodePlace->second);
-	}
-	else 
+	long long int TargetNodeIdentifier = 0;
+	if (TargetNodeIndex >= NodeCount())
 	{
 		//output node
-		auto NodePlace = OutputNodes.begin();
-		std::advance(NodePlace, SourceNodeIndex - NodeCount());
-		TargetNode = &(*NodePlace);
-	}
-
-	//find the source node
-	Node* SourceNode;
-	if (SourceNodeIndex < InputCount())
-	{
-		//input node
-		auto NodePlace = InputNodes.begin();
-		std::advance(NodePlace, SourceNodeIndex);
-		SourceNode = &(*NodePlace);
+		TargetNodeIdentifier = -OutputCount() - (TargetNodeIndex - NodeCount());
 	}
 	else
 	{
 		//internal node
 		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, TargetNodeIndex);
+		TargetNodeIdentifier = NodePlace->first;
+	}
+
+	//find the source node
+	long long int SourceNodeIdentifier = 0;
+	if (SourceNodeIndex >= InputCount())
+	{
+		//internal node
+		auto NodePlace = Nodes.begin();
 		std::advance(NodePlace, SourceNodeIndex - InputCount());
-		SourceNode = &(NodePlace->second);
+		SourceNodeIdentifier = NodePlace->first;
+	}
+	else
+	{
+		//input node
+		SourceNodeIdentifier = -SourceNodeIndex;
 	}
 
 	//insert the connection
-	//TODO(aria): FIX THIS SHIT
+	if (TargetNodeIdentifier < 0) 
+	{
+		//output node as target
+		OutputNodes[-TargetNodeIdentifier].Connections.push_back(Connection(SourceNodeIdentifier, weight));
+	}
+	else 
+	{
+		//internal node as target
+		Nodes[TargetNodeIdentifier].Connections.push_back(Connection(SourceNodeIdentifier, weight));
+	}
+	
+	return true;
 }
 
 //removes a node from the network

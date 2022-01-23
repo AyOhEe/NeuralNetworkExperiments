@@ -19,13 +19,13 @@ class Connection;
 class Network 
 {
 	//all of the nodes in this network
-	std::map<unsigned long long int, Node> Nodes;
+	std::map<long long int, Node> Nodes;
 	//all of the input and output nodes in this network
 	std::vector<Node> InputNodes;
 	std::vector<Node> OutputNodes;
 
 	//the index for all nodes ever added to this network
-	unsigned long long int UniqueNodeIndex;
+	long long int UniqueNodeIndex;
 public:
 
 	//creates a network based on the genome at GenomePath

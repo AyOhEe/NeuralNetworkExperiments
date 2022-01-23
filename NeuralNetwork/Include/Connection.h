@@ -14,8 +14,9 @@ class Connection
 	//networks need access to connections
 	friend Network;
 	
-	//the entry in the nodes map for this connection's source
-	unsigned long long int SourceNode;
+	//the node for this connection's source.
+	//if < 0 then input index, therwise internal hash
+	long long int SourceNode;
 
 	//the weight of this noce
 	float Weight;
@@ -24,6 +25,8 @@ public:
 
 	//constructs a connection from a gene
 	Connection(BR_RETURN_INT_TYPE* Gene, Network *Net);
+	//constructs a gene from a node identifier and weight
+	Connection(long long int NodeIdentifier, float weight);
 
 	//creates a connection in network Net according to Gene
 	static void CreateConnection(BR_RETURN_INT_TYPE* Gene, Network *Net);
