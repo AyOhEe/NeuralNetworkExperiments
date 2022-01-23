@@ -135,6 +135,7 @@ int Network::NodeCount()
 bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex, float bias) 
 {
 	//find the connection to insert the node in between
+	//TODO(aria): FIX THIS SHIT
 }
 
 //adds a connection between nodes to the network
@@ -181,6 +182,10 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 //removes a node from the network
 bool Network::RemoveNode(int NodeIndex) 
 {
+	//ensure that the nodeindex is valid
+	if (NodeIndex >= NodeCount())
+		return false;
+
 	try 
 	{
 		//get the start of the nodes map, move by NodeIndex places, then remove that node
@@ -193,16 +198,26 @@ bool Network::RemoveNode(int NodeIndex)
 		std::cout << ex.what() << std::endl;
 		return false;
 	}
+
+	return true;
 }
 
 //removes a connection from the network
 bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex) 
 {
+	//ensure that the nodeindex is valid
+	if (NodeIndex >= NodeCount())
+		return false;
+
 	try
 	{
 		//get the start of the nodes map and move by NodeIndex places
 		auto NodePlace = Nodes.begin();
 		std::advance(NodePlace, NodeIndex);
+
+		//ensure that the connectionindex is valid
+		if (ConnectionIndex >= NodePlace->second.Connections.size())
+			return false;
 
 		//find and remove the connection from the vector
 		NodePlace->second.Connections.erase(NodePlace->second.Connections.begin() + ConnectionIndex);
@@ -212,13 +227,15 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex)
 		std::cout << ex.what() << std::endl;
 		return false;
 	}
+
+	return true;
 }
 
 //gets the bias of a node
 float Network::GetNodeBias(int NodeIndex)
 {
 	//ensure the index is within the number of nodes
-	if (NodeIndex > NodeCount())
+	if (NodeIndex >= NodeCount())
 		return 0; //it isn't. return 0
 
 	try
@@ -235,13 +252,15 @@ float Network::GetNodeBias(int NodeIndex)
 		std::cout << ex.what() << std::endl;
 		return 0;
 	}
+
+	return true;
 }
 
 //sets the bias of a node
 void Network::SetNodeBias(int NodeIndex, float bias) 
 {
 	//ensure the index is within the number of nodes
-	if (NodeIndex > NodeCount())
+	if (NodeIndex >= NodeCount())
 		return; //it isn't. return 0
 
 	try
@@ -260,12 +279,11 @@ void Network::SetNodeBias(int NodeIndex, float bias)
 	}
 }
 
-
 //get the total number of connections going into a node
 int Network::GetTotalNodeConnections(int TargetNodeIndex)
 {
 	//ensure the index is within the number of nodes
-	if (TargetNodeIndex > NodeCount())
+	if (TargetNodeIndex >= NodeCount())
 		return -1; //it isn't. return -1
 
 	try
@@ -282,6 +300,117 @@ int Network::GetTotalNodeConnections(int TargetNodeIndex)
 		std::cout << ex.what() << std::endl;
 		return -1;
 	}
+}
+
+//gets the weight of a connection
+float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex) 
+{
+	//ensure the index is within the number of nodes we can look at
+	if (TargetNodeIndex >= NodeCount() + OutputCount())
+		return -1; //it isn't. return -1
+
+	try
+	{
+		//what type of target node are we looking at?
+		if(TargetNodeIndex >= NodeCount())
+		{
+			//output node
+			//get the start of the nodes vector and move by NodeIndex places
+			auto NodePlace = OutputNodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->Connections.size())
+				return false;
+
+			//get the start of the connections vector and move by connectionindex places
+			auto ConnectionPlace = NodePlace->Connections.begin();
+			std::advance(ConnectionPlace, ConnectionIndex);
+
+			//get and return the weight of the connection
+			return ConnectionPlace->Weight;
+		}
+		else 
+		{
+			//internal node
+			//get the start of the nodes map and move by NodeIndex places
+			auto NodePlace = Nodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->second.Connections.size())
+				return false;
+
+			//get the start of the connections vector and move by connectionindex places
+			auto ConnectionPlace = NodePlace->second.Connections.begin();
+			std::advance(ConnectionPlace, ConnectionIndex);
+
+			//get and return the weight of the connection
+			return ConnectionPlace->Weight;
+		}
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return -1;
+	}
+}
+
+//sets the weight of a connection
+bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight) 
+{
+	//ensure the index is within the number of nodes we can look at
+	if (TargetNodeIndex >= NodeCount() + OutputCount())
+		return false; //it isn't. return -1
+
+	try
+	{
+		//what type of target node are we looking at?
+		if (TargetNodeIndex >= NodeCount())
+		{
+			//output node
+			//get the start of the nodes vector and move by NodeIndex places
+			auto NodePlace = OutputNodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->Connections.size())
+				return false;
+
+			//get the start of the connections vector and move by connectionindex places
+			auto ConnectionPlace = NodePlace->Connections.begin();
+			std::advance(ConnectionPlace, ConnectionIndex);
+
+			//get and return the weight of the connection
+			ConnectionPlace->Weight = weight;
+		}
+		else
+		{
+			//internal node
+			//get the start of the nodes map and move by NodeIndex places
+			auto NodePlace = Nodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->second.Connections.size())
+				return false;
+
+			//get the start of the connections vector and move by connectionindex places
+			auto ConnectionPlace = NodePlace->second.Connections.begin();
+			std::advance(ConnectionPlace, ConnectionIndex);
+
+			//set the weight of the connection
+			ConnectionPlace->Weight = weight;
+		}
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return false;
+	}
+
+	//successful operation
+	return true;
 }
 
 //returns sigmoid of x

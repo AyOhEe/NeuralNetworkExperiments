@@ -11,6 +11,9 @@ class Connection;
 
 class Connection
 {
+	//networks need access to connections
+	friend Network;
+	
 	//the entry in the nodes map for this connection's source
 	unsigned long long int SourceNode;
 

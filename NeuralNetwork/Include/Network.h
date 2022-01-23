@@ -68,7 +68,7 @@ public:
 	//gets the weight of a connection
 	float GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex);
 	//sets the weight of a connection
-	void SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight);
+	bool SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight);
 };
 
 #endif
