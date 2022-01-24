@@ -236,25 +236,26 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 	if(TargetNodeIdentifier < 0)
 	{
 		//we're dealing with an output node
+		TargetNodeIdentifier = -TargetNodeIdentifier - 1;
 
 		//ensure that the connection index is valid
-		if (ConnectionIndex >= OutputNodes[-TargetNodeIdentifier].Connections.size())
+		if (ConnectionIndex >= OutputNodes[TargetNodeIdentifier].Connections.size())
 			return false;
 
 		//create the new node
 		Node NewNode = Node(bias);
 
 		//add a connection to the node identical to the old connection
-		NewNode.Connections.push_back(Connection(OutputNodes[-TargetNodeIdentifier].Connections[ConnectionIndex]));
+		NewNode.Connections.push_back(Connection(OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex]));
 
 		//set the weight of the old connection to 1
-		OutputNodes[-TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
+		OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
 		
 		//add the new node to the node map
 		Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
 
 		//change the old connection's source
-		OutputNodes[-TargetNodeIdentifier].Connections[ConnectionIndex].SourceNode = UniqueNodeIndex - 1;
+		OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex].SourceNode = UniqueNodeIndex - 1;
 	}
 	else 
 	{
@@ -313,14 +314,14 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 	else
 	{
 		//input node
-		SourceNodeIdentifier = -SourceNodeIndex;
+		SourceNodeIdentifier = -SourceNodeIndex - 1;
 	}
 
 	//insert the connection
 	if (TargetNodeIdentifier < 0) 
 	{
 		//output node as target
-		OutputNodes[-TargetNodeIdentifier].Connections.push_back(Connection(SourceNodeIdentifier, weight));
+		OutputNodes[-TargetNodeIdentifier - 1].Connections.push_back(Connection(SourceNodeIdentifier, weight));
 	}
 	else 
 	{
@@ -358,21 +359,39 @@ bool Network::RemoveNode(int NodeIndex)
 bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex) 
 {
 	//ensure that the nodeindex is valid
-	if (NodeIndex >= NodeCount())
+	if (NodeIndex >= NodeCount() + OutputCount())
 		return false;
 
 	try
 	{
-		//get the start of the nodes map and move by NodeIndex places
-		auto NodePlace = Nodes.begin();
-		std::advance(NodePlace, NodeIndex);
+		//what kind of node are we dealing with
+		if (NodeIndex < NodeCount())
+		{
+			//internal node
+			//get the start of the nodes map and move by NodeIndex places
+			auto NodePlace = Nodes.begin();
+			std::advance(NodePlace, NodeIndex);
 
-		//ensure that the connectionindex is valid
-		if (ConnectionIndex >= NodePlace->second.Connections.size())
-			return false;
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->second.Connections.size())
+				return false;
 
-		//find and remove the connection from the vector
-		NodePlace->second.Connections.erase(NodePlace->second.Connections.begin() + ConnectionIndex);
+			//find and remove the connection from the vector
+			NodePlace->second.Connections.erase(NodePlace->second.Connections.begin() + ConnectionIndex);
+		}
+		else
+		{
+			//output node
+			//get the output node
+			auto NodePlace = OutputNodes.begin() + (NodeIndex - NodeCount());
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->Connections.size())
+				return false;
+
+			//find and remove the connection from the vector
+			NodePlace->Connections.erase(NodePlace->Connections.begin() + ConnectionIndex);
+		}
 	}
 	catch (std::exception &ex)
 	{
@@ -435,17 +454,31 @@ void Network::SetNodeBias(int NodeIndex, float bias)
 int Network::GetTotalNodeConnections(int TargetNodeIndex)
 {
 	//ensure the index is within the number of nodes
-	if (TargetNodeIndex >= NodeCount())
+	if (TargetNodeIndex >= NodeCount() + OutputCount())
 		return -1; //it isn't. return -1
 
 	try
 	{
-		//get the start of the nodes map and move by NodeIndex places
-		auto NodePlace = Nodes.begin();
-		std::advance(NodePlace, TargetNodeIndex);
+		//what kind of node are we dealing with
+		if (TargetNodeIndex < NodeCount())
+		{
+			//internal node
+			//get the start of the nodes map and move by NodeIndex places
+			auto NodePlace = Nodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
 
-		//get and return the bias of the node
-		return NodePlace->second.Connections.size();
+			//get and return the bias of the node
+			return NodePlace->second.Connections.size();
+		}
+		else 
+		{
+			//internal node
+			//get the output node
+			auto NodePlace = OutputNodes.begin() + (TargetNodeIndex - NodeCount());
+
+			//return the connections count
+			return NodePlace->Connections.size();
+		}
 	}
 	catch (std::exception &ex)
 	{
