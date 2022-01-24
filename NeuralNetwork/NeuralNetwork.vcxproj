@@ -32,8 +32,10 @@
   <ItemGroup>
     <ClCompile Include="src\BinaryReader.cpp" />
     <ClCompile Include="src\Chromosome.cpp" />
+    <ClCompile Include="src\Connection.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Network.cpp" />
+    <ClCompile Include="src\Node.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
