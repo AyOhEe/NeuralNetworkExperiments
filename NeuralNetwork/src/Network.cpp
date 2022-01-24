@@ -116,6 +116,89 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	}
 }
 
+//returns the values of all of the output nodes
+std::vector<float> Network::GetResults() 
+{
+	//the vector for the results to be stored in
+	std::vector<float> Results;
+
+	//iterate through the output nodes
+	for(auto NodeIter : OutputNodes)
+	{
+		Results.push_back(NodeIter.value);
+	}
+
+	//return the results
+	return Results;
+}
+
+//sets the values of all of the input nodes
+void Network::SetInputs(std::vector<float>& Inputs) 
+{
+	//iterate through all of the nodes
+	for (auto NodeIter = Nodes.begin(); NodeIter != Nodes.begin(); std::advance(NodeIter, 1))
+	{
+		//require it to recalculate
+		NodeIter->second.NeedsToRecalc = true;
+	}
+	//iterate through all of the output nodes
+	for(auto OutputNodeIter : OutputNodes)
+	{
+		OutputNodeIter.NeedsToRecalc = true;
+	}
+
+	//set the values of the input nodes
+	for(int i = 0; i < InputNodes.size(); i++)
+	{
+		InputNodes[i].value = Inputs[i];
+	}
+}
+
+//saves the network to a file on disk
+void Network::SaveNetwork(std::string GenomePath, bool verbose)
+{
+	//create the directory for the genome
+	std::filesystem::create_directory(std::filesystem::path(GenomePath));
+
+	//open the files at the chromosome paths
+	std::ofstream NodeChromosomeFile(GenomePath + "/Nodes.chr", std::ios::out | std::ios::trunc | std::ios::binary);
+	std::ofstream ConnectionChromosomeFile(GenomePath + "/Connections.chr", std::ios::out | std::ios::trunc | std::ios::binary);
+
+	//iterate through all of the internal nodes in the network to save them and their connections
+	long long int InternalNodeIdentifier = 0;
+	for (auto NodeIter : Nodes)
+	{
+		//iterate through all of the connections for this node
+		for (std::vector<Connection>::iterator ConnectionIter = NodeIter.second.Connections.begin();
+			ConnectionIter != NodeIter.second.Connections.end();
+			ConnectionIter++)
+		{
+			//save this connection in the file
+			ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, InternalNodeIdentifier++, this);
+		}
+		//save this node in the file
+		NodeIter.second.AppendNodeToChromosome(NodeChromosomeFile);
+	}
+
+	//iterate through all of the output nodes in the network to save ONLY their connections
+	long long int OutputNodeIdentifier = -1;
+	for (auto NodeIter : OutputNodes)
+	{
+		//iterate through all of the connections for this node
+		for (std::vector<Connection>::iterator ConnectionIter = NodeIter.Connections.begin();
+			ConnectionIter != NodeIter.Connections.end();
+			ConnectionIter++)
+		{
+			//save this connection in the file
+			ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, OutputNodeIdentifier--, this);
+		}
+	}
+
+	//close the filestreams
+	NodeChromosomeFile.close();
+	ConnectionChromosomeFile.close();
+}
+
 //the number of inputs, outputs and nodes in the network
 int Network::InputCount() 
 {

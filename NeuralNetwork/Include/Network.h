@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
 #include "Node.h"
 #include "Chromosome.h"

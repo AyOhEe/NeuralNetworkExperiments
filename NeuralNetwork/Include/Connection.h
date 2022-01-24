@@ -32,7 +32,7 @@ public:
 	static void CreateConnection(BR_RETURN_INT_TYPE* Gene, Network *Net);
 
 	//appends this connection to a node chromosome
-	void AppendConnectionToChromosome(std::ofstream FileSteam);
+	void AppendConnectionToChromosome(std::ofstream &FileSteam, long long int TargetIndex, Network* ParentNet);
 
 	//returns Gene as a string
 	static std::string GeneAsString(BR_RETURN_INT_TYPE* Gene);
