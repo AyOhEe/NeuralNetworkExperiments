@@ -13,6 +13,8 @@ class Connection
 {
 	//networks need access to connections
 	friend Network;
+	//nodes need access to connections
+	friend Node;
 	
 	//the node for this connection's source.
 	//if < 0 then input index, therwise internal hash

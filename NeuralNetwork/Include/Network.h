@@ -12,6 +12,9 @@
 #include "Node.h"
 #include "Chromosome.h"
 
+#define NODE_GENE_BIAS_DIVISOR 8192.0f
+#define CONNECTION_GENE_WEIGHT_DIVISOR 128.0f
+
 //forward definitions
 class Network;
 class Node;
@@ -19,6 +22,9 @@ class Connection;
 
 class Network 
 {
+	//nodes need access to other nodes
+	friend Node;
+
 	//all of the nodes in this network
 	std::map<long long int, Node> Nodes;
 	//all of the input and output nodes in this network
