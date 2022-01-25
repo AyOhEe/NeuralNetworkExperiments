@@ -21,7 +21,7 @@ if __name__ == "__main__":
     import ctypes
 
     #create the networks
-    networks = [Network(b"Genomes/Default", 4, 1, 0) for i in range(network_count)]
+    networks = [Network(b"Genomes/Default", 4, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
 
     #start the test environment
     env = gym.make('CartPole-v0')
@@ -36,7 +36,6 @@ if __name__ == "__main__":
             observation, reward, done, info = (0, 0, 0, 0), 0, False, {}
             for t in range(episode_length):
                 act = networks[net_i].CalculateOutputs(observation)[0]
-                act = act if act != math.nan else 0
                 observation, reward, done, info = env.step(int(round(act))) #do an action
                 total_reward += reward #store the reward for this iteration
 
@@ -58,77 +57,71 @@ if __name__ == "__main__":
         for net_tuple in scores[:len(scores)//2]:
             good_networks.append(networks[net_tuple[0]])
 
-        #randomly breed these networks to make up for the deficit
-        bred_networks = []
+        #randomly copy and mutate these networks to make up for the deficit
+        new_networks = []
         for i in range(network_count - len(good_networks)):
-            parentA = random.randrange(0, len(good_networks)) #get the first parent index
-            parentB = random.randrange(0, len(good_networks)) #get the second parent index
-            while parentB == parentA: #ensure the parent indices aren't the same
-                parentB = random.randrange(0, len(good_networks))
+            #copy a good network
+            new_networks.append(random.choice(good_networks).copy())
 
-            bred_networks.append(
-                good_networks[parentA].BreedNetwork(good_networks[parentB], (ctypes.c_float * 4)(0.2, 0.4, 0.6, 0.8), 50, True)
-            )
-
-            #decide if we should add to the network's structure
+            #decide if we should mutate the network's structure
             if random.randint(1, 1000) < connection_add_chance:
                 try:
-                    source_index = random.randrange(0, bred_networks[-1].GetInputCount() + bred_networks[-1].GetNodeCount())
-                    target_index = random.randrange(0, bred_networks[-1].GetNodeCount() + bred_networks[-1].GetOutputCount())
-                    bred_networks[-1].AddConnection(source_index, target_index, (random.random()-0.5)*3.9)
+                    source_index = random.randrange(0, new_networks[-1].GetInputCount() + new_networks[-1].GetNodeCount())
+                    target_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                    new_networks[-1].AddConnection(source_index, target_index, (random.random()-0.5)*3.9)
                 except ValueError:
                     pass
 
             if random.randint(1, 1000) < node_add_chance:
                 try:
-                    node_index = random.randrange(0, bred_networks[-1].GetNodeCount() + bred_networks[-1].GetOutputCount())
-                    connection_index = random.randrange(0, bred_networks[-1].GetNodeConnectionCount(node_index))
-                    bred_networks[-1].AddNode(node_index, connection_index, (random.random()-0.5)*3.9)
+                    node_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                    connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(node_index))
+                    new_networks[-1].AddNode(node_index, connection_index, (random.random()-0.5)*3.9)
                 except ValueError:
                     pass
 
             #decide if we should remove from the network's structure
             if random.randint(1, 1000) < connection_remove_chance:
                 try:
-                    node_index = random.randrange(0, bred_networks[-1].GetNodeCount() + bred_networks[-1].GetOutputCount())
-                    connection_index = random.randrange(0, bred_networks[-1].GetNodeConnectionCount(node_index))
-                    bred_networks[-1].RemoveConnection(node_index, connection_index)
+                    node_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                    connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(node_index))
+                    new_networks[-1].RemoveConnection(node_index, connection_index)
                 except ValueError:
                     pass
 
             if random.randint(1, 1000) < node_remove_chance:
                 try:
-                    node_index = random.randrange(0, bred_networks[-1].GetNodeCount() + bred_networks[-1].GetOutputCount())
-                    bred_networks[-1].RemoveNode(node_index)
+                    node_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                    new_networks[-1].RemoveNode(node_index)
                 except ValueError:
                     pass
 
             #decide if we should alter the network's properties
             if random.randint(1, 1000) < weight_alter_chance:
                 try:
-                    target_index = random.randrange(0, bred_networks[-1].GetNodeCount() + bred_networks[-1].GetOutputCount())
-                    connection_index = random.randrange(0, bred_networks[-1].GetNodeConnectionCount(target_index))
-                    bred_networks[-1].SetConnectionWeight(
+                    target_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                    connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(target_index))
+                    new_networks[-1].SetConnectionWeight(
                         target_index, 
                         connection_index, 
-                        bred_networks[-1].GetConnectionWeight(target_index, connection_index) + (random.random() - 0.5) * 0.05
+                        new_networks[-1].GetConnectionWeight(target_index, connection_index) + (random.random() - 0.5) * 0.05
                     )
                 except ValueError:
                     pass
 
             if random.randint(1, 1000) < bias_alter_chance:
                 try:
-                    node_index = random.randrange(0, bred_networks[-1].GetNodeCount())
-                    bred_networks[-1].SetNodeBias(
+                    node_index = random.randrange(0, new_networks[-1].GetNodeCount())
+                    new_networks[-1].SetNodeBias(
                         node_index, 
-                        bred_networks[-1].GetNodeBias(node_index) + (random.random() - 0.5) * 0.05
+                        new_networks[-1].GetNodeBias(node_index) + (random.random() - 0.5) * 0.05
                     )
                 except ValueError:
                     pass
 
 
         #store the next generation
-        networks = good_networks + bred_networks
+        networks = good_networks + new_networks
 
         #TEMP ADD save all networks
         for net_i in range(len(networks)):
