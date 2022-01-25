@@ -116,6 +116,223 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	}
 }
 
+//creates a network based on two genomes
+Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings Settings, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose) 
+{
+	//retrieve and store the activation function
+	ActivationFunction = GetActivationFunctionPointer(ActivationFunctionIndex);
+
+	//create a temporary vector to store the bit patterns
+	std::vector<int> NodeBitPattern = { 1, 1, 14 };
+	std::vector<int> ConnectionBitPattern = { 1, 1, 1, 10, 10, 1, 8 };
+
+	//create the chromosome readers
+	Chromosome NodeChromosomeA(GenomePathA + "/Nodes.chr", NodeBitPattern);
+	Chromosome ConnectionChromosomeA(GenomePathA + "/Connections.chr", ConnectionBitPattern);
+	Chromosome NodeChromosomeB(GenomePathB + "/Nodes.chr", NodeBitPattern);
+	Chromosome ConnectionChromosomeB(GenomePathB + "/Connections.chr", ConnectionBitPattern);
+
+	//make sure we could open the files
+	if (!NodeChromosomeA | !ConnectionChromosomeA | !NodeChromosomeB | !ConnectionChromosomeB)
+	{
+		//we couldn't open one of them, throw an exception
+		std::stringstream ErrorMessage;
+		ErrorMessage << "Unable to open Chromosomes at " << __FILE__ << ":" << __LINE__ << ". Make sure Genomes are valid";
+		throw std::invalid_argument(ErrorMessage.str().c_str());
+	}
+
+	//create the vectors for each chromosome's genes
+	std::vector<BR_RETURN_INT_TYPE*> NodeGeneSetA;
+	std::vector<BR_RETURN_INT_TYPE*> NodeGeneSetB;
+	std::vector<BR_RETURN_INT_TYPE*> ConnectionGeneSetA;
+	std::vector<BR_RETURN_INT_TYPE*> ConnectionGeneSetB;
+
+	//read in the chromosomes
+	BR_RETURN_INT_TYPE* Gene;
+	while (!NodeChromosomeA.eof())
+	{
+		//read in, mutate and store the next gene
+		Gene = NodeChromosomeA.ReadGene();
+
+		//determine if we should mutate the gene
+		if (std::rand() % 1000 < Settings.MutationChance)
+		{
+			//pick a section of the gene to mutate
+			int SelectedGene = std::rand() % 3;
+			Gene[SelectedGene] ^= 1 << (std::rand() % NodeBitPattern[SelectedGene]);
+		}
+
+		NodeGeneSetA.push_back(Gene);
+	}
+	while (!NodeChromosomeB.eof())
+	{
+		//read in, mutate and store the next gene
+		Gene = NodeChromosomeB.ReadGene();
+
+		//determine if we should mutate the gene
+		if (std::rand() % 1000 < Settings.MutationChance)
+		{
+			//pick a section of the gene to mutate
+			int SelectedGene = std::rand() % 3;
+			Gene[SelectedGene] ^= 1 << (std::rand() % NodeBitPattern[SelectedGene]);
+		}
+
+		NodeGeneSetB.push_back(Gene);
+	}
+
+	while (!ConnectionChromosomeA.eof())
+	{
+		//read in, mutate and store the next gene
+		Gene = ConnectionChromosomeA.ReadGene();
+
+		//determine if we should mutate the gene
+		if (std::rand() % 1000 < Settings.MutationChance)
+		{
+			//pick a section of the gene to mutate
+			int SelectedGene = std::rand() % 7;
+			Gene[SelectedGene] ^= 1 << (std::rand() % ConnectionBitPattern[SelectedGene]);
+		}
+
+		ConnectionGeneSetA.push_back(Gene);
+		delete Gene;
+	}
+	while (!ConnectionChromosomeB.eof())
+	{
+		//read in, mutate and store the next gene
+		Gene = ConnectionChromosomeB.ReadGene();
+
+		//determine if we should mutate the gene
+		if (std::rand() % 1000 < Settings.MutationChance)
+		{
+			//pick a section of the gene to mutate
+			int SelectedGene = std::rand() % 7;
+			Gene[SelectedGene] ^= 1 << (std::rand() % ConnectionBitPattern[SelectedGene]);
+		}
+
+		ConnectionGeneSetB.push_back(Gene);
+		delete Gene;
+	}
+
+	//get the smallest chromosome size from each genome
+	int MinNodeChromosomeLength = std::min(NodeGeneSetA.size() - 1, NodeGeneSetB.size() - 1);
+	int MinConnectionChromosomeLength = std::min(ConnectionGeneSetA.size() - 1, ConnectionGeneSetB.size() - 1);
+
+	if (Verbose)
+	{
+		std::cout << "MinNodeChromosomeLength: " << MinNodeChromosomeLength << std::endl;
+		std::cout << "MinConnectionChromosomeLength: " << MinConnectionChromosomeLength << std::endl;
+	}
+
+	//determine how many genes to read before crossing over each time
+	std::vector<int> NodeChromosomeCrossoverPointGeneCount;
+	std::vector<int> ConnectionChromosomeCrossoverPointGeneCount;
+	int LastDeltaNodeCrossover = 0;
+	int LastDeltaConnectionCrossover = 0;
+	for (float CrossoverPercent : Settings.CrossoverPoints)
+	{
+		//calculate the amount of genes to read before the next crossover
+		int NodeChromosomeDeltaCrossoverPoint = (int)std::ceil(CrossoverPercent * MinNodeChromosomeLength) - LastDeltaNodeCrossover;
+		int ConnectionChromosomeDeltaCrossoverPoint = (int)std::ceil(CrossoverPercent * MinConnectionChromosomeLength) - LastDeltaConnectionCrossover;
+
+		//store them
+		NodeChromosomeCrossoverPointGeneCount.push_back(NodeChromosomeDeltaCrossoverPoint);
+		ConnectionChromosomeCrossoverPointGeneCount.push_back(ConnectionChromosomeDeltaCrossoverPoint);
+
+		//and store them as the last used variables
+		LastDeltaNodeCrossover = NodeChromosomeDeltaCrossoverPoint;
+		LastDeltaConnectionCrossover = ConnectionChromosomeDeltaCrossoverPoint;
+	}
+
+	if (Verbose)
+	{
+		std::cout << "Node chromosome delta crossover points: ";
+		for (int i : NodeChromosomeCrossoverPointGeneCount)
+			std::cout << i << ", ";
+		std::cout << std::endl;
+		std::cout << "Connection chromosome delta crossover points: ";
+		for (int i : ConnectionChromosomeCrossoverPointGeneCount)
+			std::cout << i << ", ";
+		std::cout << std::endl;
+	}
+
+	//create the input and output nodes
+	for (int i = 0; i < inputs; i++)
+	{
+		//create a node based on the blank gene
+		InputNodes.push_back(Node(0.0f));
+		if (Verbose)
+		{
+			std::cout << "Input Node _ Created: " << i << std::endl;
+		}
+	}
+	for (int i = 0; i < outputs; i++)
+	{
+		//create a node based on the blank gene
+		OutputNodes.push_back(Node(0.0f));
+		if (Verbose)
+		{
+			std::cout << "Output Node _ Created: " << i << std::endl;
+		}
+	}
+	if (Verbose)
+	{
+		std::cout << "Input Node Size: " << InputNodes.size() << std::endl;
+		std::cout << "Output Node Size: " << OutputNodes.size() << std::endl;
+	}
+
+	//construct the nodes in the network
+	int GenomeProgress = 0;
+	bool CurrentGenome = false;
+	std::vector<BR_RETURN_INT_TYPE*> *CurrentNodeGeneSet = &NodeGeneSetA;
+	//iterate through all of the crossover points
+	for (int GeneCount : NodeChromosomeCrossoverPointGeneCount)
+	{
+		//construct the nodes for the amount of genes specified
+		for (int Gene_i = GeneCount; Gene_i < GenomeProgress + GeneCount; Gene_i++)
+		{
+			//construct and append the node to the network
+			Nodes.insert(std::pair(UniqueNodeIndex++, Node(CurrentNodeGeneSet->operator[](Gene_i))));
+		}
+
+		//invert the current gene set
+		if (CurrentGenome)
+			CurrentNodeGeneSet = &NodeGeneSetA;
+		else
+			CurrentNodeGeneSet = &NodeGeneSetB;
+		CurrentGenome = !CurrentGenome;
+
+		//start parsing the other genome from the same place
+		GenomeProgress += GeneCount;
+	}
+
+	//construct the connections in the network
+	GenomeProgress = 0;
+	CurrentGenome = false;
+	std::vector<BR_RETURN_INT_TYPE*> *CurrentConnectionGeneSet = &ConnectionGeneSetA;
+	//iterate through all of the crossover points
+	for (int GeneCount : ConnectionChromosomeCrossoverPointGeneCount)
+	{
+		//construct the connections for the amount of genes specified
+		for (int Gene_i = GeneCount; Gene_i < GenomeProgress + GeneCount; Gene_i++)
+		{
+			//get the current gene
+			BR_RETURN_INT_TYPE* CurrentGene = CurrentConnectionGeneSet->operator[](Gene_i);
+			//create the connection
+			Connection::CreateConnection(CurrentGene, this);
+		}
+
+		//invert the current gene set
+		if (CurrentGenome)
+			CurrentConnectionGeneSet = &ConnectionGeneSetA;
+		else
+			CurrentConnectionGeneSet = &ConnectionGeneSetB;
+		CurrentGenome = !CurrentGenome;
+
+		//start parsing the other genome from the same place
+		GenomeProgress += GeneCount;
+	}
+}
+
 //returns the values of all of the output nodes
 std::vector<float> Network::GetResults() 
 {
