@@ -38,6 +38,9 @@ public:
 
 	//returns Gene as a string
 	static std::string GeneAsString(BR_RETURN_INT_TYPE* Gene);
+
+	//attempts to get the value of this connection
+	bool TryAddValue(float* OutValue, Network* Net);
 };
 
 #endif

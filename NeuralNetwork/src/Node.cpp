@@ -23,21 +23,11 @@ float Node::CalculateValue(Network* Net)
 	{
 		//iterate through the connections of the node
 		float NewVal = 0;
-		for (auto ConnIter : Connections) 
+		for (int i = 0; i < Connections.size(); i++) 
 		{
-			//is the source an input or internal node?
-			if(ConnIter.SourceNode < 0)
-			{
-				//input node
-				//add the weighted value of the connection
-				NewVal += ConnIter.Weight * Net->InputNodes[-ConnIter.SourceNode - 1].CalculateValue(Net);
-			}
-			else 
-			{
-				//internal node
-				//add the weighted value of the connection
-				NewVal += ConnIter.Weight * Net->Nodes[ConnIter.SourceNode].CalculateValue(Net);
-			}
+			//attempt to add the value of the connection. if we fail, remove the connection as it's invalid
+			if (!Connections[i].TryAddValue(&NewVal, Net))
+				Connections.erase(Connections.begin() + i--); //we decrement i here as to not skip an element
 		}
 		//put the new value through the activation function
 		value = Net->ActivationFunction(NewVal);
