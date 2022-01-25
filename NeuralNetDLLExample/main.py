@@ -36,7 +36,7 @@ if __name__ == "__main__":
             observation, reward, done, info = (0, 0, 0, 0), 0, False, {}
             for t in range(episode_length):
                 act = networks[net_i].CalculateOutputs(observation)[0]
-                observation, reward, done, info = env.step(int(round(act))) #do an action
+                observation, reward, done, info = env.step(1 if act > 0.5 else 0) #do an action
                 total_reward += reward #store the reward for this iteration
 
                 if done: #exit if we've finished the episode
