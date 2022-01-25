@@ -75,6 +75,19 @@ extern "C"
 		return true;
 	}
 
+	//creates a copy of the network given
+	bool NEURALNET_API COPY_NETWORK(unsigned long long int handle)
+	{
+		VALIDATE_HANDLE_BOOL
+
+		//valid handle, create copy of the network and store it
+		Network* Net = new Network(*__NETWORKS[handle]);
+		__NETWORKS[(unsigned long long int)Net] = Net;
+
+		//indicate success
+		return true;
+	}
+
 	//sets the inputs of a network
 	bool NEURALNET_API SET_NETWORK_INPUTS(unsigned long long int handle, float* inputs, int n_inputs)
 	{

@@ -17,6 +17,9 @@ nnd__neuralnetdll.DESTROY_NETWORK.restype = ctypes.c_bool
 nnd__create_network = nnd__neuralnetdll.CREATE_NETWORK
 nnd__destroy_network = nnd__neuralnetdll.DESTROY_NETWORK
 
+nnd__neuralnetdll.COPY_NETWORK.restype = ctypes.c_bool
+nnd__copy_network = nnd__neuralnetdll.COPY_NETWORK
+
 nnd__neuralnetdll.GET_NETWORK_OUTPUTS.restype = ctypes.c_bool
 nnd__neuralnetdll.SET_NETWORK_INPUTS.restype = ctypes.c_bool
 nnd__get_network_outputs = nnd__neuralnetdll.GET_NETWORK_OUTPUTS
@@ -90,6 +93,13 @@ class Network:
         self._inputs = inputs
         self._outputs = outputs
         self._activation_function = activation_function
+
+    #returns a copy of this network
+    def copy(self, verbose=False):
+        #create the copy
+        copy_handle = nnd__copy_network(self.__handle)
+        #return a network object created with that handle
+        return Network("", self._inputs, self._outputs, self._activation_function, verbose, copy_handle)
 
     #interface for the destructor
     def destroy(self):
