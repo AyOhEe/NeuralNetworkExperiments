@@ -16,6 +16,8 @@ class Node
 {
 	//networks require special access to nodes
 	friend Network;
+	//connections require special access to nodes
+	friend Connection;
 
 	//all of the connections going into this node
 	std::vector<Connection> Connections;

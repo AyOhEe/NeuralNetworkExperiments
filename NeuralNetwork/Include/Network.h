@@ -24,6 +24,8 @@ class Network
 {
 	//nodes need access to other nodes
 	friend Node;
+	//connections need access to nodes
+	friend Connection;
 
 	//all of the nodes in this network
 	std::map<long long int, Node> Nodes;
