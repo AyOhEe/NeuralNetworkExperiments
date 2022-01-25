@@ -3,9 +3,16 @@
 //constructs a connection from a gene
 Connection::Connection(BR_RETURN_INT_TYPE* Gene, Network *Net) 
 {
+	//calculate the weight of the connection
+	Weight = (Gene[5] == 1 ? -1 : 1) * (Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR);
+
 	//determine the source node type
 	if (Gene[1] == 1) 
 	{
+		//only proceed if the network has nodes
+		if (Net->Nodes.size() == 0)
+			return;
+
 		//internal node, get the node at the position specified in the gene
 		auto NodePlace = Net->Nodes.begin();
 		std::advance(NodePlace, Gene[3] % Net->Nodes.size());
@@ -16,9 +23,6 @@ Connection::Connection(BR_RETURN_INT_TYPE* Gene, Network *Net)
 		//input node
 		SourceNode = -(long long)Gene[3] - 1;
 	}
-
-	//calculate the weight of the connection
-	Weight = (Gene[5] == 1 ? -1 : 1) * (Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR);
 }
 //constructs a gene from a node identifier and weight
 Connection::Connection(long long int NodeIdentifier, float weight) 
@@ -34,6 +38,10 @@ void Connection::CreateConnection(BR_RETURN_INT_TYPE* Gene, Network *Net)
 	//determine the target type
 	if (Gene[2] == 1) 
 	{
+		//only proceed if the network has nodes
+		if (Net->OutputNodes.size() == 0)
+			return;
+
 		//output node, get the node at the position specified in the gene
 		auto NodePlace = Net->OutputNodes.begin();
 		std::advance(NodePlace, Gene[4] % Net->OutputNodes.size());
@@ -43,6 +51,10 @@ void Connection::CreateConnection(BR_RETURN_INT_TYPE* Gene, Network *Net)
 	}
 	else 
 	{
+		//only proceed if the network has nodes
+		if (Net->Nodes.size() == 0)
+			return;
+
 		//internal node, get the node at the position specified in the gene
 		auto NodePlace = Net->Nodes.begin();
 		std::advance(NodePlace, Gene[4] % Net->Nodes.size());
@@ -108,7 +120,11 @@ void Connection::AppendConnectionToChromosome(std::ofstream &FileStream, long lo
 	else 
 	{
 		//internal node
-		SourceIndex = std::distance(Net->Nodes.begin(), Net->Nodes.find(SourceNode));
+		//only do the next part if the network has nodes
+		if (Net->Nodes.size() != 0)
+			SourceIndex = std::distance(Net->Nodes.begin(), Net->Nodes.find(SourceNode));
+		else //otherwise, set source index to 0
+			SourceIndex = 0;
 	}
 
 	//recreate the gene
