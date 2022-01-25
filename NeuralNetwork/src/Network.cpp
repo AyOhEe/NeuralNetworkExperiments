@@ -386,7 +386,7 @@ std::vector<float> Network::GetResults()
 	//iterate through the output nodes
 	for(auto NodeIter : OutputNodes)
 	{
-		Results.push_back(NodeIter.value);
+		Results.push_back(NodeIter.CalculateValue(this));
 	}
 
 	//return the results
@@ -397,15 +397,15 @@ std::vector<float> Network::GetResults()
 void Network::SetInputs(std::vector<float>& Inputs) 
 {
 	//iterate through all of the nodes
-	for (auto NodeIter = Nodes.begin(); NodeIter != Nodes.begin(); std::advance(NodeIter, 1))
+	for (auto NodeIter = Nodes.begin(); NodeIter != Nodes.end(); std::advance(NodeIter, 1))
 	{
 		//require it to recalculate
 		NodeIter->second.NeedsToRecalc = true;
 	}
 	//iterate through all of the output nodes
-	for(auto OutputNodeIter : OutputNodes)
+	for(int i = 0; i < OutputNodes.size(); i++)
 	{
-		OutputNodeIter.NeedsToRecalc = true;
+		OutputNodes[i].NeedsToRecalc = true;
 	}
 
 	//set the values of the input nodes

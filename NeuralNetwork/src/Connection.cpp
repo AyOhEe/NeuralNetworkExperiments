@@ -77,6 +77,7 @@ bool Connection::TryAddValue(float* OutValue, Network* Net)
 	catch(std::exception &ex)
 	{
 		//oops, something went wrong. return false
+		std::cout << ex.what() << std::endl;
 		return false;
 	}
 
