@@ -1,92 +1,48 @@
-#ifndef GENOME_H
-#define GENOME_H
-/* Network.H
- * Contains the `Network` Class and two Gene classes
- */
+#ifndef NETWORK_H
+#define NETWORK_H
 
-#include <string>
+#include <map>
 #include <vector>
+#include <math.h>
+#include <string>
 #include <iostream>
 #include <sstream>
-#include <math.h>
 #include <filesystem>
 
 #include "Node.h"
 #include "Chromosome.h"
-#include "BinaryReader.h"
 
 #define NODE_GENE_BIAS_DIVISOR 8192.0f
 #define CONNECTION_GENE_WEIGHT_DIVISOR 128.0f
 
-//forward declaration of node and connection so we're clear to use it
+//forward definitions
+class Network;
 class Node;
 class Connection;
 
-//a gene representing a connection between two nodes in a network
-struct ConnectionGene
-{
-	bool SourceType;
-	bool TargetType;
-	int SourceID;
-	int TargetID;
-	float Weight;
-
-	//creates a connection gene from a chromosome gene
-	ConnectionGene(BR_RETURN_INT_TYPE* Gene);
-	//default constructor
-	ConnectionGene();
-
-	//returns a representation of this gene as a string
-	std::string ToString();
-
-	//appends this gene to a filestream
-	void AppendGene(std::ofstream &stream, bool verbose = false);
-};
-
-//a gene representing a node in a network
-struct NodeGene 
-{
-	float Bias;
-
-	//returns a representation of this gene as a string
-	std::string ToString();
-
-	//creates a node gene from a chromosome gene
-	NodeGene(BR_RETURN_INT_TYPE* Gene);
-	//default constructor
-	NodeGene();
-
-	//appends this gene to a filestream
-	void AppendGene(std::ofstream &stream, bool verbose = false);
-};
-
-//returns sigmoid(x)
-float Sigmoid(float x);
-//returns an activation function pointer based on it's index
-float(*GetActivationFunctionPointer(int Index))(float);
-
-//a network composed of nodes and connections
 class Network 
 {
-	//connections need access to the node array
+	//nodes need access to other nodes
+	friend Node;
+	//connections need access to nodes
 	friend Connection;
 
 	//all of the nodes in this network
-	std::vector<Node*> Nodes;
-	//all of the input nodes for this network
-	std::vector<Node*> InputNodes;
-	std::vector<Node*> OutputNodes;
+	std::map<long long int, Node> Nodes;
+	//all of the input and output nodes in this network
+	std::vector<Node> InputNodes;
+	std::vector<Node> OutputNodes;
 
+	//the index for all nodes ever added to this network
+	long long int UniqueNodeIndex;
 public:
-	//the activation function for this network
-	float(*ActivationFunction)(float);
 
-    //creates a network based on the genome at GenomePath
+	//creates a network based on the genome at GenomePath
 	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose = false);
 	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
-	
+
 	//settings determining how networks should be bred
-	struct BreedSettings 
+	struct BreedSettings
 	{
 		std::vector<float> CrossoverPoints; //points where the genome that is read from is swapped. measured in percents
 		float MutationChance; //mutation chance. measured in mutations/1000 bits
@@ -95,11 +51,8 @@ public:
 	//creates a network based on two genomes
 	Network(std::string GenomePathA, std::string GenomePathB, BreedSettings Settings, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
 
-	//creates a blank network
-	Network();
-
-	//destroys the network
-	~Network();
+	//the activation function for this network
+	float(*ActivationFunction)(float);
 
 	//returns the values of all of the output nodes
 	std::vector<float> GetResults();
@@ -128,13 +81,13 @@ public:
 	//gets the bias of a node
 	float GetNodeBias(int NodeIndex);
 	//sets the bias of a node
-	void SetNodeBias(int NodeIndex, float bias); 
+	void SetNodeBias(int NodeIndex, float bias);
 	//get the total number of connections going into a node
 	int GetTotalNodeConnections(int TargetNodeIndex);
 	//gets the weight of a connection
 	float GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex);
 	//sets the weight of a connection
-	void SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight);
+	bool SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight);
 };
 
 #endif

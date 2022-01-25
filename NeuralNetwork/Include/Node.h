@@ -1,75 +1,52 @@
 #ifndef NODE_H
 #define NODE_H
-/* Network.H
- * Contains the `Node` Class and a Connection and Node class
- */
-#include <vector>
-#include <algorithm>
 
+#include "BinaryReader.h"
 #include "Network.h"
+#include "Connection.h"
 
-//forward declaration of Node class so that std::vector<Node> isn't seen as std::vector<error-type>
-class Node;
-//forward declaration of Genes so that we're clear to use them
-struct ConnectionGene;
-struct NodeGene;
-//forward declaration of network so that we're clear to use it
+#include <vector>
+
+//forward definitions
 class Network;
+class Node;
+class Connection;
 
-//a connection between two nodes in a network
-class Connection
+class Node 
 {
-public:
-	//the weight of this connection
-	float Weight;
-
-	//the source node of this connection
-	Node* Source;
-
-	//constructs a connection from a gene
-	Connection(ConnectionGene Gene, Network* Network);
-	//constructs a connection from a weight and a source node
-	Connection(float weight, Node* source);
-	
-	//returns this connection as a gene
-	ConnectionGene AsGene(Network *Network, bool TargetType, int TargetID);
-};
-
-//a node in a network
-class Node
-{
-	//connections need access to private members in their constructors
-	friend Connection::Connection(ConnectionGene Gene, Network* Network);
-
-	//networks also need access to private members
+	//networks require special access to nodes
 	friend Network;
+	//connections require special access to nodes
+	friend Connection;
 
-	//the connections pointing to this node
+	//all of the connections going into this node
 	std::vector<Connection> Connections;
-
 	//the bias of this node
 	float Bias;
-
-	//the value of this node once it's been calculated
-	float Value;
+	//the value of this node the last time it was calculated
+	float value;
 
 	//does this node need to recalculate it's value?
-	bool NeedsToRecalculate;
+	bool NeedsToRecalc;
+
 public:
 
-	//returns the value of this node(by calculation, if required)
-	float CalculateValue(Network *Network);
+	//creates a node from a gene
+	Node(BR_RETURN_INT_TYPE* Gene);
+	//creates a node from a bias
+	Node(float bias);
 
-	//constructs a node from a node gene
-	Node(NodeGene Gene);
-	//constructs the node from a bias
-	Node(float _Bias);
+	//default constructor
+	Node();
 
-	//destroys the node and it's connections
-	~Node();
+	//gets the value of this node
+	float CalculateValue(Network* Net);
 
-	//returns this node as a gene
-	NodeGene AsGene();
+	//appends this node to a node chromosome
+	void AppendNodeToChromosome(std::ofstream &FileStream);
+
+	//returns Gene as a string
+	static std::string GeneAsString(BR_RETURN_INT_TYPE* Gene);
 };
 
 #endif

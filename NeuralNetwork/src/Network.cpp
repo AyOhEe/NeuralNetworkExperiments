@@ -1,14 +1,47 @@
 #include "../Include/Network.h"
 
-//creates a network based on the genome at GenomePath
-Network::Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose)
-	: Network(GenomePath, inputs, outputs, GetActivationFunctionPointer(ActivationFunctionIndex), Verbose) 
+//returns sigmoid of x
+float Sigmoid(float x)
 {
-	//this can actually have an empty body, we're done here
+	return (float)(1 / (1 + pow(2.718, -x)));
+}
+//returns ReLu of x
+float ReLu(float x)
+{
+	return std::fmax(0, x);
+}
+//returns leaky ReLu of x
+float LeakyReLu(float x)
+{
+	return std::fmax(0.1 * x, x);
+}
+
+//returns an activation function pointer based on it's index
+float(*GetActivationFunctionPointer(int Index))(float)
+{
+	switch (Index)
+	{
+	case 1:
+		return tanh;
+		break;
+	case 2:
+		return ReLu;
+		break;
+	case 3:
+		return LeakyReLu;
+		break;
+	default:
+		return Sigmoid;
+		break;
+	}
 }
 
 //creates a network based on the genome at GenomePath
-Network::Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose) : Nodes(), InputNodes(), OutputNodes()
+Network::Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose) :
+	Network(GenomePath, inputs, outputs, GetActivationFunctionPointer(ActivationFunctionIndex), Verbose) {}
+
+//creates a network based on the genome at GenomePath
+Network::Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose)
 {
 	//store the activation function
 	this->ActivationFunction = ActivationFunction;
@@ -22,7 +55,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	Chromosome ConnectionChromosome(GenomePath + "/Connections.chr", ConnectionBitPattern);
 
 	//make sure we could open the files
-	if (!NodeChromosome | !ConnectionChromosome) 
+	if (!NodeChromosome | !ConnectionChromosome)
 	{
 		//we couldn't open one of them, throw an exception
 		std::stringstream ErrorMessage;
@@ -34,7 +67,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	for (int i = 0; i < inputs; i++)
 	{
 		//create a node based on the blank gene
-		InputNodes.push_back(new Node(0));
+		InputNodes.push_back(Node(0.0f));
 		if (Verbose)
 		{
 			std::cout << "Input Node _ Created: " << i << std::endl;
@@ -43,7 +76,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	for (int i = 0; i < outputs; i++)
 	{
 		//create a node based on the blank gene
-		OutputNodes.push_back(new Node(0));
+		OutputNodes.push_back(Node(0.0f));
 		if (Verbose)
 		{
 			std::cout << "Output Node _ Created: " << i << std::endl;
@@ -57,7 +90,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 
 	//start reading in the node chromosome
 	BR_RETURN_INT_TYPE* Gene;
-	while (!NodeChromosome.eof()) 
+	while (!NodeChromosome.eof())
 	{
 		//get the next gene
 		Gene = NodeChromosome.ReadGene();
@@ -67,22 +100,21 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 			break;
 
 		//create and add it's node
-		NodeGene nodeGene = NodeGene(Gene);
-		Nodes.push_back(new Node(nodeGene));
+		Nodes.insert(std::pair(UniqueNodeIndex++, Node(Gene)));
 
 		if (Verbose)
 		{
-			std::cout << "Node created as " << nodeGene.ToString() << std::endl;
+			std::cout << "Node created as " << Node::GeneAsString(Gene) << std::endl;
 		}
 
 		//destroy the gene now that it's been read
 		delete[] Gene;
 	}
-	//close the chromosome now that we're done
+	//close the node chromosome now that we're done
 	NodeChromosome.close();
 
-	//start reading in the connection chromosome
-	while (!ConnectionChromosome.eof()) 
+	//start reading the connection chromosome
+	while (!ConnectionChromosome.eof())
 	{
 		//get the next gene
 		Gene = ConnectionChromosome.ReadGene();
@@ -91,47 +123,37 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 		if (ConnectionChromosome.eof())
 			break;
 
-		//does this node target an output or a hidden node?
-		ConnectionGene connectionGene = ConnectionGene(Gene);
-		if (connectionGene.TargetType) 
-		{
-			//output node, add this connection to the respective hidden node
-			OutputNodes[connectionGene.TargetID % OutputNodes.size()]->Connections.push_back(Connection(connectionGene, this));
-		}
-		else 
-		{
-			//hidden node, add this connection to the respective hidden node
-			Nodes[connectionGene.TargetID % Nodes.size()]->Connections.push_back(Connection(connectionGene, this));
-		}
+		//create and add it's connection
+		Connection::CreateConnection(Gene, this);
 
 		if (Verbose) 
 		{
-			std::cout << "Connection created as " << connectionGene.ToString() << std::endl;
+			std::cout << "Connection created as " << Connection::GeneAsString(Gene) << std::endl;
 		}
-
+			
 		//destroy the gene now that it's been read
 		delete[] Gene;
 	}
-	//close the chromosome now that we're done
+	//close the connection chromosome now that we're done
 	ConnectionChromosome.close();
 
-	if (Verbose) 
+	if (Verbose)
 	{
 		int i = 0;
-		for (std::vector<Node*>::iterator nodeiter = Nodes.begin(); nodeiter != Nodes.end(); nodeiter++, i++) 
+		for (std::map<long long, Node>::iterator nodeiter = Nodes.begin(); nodeiter != Nodes.end(); nodeiter++, i++)
 		{
-			std::cout << "Node " << i << " has " << (*nodeiter)->Connections.size() << " connections" << std::endl;
+			std::cout << "Node " << i << " has " << nodeiter->second.Connections.size() << " connections" << std::endl;
 		}
 		i = 0;
-		for (std::vector<Node*>::iterator nodeiter = OutputNodes.begin(); nodeiter != OutputNodes.end(); nodeiter++, i++)
+		for (std::vector<Node>::iterator nodeiter = OutputNodes.begin(); nodeiter != OutputNodes.end(); nodeiter++, i++)
 		{
-			std::cout << "Output Node " << i << " has " << (*nodeiter)->Connections.size() << " connections" << std::endl;
+			std::cout << "Output Node " << i << " has " << nodeiter->Connections.size() << " connections" << std::endl;
 		}
 	}
 }
 
 //creates a network based on two genomes
-Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings Settings, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose)
+Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings Settings, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose) 
 {
 	//retrieve and store the activation function
 	ActivationFunction = GetActivationFunctionPointer(ActivationFunctionIndex);
@@ -156,28 +178,27 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 	}
 
 	//create the vectors for each chromosome's genes
-	std::vector<NodeGene> NodeGeneSetA;
-	std::vector<NodeGene> NodeGeneSetB;
-	std::vector<ConnectionGene> ConnectionGeneSetA;
-	std::vector<ConnectionGene> ConnectionGeneSetB;
+	std::vector<BR_RETURN_INT_TYPE*> NodeGeneSetA;
+	std::vector<BR_RETURN_INT_TYPE*> NodeGeneSetB;
+	std::vector<BR_RETURN_INT_TYPE*> ConnectionGeneSetA;
+	std::vector<BR_RETURN_INT_TYPE*> ConnectionGeneSetB;
 
 	//read in the chromosomes
 	BR_RETURN_INT_TYPE* Gene;
-	while (!NodeChromosomeA.eof()) 
+	while (!NodeChromosomeA.eof())
 	{
 		//read in, mutate and store the next gene
 		Gene = NodeChromosomeA.ReadGene();
 
 		//determine if we should mutate the gene
-		if (std::rand() % 1000 < Settings.MutationChance) 
+		if (std::rand() % 1000 < Settings.MutationChance)
 		{
 			//pick a section of the gene to mutate
 			int SelectedGene = std::rand() % 3;
 			Gene[SelectedGene] ^= 1 << (std::rand() % NodeBitPattern[SelectedGene]);
 		}
 
-		NodeGeneSetA.push_back(NodeGene(Gene));
-		delete Gene;
+		NodeGeneSetA.push_back(Gene);
 	}
 	while (!NodeChromosomeB.eof())
 	{
@@ -192,11 +213,10 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 			Gene[SelectedGene] ^= 1 << (std::rand() % NodeBitPattern[SelectedGene]);
 		}
 
-		NodeGeneSetB.push_back(NodeGene(Gene));
-		delete Gene;
+		NodeGeneSetB.push_back(Gene);
 	}
 
-	while (!ConnectionChromosomeA.eof()) 
+	while (!ConnectionChromosomeA.eof())
 	{
 		//read in, mutate and store the next gene
 		Gene = ConnectionChromosomeA.ReadGene();
@@ -209,8 +229,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 			Gene[SelectedGene] ^= 1 << (std::rand() % ConnectionBitPattern[SelectedGene]);
 		}
 
-		ConnectionGeneSetA.push_back(ConnectionGene(Gene));
-		delete Gene;
+		ConnectionGeneSetA.push_back(Gene);
 	}
 	while (!ConnectionChromosomeB.eof())
 	{
@@ -225,15 +244,14 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 			Gene[SelectedGene] ^= 1 << (std::rand() % ConnectionBitPattern[SelectedGene]);
 		}
 
-		ConnectionGeneSetB.push_back(ConnectionGene(Gene));
-		delete Gene;
+		ConnectionGeneSetB.push_back(Gene);
 	}
 
 	//get the smallest chromosome size from each genome
 	int MinNodeChromosomeLength = std::min(NodeGeneSetA.size() - 1, NodeGeneSetB.size() - 1);
 	int MinConnectionChromosomeLength = std::min(ConnectionGeneSetA.size() - 1, ConnectionGeneSetB.size() - 1);
 
-	if (Verbose) 
+	if (Verbose)
 	{
 		std::cout << "MinNodeChromosomeLength: " << MinNodeChromosomeLength << std::endl;
 		std::cout << "MinConnectionChromosomeLength: " << MinConnectionChromosomeLength << std::endl;
@@ -244,7 +262,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 	std::vector<int> ConnectionChromosomeCrossoverPointGeneCount;
 	int LastDeltaNodeCrossover = 0;
 	int LastDeltaConnectionCrossover = 0;
-	for (float CrossoverPercent : Settings.CrossoverPoints) 
+	for (float CrossoverPercent : Settings.CrossoverPoints)
 	{
 		//calculate the amount of genes to read before the next crossover
 		int NodeChromosomeDeltaCrossoverPoint = (int)std::ceil(CrossoverPercent * MinNodeChromosomeLength) - LastDeltaNodeCrossover;
@@ -259,7 +277,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		LastDeltaConnectionCrossover = ConnectionChromosomeDeltaCrossoverPoint;
 	}
 
-	if (Verbose) 
+	if (Verbose)
 	{
 		std::cout << "Node chromosome delta crossover points: ";
 		for (int i : NodeChromosomeCrossoverPointGeneCount)
@@ -275,7 +293,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 	for (int i = 0; i < inputs; i++)
 	{
 		//create a node based on the blank gene
-		InputNodes.push_back(new Node(0));
+		InputNodes.push_back(Node(0.0f));
 		if (Verbose)
 		{
 			std::cout << "Input Node _ Created: " << i << std::endl;
@@ -284,7 +302,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 	for (int i = 0; i < outputs; i++)
 	{
 		//create a node based on the blank gene
-		OutputNodes.push_back(new Node(0));
+		OutputNodes.push_back(Node(0.0f));
 		if (Verbose)
 		{
 			std::cout << "Output Node _ Created: " << i << std::endl;
@@ -299,15 +317,15 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 	//construct the nodes in the network
 	int GenomeProgress = 0;
 	bool CurrentGenome = false;
-	std::vector<NodeGene> *CurrentNodeGeneSet = &NodeGeneSetA;
+	std::vector<BR_RETURN_INT_TYPE*> *CurrentNodeGeneSet = &NodeGeneSetA;
 	//iterate through all of the crossover points
-	for (int GeneCount : NodeChromosomeCrossoverPointGeneCount) 
+	for (int GeneCount : NodeChromosomeCrossoverPointGeneCount)
 	{
 		//construct the nodes for the amount of genes specified
 		for (int Gene_i = GeneCount; Gene_i < GenomeProgress + GeneCount; Gene_i++)
 		{
 			//construct and append the node to the network
-			Nodes.push_back(new Node(CurrentNodeGeneSet->operator[](Gene_i)));
+			Nodes.insert(std::pair(UniqueNodeIndex++, Node(CurrentNodeGeneSet->operator[](Gene_i))));
 		}
 
 		//invert the current gene set
@@ -320,30 +338,21 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		//start parsing the other genome from the same place
 		GenomeProgress += GeneCount;
 	}
-	
+
 	//construct the connections in the network
 	GenomeProgress = 0;
 	CurrentGenome = false;
-	std::vector<ConnectionGene> *CurrentConnectionGeneSet = &ConnectionGeneSetA;
+	std::vector<BR_RETURN_INT_TYPE*> *CurrentConnectionGeneSet = &ConnectionGeneSetA;
 	//iterate through all of the crossover points
-	for (int GeneCount : ConnectionChromosomeCrossoverPointGeneCount) 
+	for (int GeneCount : ConnectionChromosomeCrossoverPointGeneCount)
 	{
 		//construct the connections for the amount of genes specified
-		for (int Gene_i = GeneCount; Gene_i < GenomeProgress + GeneCount; Gene_i++) 
+		for (int Gene_i = GeneCount; Gene_i < GenomeProgress + GeneCount; Gene_i++)
 		{
 			//get the current gene
-			ConnectionGene CurrentGene = CurrentConnectionGeneSet->operator[](Gene_i);
-			//determine what kind of node this connection should be added to
-			if (CurrentGene.TargetType) 
-			{
-				//output node
-				OutputNodes[CurrentGene.TargetID % OutputNodes.size()]->Connections.push_back(Connection(CurrentGene, this));
-			}
-			else 
-			{
-				//hidden node
-				Nodes[CurrentGene.TargetID % OutputNodes.size()]->Connections.push_back(Connection(CurrentGene, this));
-			}
+			BR_RETURN_INT_TYPE* CurrentGene = CurrentConnectionGeneSet->operator[](Gene_i);
+			//create the connection
+			Connection::CreateConnection(CurrentGene, this);
 		}
 
 		//invert the current gene set
@@ -356,90 +365,54 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		//start parsing the other genome from the same place
 		GenomeProgress += GeneCount;
 	}
+
+	//delete all of the genes
+	for (auto Gene : NodeGeneSetA)
+		delete Gene;
+	for (auto Gene : NodeGeneSetB)
+		delete Gene;
+	for (auto Gene : ConnectionGeneSetA)
+		delete Gene;
+	for (auto Gene : ConnectionGeneSetB)
+		delete Gene;
 }
 
 //returns the values of all of the output nodes
 std::vector<float> Network::GetResults() 
 {
-	//vector to store the values in the nodes
-	std::vector<float> Values;
+	//the vector for the results to be stored in
+	std::vector<float> Results;
 
-	//iterate through the nodes and store their values
-	for(std::vector<Node*>::iterator NodeIter = OutputNodes.begin(); NodeIter != OutputNodes.end(); NodeIter++)
+	//iterate through the output nodes
+	for(auto NodeIter : OutputNodes)
 	{
-		//store the value for this node
-		Values.push_back((*NodeIter)->CalculateValue(this));
+		Results.push_back(NodeIter.CalculateValue(this));
 	}
 
-	//return the values we got
-	return Values;
+	//return the results
+	return Results;
 }
 
 //sets the values of all of the input nodes
-void Network::SetInputs(std::vector<float> &Inputs) 
+void Network::SetInputs(std::vector<float>& Inputs) 
 {
-	//do we have the same number of inputs as input nodes?
-	if (Inputs.size() == InputNodes.size()) 
+	//iterate through all of the nodes
+	for (auto NodeIter = Nodes.begin(); NodeIter != Nodes.end(); std::advance(NodeIter, 1))
 	{
-		//yes, carry on and set the inputs
-		std::vector<float>::iterator InputIter = Inputs.begin();
-		std::vector<Node*>::iterator NodeIter = InputNodes.begin();
-		for(; NodeIter != InputNodes.end(); InputIter++, NodeIter++)
-		{
-			//set the value for this input node to it's corresponding input value
-			(*NodeIter)->Value = *InputIter;
-		}
+		//require it to recalculate
+		NodeIter->second.NeedsToRecalc = true;
+	}
+	//iterate through all of the output nodes
+	for(int i = 0; i < OutputNodes.size(); i++)
+	{
+		OutputNodes[i].NeedsToRecalc = true;
+	}
 
-		//and also set all of our nodes and output nodes to need to recalculate their values
-		for (NodeIter = Nodes.begin(); NodeIter != Nodes.end(); NodeIter++) 
-		{
-			//tell this node that it needs to recalculate
-			(*NodeIter)->NeedsToRecalculate = true;
-		}
-		for (NodeIter = OutputNodes.begin(); NodeIter != OutputNodes.end(); NodeIter++)
-		{
-			//tell this node that it needs to recalculate
-			(*NodeIter)->NeedsToRecalculate = true;
-		}
-	}
-	else 
+	//set the values of the input nodes
+	for(int i = 0; i < InputNodes.size(); i++)
 	{
-		//Nope, throw an exception
-		std::cout << "Invalid number of inputs to network: \n\t Expected " << InputNodes.size() << " but got " << Inputs.size() << std::endl;
-		throw std::runtime_error("Invalid number of inputs to network");
+		InputNodes[i].value = Inputs[i];
 	}
-}
-
-//destroys the network
-Network::~Network() 
-{
-	//iterate through all of the nodes and delete them
-	for (Node* Node : InputNodes) 
-	{
-		delete Node;
-	}
-	for (Node* Node : Nodes)
-	{
-		delete Node;
-	}
-	for (Node* Node : OutputNodes)
-	{
-		delete Node;
-	}
-	
-	//clear all of the pointer vectors
-	if(!InputNodes.empty())
-		InputNodes.clear();
-	if (!Nodes.empty())
-		Nodes.clear();
-	if (!OutputNodes.empty())
-		OutputNodes.clear();
-}
-
-//creates a blank network
-Network::Network() 
-{
-
 }
 
 //saves the network to a file on disk
@@ -453,114 +426,38 @@ void Network::SaveNetwork(std::string GenomePath, bool verbose)
 	std::ofstream ConnectionChromosomeFile(GenomePath + "/Connections.chr", std::ios::out | std::ios::trunc | std::ios::binary);
 
 	//iterate through all of the internal nodes in the network to save them and their connections
-	for(std::vector<Node*>::iterator NodeIter = Nodes.begin(); 
-		NodeIter != Nodes.end(); 
-		NodeIter++)
+	long long int InternalNodeIdentifier = 0;
+	for (auto NodeIter : Nodes)
 	{
 		//iterate through all of the connections for this node
-		for (std::vector<Connection>::iterator ConnectionIter = (*NodeIter)->Connections.begin();
-			ConnectionIter != (*NodeIter)->Connections.end();
-			ConnectionIter++) 
-		{
-			//save this connection in the file
-			ConnectionIter->AsGene(this, false, NodeIter - Nodes.begin()).AppendGene(ConnectionChromosomeFile, verbose);
-		}
-		//save this node in the file
-		(*NodeIter)->AsGene().AppendGene(NodeChromosomeFile, verbose);
-	}
-
-	//iterate through all of the output nodes in the network to save ONLY their connections
-	for (std::vector<Node*>::iterator NodeIter = OutputNodes.begin();
-		NodeIter != OutputNodes.end();
-		NodeIter++)
-	{
-		//iterate through all of the connections for this node
-		for (std::vector<Connection>::iterator ConnectionIter = (*NodeIter)->Connections.begin();
-			ConnectionIter != (*NodeIter)->Connections.end();
+		for (std::vector<Connection>::iterator ConnectionIter = NodeIter.second.Connections.begin();
+			ConnectionIter != NodeIter.second.Connections.end();
 			ConnectionIter++)
 		{
 			//save this connection in the file
-			ConnectionIter->AsGene(this, true, NodeIter - OutputNodes.begin()).AppendGene(ConnectionChromosomeFile, verbose);
+			ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, InternalNodeIdentifier++, this);
+		}
+		//save this node in the file
+		NodeIter.second.AppendNodeToChromosome(NodeChromosomeFile);
+	}
+
+	//iterate through all of the output nodes in the network to save ONLY their connections
+	long long int OutputNodeIdentifier = -1;
+	for (auto NodeIter : OutputNodes)
+	{
+		//iterate through all of the connections for this node
+		for (std::vector<Connection>::iterator ConnectionIter = NodeIter.Connections.begin();
+			ConnectionIter != NodeIter.Connections.end();
+			ConnectionIter++)
+		{
+			//save this connection in the file
+			ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, OutputNodeIdentifier--, this);
 		}
 	}
 
 	//close the filestreams
 	NodeChromosomeFile.close();
 	ConnectionChromosomeFile.close();
-}
-
-//returns a representation of this gene as a string
-std::string ConnectionGene::ToString()
-{
-	std::stringstream str;
-	str << (SourceType ? "Hidden" : "Input");
-	str << ", " << (TargetType ? "Output" : "Hidden");
-	str << ", " << SourceID;
-	str << ", " << TargetID;
-	str << ", " << Weight;
-	return str.str();
-}
-//returns a representation of this gene as a string
-std::string NodeGene::ToString()
-{
-	std::stringstream str;
-	str << Bias;
-	return str.str();
-}
-
-//appends this gene to a filestream
-void ConnectionGene::AppendGene(std::ofstream &stream, bool verbose)
-{
-	//get this gene as a byte array
-	unsigned char Gene[4] = {0, 0, 0, 0};
-
-	//get this gene's weight and sign as an integer
-	int IntWeight = (int)roundl(abs(Weight * CONNECTION_GENE_WEIGHT_DIVISOR));
-
-	//store the gene's component parts in the byte array
-	Gene[0] += 0b01000000 * SourceType; // gene source type
-	Gene[0] += 0b00100000 * TargetType; // gene target type
-	Gene[0] += (SourceID >> 5) & 0b00011111; // first 5 bits of source id
-	Gene[1] += (SourceID & 0b00011111) << 3; // last 5 bits of source id
-	Gene[1] += (TargetID >> 7) & 0b00000111; // first 3 bits of target id
-	Gene[2] += (TargetID & 0b01111111) << 1; // last 7 bits of target id
-	Gene[2] += Weight < 0 ? 0b00000001 : 0; // sign of int weight
-	Gene[3] = (unsigned char)IntWeight; // and we can just store the rest of the weight here
-
-	//send the bytes to the stream
-	stream << Gene[0] << Gene[1] << Gene[2] << Gene[3];
-
-	if (verbose) 
-	{
-		std::cout << "Appended gene to file: " << ToString() << std::endl;
-		std::cout << "BIN: " << (int)Gene[0] << ", " << (int)Gene[1] << ", " << (int)Gene[2] << ", " << (int)Gene[3] << std::endl << std::endl;
-	}
-}
-
-//appends this gene to a filestream
-void NodeGene::AppendGene(std::ofstream &stream, bool verbose)
-{
-	//get this gene as a byte array
-	unsigned char Gene[2] = {0, 0};
-	
-	//get this gene's bias as an integer
-	int IntBias = (int)roundl(abs(Bias) * NODE_GENE_BIAS_DIVISOR);
-
-	//store the gene's component parts in the byte array
-	Gene[0] += 0b10000000; // this is a node gene
-	Gene[0] += Bias < 0 ? 0b01000000 : 0; //sign bit
-	Gene[0] += (IntBias & 0b0011111100000000) >> 8; // first 6 bits of the number
-	Gene[1] += IntBias & 0b0000000011111111; // rest of the number
-
-
-	//send the bytes to the stream
-	stream << Gene[0] << Gene[1];
-
-	if (verbose)
-	{
-		std::cout << "Appended gene to file: " << ToString() << std::endl;
-		std::cout << "BIN: " << (int)Gene[0] << ", " << (int)Gene[1] << std::endl << std::endl; 
-	}
 }
 
 //the number of inputs, outputs and nodes in the network
@@ -572,307 +469,392 @@ int Network::OutputCount()
 {
 	return OutputNodes.size();
 }
-int Network::NodeCount()
+int Network::NodeCount() 
 {
 	return Nodes.size();
 }
 
-//adds a node between a connectionto the network
+
+//adds a node between a connection to the network
 bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex, float bias) 
 {
-	//ensure the target node index is valid
-	if (TargetNodeIndex > NodeCount() + OutputCount()) 
-	{
-		//invalid, exit out
-		return false;
-	}
-
-	//get the source node
-	Node* Target;
+	//find the target node
+	long long int TargetNodeIdentifier = 0;
 	if (TargetNodeIndex >= NodeCount()) 
 	{
-		Target = OutputNodes[TargetNodeIndex - NodeCount()];
+		//output node
+		TargetNodeIdentifier = -OutputCount() - (TargetNodeIndex - NodeCount());
 	}
 	else 
 	{
-		Target = Nodes[TargetNodeIndex];
+		//internal node
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, TargetNodeIndex);
+		TargetNodeIdentifier = NodePlace->first;
 	}
 
-	//ensure the connection index is valid
-	if (ConnectionIndex > Target->Connections.size()) 
+	//determine if the target is an output node or an internal node
+	if(TargetNodeIdentifier < 0)
 	{
-		//invalid, exit out
-		return false;
+		//we're dealing with an output node
+		TargetNodeIdentifier = -TargetNodeIdentifier - 1;
+
+		//ensure that the connection index is valid
+		if (ConnectionIndex >= OutputNodes[TargetNodeIdentifier].Connections.size())
+			return false;
+
+		//create the new node
+		Node NewNode = Node(bias);
+
+		//add a connection to the node identical to the old connection
+		NewNode.Connections.push_back(Connection(OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex]));
+
+		//set the weight of the old connection to 1
+		OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
+		
+		//add the new node to the node map
+		Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
+
+		//change the old connection's source
+		OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex].SourceNode = UniqueNodeIndex - 1;
+	}
+	else 
+	{
+		//we're dealing with an internal node
+
+		//ensure that the connection index is valid
+		if (ConnectionIndex >= Nodes[TargetNodeIdentifier].Connections.size())
+			return false;
+
+		//create the new node
+		Node NewNode = Node(bias);
+
+		//add a connection to the node identical to the old connection
+		NewNode.Connections.push_back(Connection(Nodes[TargetNodeIdentifier].Connections[ConnectionIndex]));
+
+		//set the weight of the old connection to 1
+		Nodes[TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
+
+		//add the new node to the node map
+		Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
+
+		//change the old connection's source
+		Nodes[TargetNodeIdentifier].Connections[ConnectionIndex].SourceNode = UniqueNodeIndex - 1;
 	}
 
-	//get the connection
-	Connection* OldConnection = &(Target->Connections[ConnectionIndex % Target->Connections.size()]);
-
-	//create the new node and add it to the nodes vector
-	Node* NewNode = new Node(bias);
-	Nodes.push_back(NewNode);
-
-	//create a new connection with the source of the old connection
-	NewNode->Connections.push_back(Connection(1, OldConnection->Source));
-	//set the source of the old connection to the new node
-	OldConnection->Source = NewNode;
-
-	//we completed the operation okay, return true
 	return true;
 }
+
 //adds a connection between nodes to the network
 bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex, float weight) 
 {
-	//ensure the source node index is valid
-	if (SourceNodeIndex > InputCount() + NodeCount())
+	//find the target node
+	long long int TargetNodeIdentifier = 0;
+	if (TargetNodeIndex >= NodeCount())
 	{
-		//invalid, exit out
-		return false;
+		//output node
+		TargetNodeIdentifier = -OutputCount() - (TargetNodeIndex - NodeCount());
 	}
-	//ensure the target node index is valid
-	if (TargetNodeIndex > NodeCount() + OutputCount())
+	else
 	{
-		//invalid, exit out
-		return false;
+		//internal node
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, TargetNodeIndex);
+		TargetNodeIdentifier = NodePlace->first;
 	}
 
-	//get the source node
-	Node* Source;
+	//find the source node
+	long long int SourceNodeIdentifier = 0;
 	if (SourceNodeIndex >= InputCount())
 	{
-		Source = Nodes[SourceNodeIndex - InputCount()];
+		//internal node
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, SourceNodeIndex - InputCount());
+		SourceNodeIdentifier = NodePlace->first;
 	}
 	else
 	{
-		Source = InputNodes[SourceNodeIndex];
-	}
-	//get the target node
-	Node* Target;
-	if (TargetNodeIndex >= NodeCount())
-	{
-		Target = OutputNodes[TargetNodeIndex - NodeCount()];
-	}
-	else
-	{
-		Target = Nodes[TargetNodeIndex];
+		//input node
+		SourceNodeIdentifier = -SourceNodeIndex - 1;
 	}
 
-	//create the connection and add it to the target node
-	Target->Connections.push_back(Connection(weight, Source));
-
-	//we completed the operation okay, return true
+	//insert the connection
+	if (TargetNodeIdentifier < 0) 
+	{
+		//output node as target
+		OutputNodes[-TargetNodeIdentifier - 1].Connections.push_back(Connection(SourceNodeIdentifier, weight));
+	}
+	else 
+	{
+		//internal node as target
+		Nodes[TargetNodeIdentifier].Connections.push_back(Connection(SourceNodeIdentifier, weight));
+	}
+	
 	return true;
-}
-
-//gets the bias of a node
-float Network::GetNodeBias(int NodeIndex) 
-{
-	//ensure the node index is valid
-	if (NodeIndex > NodeCount())
-	{
-		//invalid, exit out
-		return 0;
-	}
-
-	//get the node and return it's bias
-	return Nodes[NodeIndex]->Bias;
-}
-//sets the bias of a node
-void Network::SetNodeBias(int NodeIndex, float bias) 
-{
-	//ensure the node index is valid
-	if (NodeIndex > NodeCount())
-	{
-		//invalid, exit out
-		return;
-	}
-
-	//get the node and set it's bias
-	Nodes[NodeIndex]->Bias = bias;
-}
-//get the total number of connections into a node
-int Network::GetTotalNodeConnections(int TargetNodeIndex) 
-{
-	//ensure the target node index is valid
-	if (TargetNodeIndex > NodeCount() + OutputCount())
-	{
-		//invalid, exit out
-		std::cout << "Invalid TargetNodeIndex on line " << __LINE__ << std::endl;
-		return -1;
-	}
-
-	//get the target node
-	Node* Target;
-	if (TargetNodeIndex >= NodeCount())
-	{
-		Target = OutputNodes[TargetNodeIndex - NodeCount()];
-	}
-	else
-	{
-		Target = Nodes[TargetNodeIndex];
-	}
-
-	//return it's number of connections
-	return Target->Connections.size();
-}
-//gets the weight of a connection
-float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex) 
-{
-	//ensure the target node index is valid
-	if (TargetNodeIndex > NodeCount() + OutputCount())
-	{
-		//invalid, exit out
-		return 0;
-	}
-
-	//get the target node
-	Node* Target;
-	if (TargetNodeIndex >= NodeCount())
-	{
-		Target = OutputNodes[TargetNodeIndex - NodeCount()];
-	}
-	else
-	{
-		Target = Nodes[TargetNodeIndex];
-	}
-
-	//ensure the connection index is valid
-	if (ConnectionIndex > Target->Connections.size())
-	{
-		//invalid, exit out
-		return 0;
-	}
-
-	//get and the connection's weight
-	return Target->Connections[ConnectionIndex % Target->Connections.size()].Weight;
-}
-//sets the weight of a connection
-void Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight) 
-{
-	//ensure the target node index is valid
-	if (TargetNodeIndex > NodeCount() + OutputCount())
-	{
-		//invalid, exit out
-		return;
-	}
-
-	//get the target node
-	Node* Target;
-	if (TargetNodeIndex >= NodeCount())
-	{
-		Target = OutputNodes[TargetNodeIndex - NodeCount()];
-	}
-	else
-	{
-		Target = Nodes[TargetNodeIndex];
-	}
-
-	//ensure the connection index is valid
-	if (ConnectionIndex > Target->Connections.size())
-	{
-		//invalid, exit out
-		return;
-	}
-
-	//get and the connection's weight
-	Target->Connections[ConnectionIndex % Target->Connections.size()].Weight = weight;
-}
-
-//returns sigmoid of x
-float Sigmoid(float x)
-{
-	return (float)(1 / (1 + pow(2.718, -x)));
-}
-//returns ReLu of x
-float ReLu(float x) 
-{
-	return std::fmax(0, x);
-}
-//returns leaky ReLu of x
-float LeakyReLu(float x) 
-{
-	return std::fmax(0.1 * x, x);
-}
-
-//returns an activation function pointer based on it's index
-float (*GetActivationFunctionPointer(int Index))(float)
-{
-	switch (Index) 
-	{
-	case 1:
-		return tanh;
-		break;
-	case 2:
-		return ReLu;
-		break;
-	case 3:
-		return LeakyReLu;
-		break;
-	default:
-		return Sigmoid;
-		break;
-	}
 }
 
 //removes a node from the network
 bool Network::RemoveNode(int NodeIndex) 
 {
-	//validate the node index
-	if (NodeIndex > Nodes.size()) 
+	//ensure that the nodeindex is valid
+	if (NodeIndex >= NodeCount())
+		return false;
+
+	try 
 	{
-		//invalid index, return false
+		//get the start of the nodes map, move by NodeIndex places, then remove that node
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, NodeIndex);
+		Nodes.erase(NodePlace);
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
 		return false;
 	}
 
-	//get and remove the node from the network
-	delete Nodes[NodeIndex];
-	Nodes.erase(Nodes.begin() + NodeIndex);
-
-	//return true once the node has been removed
 	return true;
 }
 
 //removes a connection from the network
 bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex) 
 {
-	//validate the node index
-	if (NodeIndex > Nodes.size())
+	//ensure that the nodeindex is valid
+	if (NodeIndex >= NodeCount() + OutputCount())
+		return false;
+
+	try
 	{
-		//invalid index, return false
+		//what kind of node are we dealing with
+		if (NodeIndex < NodeCount())
+		{
+			//internal node
+			//get the start of the nodes map and move by NodeIndex places
+			auto NodePlace = Nodes.begin();
+			std::advance(NodePlace, NodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->second.Connections.size())
+				return false;
+
+			//find and remove the connection from the vector
+			NodePlace->second.Connections.erase(NodePlace->second.Connections.begin() + ConnectionIndex);
+		}
+		else
+		{
+			//output node
+			//get the output node
+			auto NodePlace = OutputNodes.begin() + (NodeIndex - NodeCount());
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->Connections.size())
+				return false;
+
+			//find and remove the connection from the vector
+			NodePlace->Connections.erase(NodePlace->Connections.begin() + ConnectionIndex);
+		}
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
 		return false;
 	}
-	//get the node
-	Node* Target = Nodes[NodeIndex];
 
-	//validate the connection index
-	if (ConnectionIndex > Target->Connections.size()) 
-	{
-		//invalid index, return false
-		return false;
-	}
-	//get and remove the connection
-	Target->Connections.erase(Target->Connections.begin() + ConnectionIndex);
-
-	//return true once the connection has been removed
 	return true;
 }
 
-//creates a connection gene from a chromosome gene
-ConnectionGene::ConnectionGene(BR_RETURN_INT_TYPE* Gene)
+//gets the bias of a node
+float Network::GetNodeBias(int NodeIndex)
 {
-	SourceType = Gene[1] == 1;
-	TargetType = Gene[2] == 1;
-	SourceID = Gene[3];
-	TargetID = Gene[4];
-	Weight = (Gene[5] == 1 ? -1 : 1) * (Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR);
-}
-//default constructor
-ConnectionGene::ConnectionGene() {}
+	//ensure the index is within the number of nodes
+	if (NodeIndex >= NodeCount())
+		return 0; //it isn't. return 0
 
-//creates a node gene from a chromosome gene
-NodeGene::NodeGene(BR_RETURN_INT_TYPE* Gene)
-{
-	Bias = (Gene[1] == 1 ? -1 : 1) * (Gene[2] / NODE_GENE_BIAS_DIVISOR);
+	try
+	{
+		//get the start of the nodes map and move by NodeIndex places
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, NodeIndex);
+
+		//get and return the bias of the node
+		return NodePlace->second.Bias;
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return 0;
+	}
+
+	return true;
 }
-//default constructor
-NodeGene::NodeGene() {}
+
+//sets the bias of a node
+void Network::SetNodeBias(int NodeIndex, float bias) 
+{
+	//ensure the index is within the number of nodes
+	if (NodeIndex >= NodeCount())
+		return; //it isn't. return 0
+
+	try
+	{
+		//get the start of the nodes map and move by NodeIndex places
+		auto NodePlace = Nodes.begin();
+		std::advance(NodePlace, NodeIndex);
+
+		//set the bias of the node
+		NodePlace->second.Bias = bias;
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return;
+	}
+}
+
+//get the total number of connections going into a node
+int Network::GetTotalNodeConnections(int TargetNodeIndex)
+{
+	//ensure the index is within the number of nodes
+	if (TargetNodeIndex >= NodeCount() + OutputCount())
+		return -1; //it isn't. return -1
+
+	try
+	{
+		//what kind of node are we dealing with
+		if (TargetNodeIndex < NodeCount())
+		{
+			//internal node
+			//get the start of the nodes map and move by NodeIndex places
+			auto NodePlace = Nodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//get and return the bias of the node
+			return NodePlace->second.Connections.size();
+		}
+		else 
+		{
+			//internal node
+			//get the output node
+			auto NodePlace = OutputNodes.begin() + (TargetNodeIndex - NodeCount());
+
+			//return the connections count
+			return NodePlace->Connections.size();
+		}
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return -1;
+	}
+}
+
+//gets the weight of a connection
+float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex) 
+{
+	//ensure the index is within the number of nodes we can look at
+	if (TargetNodeIndex >= NodeCount() + OutputCount())
+		return -1; //it isn't. return -1
+
+	try
+	{
+		//what type of target node are we looking at?
+		if(TargetNodeIndex >= NodeCount())
+		{
+			//output node
+			//get the start of the nodes vector and move by NodeIndex places
+			auto NodePlace = OutputNodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->Connections.size())
+				return false;
+
+			//get the start of the connections vector and move by connectionindex places
+			auto ConnectionPlace = NodePlace->Connections.begin();
+			std::advance(ConnectionPlace, ConnectionIndex);
+
+			//get and return the weight of the connection
+			return ConnectionPlace->Weight;
+		}
+		else 
+		{
+			//internal node
+			//get the start of the nodes map and move by NodeIndex places
+			auto NodePlace = Nodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->second.Connections.size())
+				return false;
+
+			//get the start of the connections vector and move by connectionindex places
+			auto ConnectionPlace = NodePlace->second.Connections.begin();
+			std::advance(ConnectionPlace, ConnectionIndex);
+
+			//get and return the weight of the connection
+			return ConnectionPlace->Weight;
+		}
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return -1;
+	}
+}
+
+//sets the weight of a connection
+bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight) 
+{
+	//ensure the index is within the number of nodes we can look at
+	if (TargetNodeIndex >= NodeCount() + OutputCount())
+		return false; //it isn't. return -1
+
+	try
+	{
+		//what type of target node are we looking at?
+		if (TargetNodeIndex >= NodeCount())
+		{
+			//output node
+			//get the start of the nodes vector and move by NodeIndex places
+			auto NodePlace = OutputNodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->Connections.size())
+				return false;
+
+			//get the start of the connections vector and move by connectionindex places
+			auto ConnectionPlace = NodePlace->Connections.begin();
+			std::advance(ConnectionPlace, ConnectionIndex);
+
+			//get and return the weight of the connection
+			ConnectionPlace->Weight = weight;
+		}
+		else
+		{
+			//internal node
+			//get the start of the nodes map and move by NodeIndex places
+			auto NodePlace = Nodes.begin();
+			std::advance(NodePlace, TargetNodeIndex);
+
+			//ensure that the connectionindex is valid
+			if (ConnectionIndex >= NodePlace->second.Connections.size())
+				return false;
+
+			//get the start of the connections vector and move by connectionindex places
+			auto ConnectionPlace = NodePlace->second.Connections.begin();
+			std::advance(ConnectionPlace, ConnectionIndex);
+
+			//set the weight of the connection
+			ConnectionPlace->Weight = weight;
+		}
+	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what() << std::endl;
+		return false;
+	}
+
+	//successful operation
+	return true;
+}

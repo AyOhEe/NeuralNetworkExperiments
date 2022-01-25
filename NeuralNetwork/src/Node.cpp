@@ -1,125 +1,64 @@
 #include "../Include/Node.h"
 
-//constructs a node from a node gene
-Node::Node(NodeGene Gene) 
+//creates a node from a gene
+Node::Node(BR_RETURN_INT_TYPE* Gene) 
 {
-	Bias = Gene.Bias;
+	//calculate and store the bias
+	Bias = Gene[1] == 1 ? -1 : 1;
+	Bias *= Gene[2];
+	Bias /= NODE_GENE_BIAS_DIVISOR;
+}
+//creates a node from a bias
+Node::Node(float bias) 
+{
+	//store the bias
+	Bias = bias;
 }
 
-//constructs the node from a bias
-Node::Node(float _Bias) 
-{
-	Bias = _Bias;
-}
+//default constructor
+Node::Node() {}
 
-//returns the value of this node(by calculation, if required)
-float Node::CalculateValue(Network *Network) 
+//gets the value of this node
+float Node::CalculateValue(Network* Net) 
 {
-	//do we need to recalculate this node's value?
-	if (NeedsToRecalculate) 
+	//only recalculate if we are required to
+	if (NeedsToRecalc) 
 	{
-		//we nolonger need to recalcuate, as we're now in the process of recalcuating
-		NeedsToRecalculate = false;
-
-		float NewValue = 0;
-		for (std::vector<Connection>::iterator iter = Connections.begin(); iter != Connections.end(); iter++)
+		//iterate through the connections of the node
+		float NewVal = 0;
+		for (int i = 0; i < Connections.size(); i++) 
 		{
-			NewValue += iter->Weight * iter->Source->CalculateValue(Network);
+			//attempt to add the value of the connection. if we fail, remove the connection as it's invalid
+			if (!Connections[i].TryAddValue(&NewVal, Net))
+				Connections.erase(Connections.begin() + i--); //we decrement i here as to not skip an element
 		}
-		
-		//store the new value as the actual value
-		Value = Network->ActivationFunction(Bias + NewValue);
+		//put the new value through the activation function
+		value = Net->ActivationFunction(NewVal);
 	}
 
-	//return our value now that it's guaranteed to be correct
-	return Value;
+	//return our value
+	return value;
 }
 
-//destroys the node and it's connections
-Node::~Node() 
+//appends this node to a node chromosome
+void Node::AppendNodeToChromosome(std::ofstream &FileStream) 
 {
-	//clear the connections vector
-	if (!Connections.empty()) 
-	{
-		Connections.clear();
-	}
+	//calculate the bias as an integer
+	int IntBias = abs(Bias * NODE_GENE_BIAS_DIVISOR);
+
+	//remake the old gene
+	char* Gene = new char[2];
+	Gene[0] = 0b10000000 + (Bias < 0 ? 0b01000000 : 0) + (IntBias >> 8);
+	Gene[1] = IntBias & 0b11111111;
+
+	//write the gene to the file
+	FileStream << Gene[0] << Gene[1];
 }
 
-//constructs a connection from a gene
-Connection::Connection(ConnectionGene Gene, Network* Network)
+//returns Gene as a string
+std::string Node::GeneAsString(BR_RETURN_INT_TYPE* Gene)
 {
-	//store the weight
-	Weight = Gene.Weight;
-	
-	//determine how we should get the source node
-	if (Gene.SourceType) 
-	{
-		//nodes, we can use the network's node array
-		//we modulo the gene's source id to ensure it always gets a node, no matter what the value is
-		Source = Network->Nodes[Gene.SourceID % Network->Nodes.size()];
-	}
-	else 
-	{
-		//inputs, we can use the network's input node array
-		//we modulo the gene's source id to ensure it always gets a node, no matter what the value is
-		Source = Network->InputNodes[Gene.SourceID % Network->InputNodes.size()];
-	}
-}
-
-//constructs a connection from a weight and a source node
-Connection::Connection(float weight, Node* source) 
-{
-	//store the weight and source
-	Weight = weight;
-	Source = source;
-}
-
-//returns this node as a gene
-NodeGene Node::AsGene()
-{
-	//the gene to return
-	NodeGene Gene;
-
-	//store this node's properties in the gene
-	Gene.Bias = Bias;
-
-	//return the gene
-	return Gene;
-}
-
-//returns this connection as a gene
-ConnectionGene Connection::AsGene(Network *Network, bool TargetType, int TargetID)
-{
-	//the gene to return
-	ConnectionGene Gene;
-
-	//find and store this connection's properties in the gene
-
-	//try to find the source node and index in input nodes
-	std::vector<Node*>::iterator SourceIter = std::find(Network->InputNodes.begin(), Network->InputNodes.end(), Source);
-	if (SourceIter != Network->InputNodes.end()) 
-	{
-		//the source was an input node, store it's index and set the source type
-		Gene.SourceType = false;
-
-		Gene.SourceID = SourceIter - Network->InputNodes.begin();
-	}
-	else 
-	{
-		//the source was an internal node, get it's index and set the source type
-		Gene.SourceType = true;
-
-		SourceIter = std::find(Network->Nodes.begin(), Network->Nodes.end(), Source); 
-		Gene.SourceID = SourceIter - Network->Nodes.begin();
-	}
-
-	//store the target type and target id
-	Gene.TargetType = TargetType;
-	Gene.TargetID = TargetID;
-
-	//store the weight of the connection
-	Gene.Weight = Weight;
-
-	//return the gene
-	return Gene;
+	std::stringstream StringStream;
+	StringStream << "Node Gene: " << (Gene[1] == 1 ? -1 : 1) * Gene[2] / NODE_GENE_BIAS_DIVISOR;
+	return StringStream.str();
 }

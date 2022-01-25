@@ -7,13 +7,13 @@
 
 int main()
 {
-	Network::BreedSettings Settings;
-	Settings.CrossoverPoints = { 0.5 };
-	Settings.MutationChance = 500;
-	Network* network = new Network("Genomes/test_genome", "Genomes/test_genome_smallMOD", Settings, 2, 1, 0, true);
+	//Network::BreedSettings Settings;
+	//Settings.CrossoverPoints = { 0.5 };
+	//Settings.MutationChance = 500;
+	//Network* network = new Network("Genomes/test_genome", "Genomes/test_genome_smallMOD", Settings, 2, 1, 0, true);
 
 	//create a network
-	//Network* network = new Network("Genomes/test_genome", 2, 1, 0, true);
+	Network* network = new Network("Genomes/test_genome", 2, 1, 0, true);
 
 	std::vector<std::vector<float>> Inputs = {
 		{0, 0},
