@@ -14,11 +14,11 @@ Connection::Connection(BR_RETURN_INT_TYPE* Gene, Network *Net)
 	else 
 	{
 		//input node
-		SourceNode = -Gene[3] - 1;
+		SourceNode = -(long long)Gene[3] - 1;
 	}
 
 	//calculate the weight of the connection
-	Weight = (Gene[5] == 1 ? -1 : 1) * Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR;
+	Weight = (Gene[5] == 1 ? -1 : 1) * (Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR);
 }
 //constructs a gene from a node identifier and weight
 Connection::Connection(long long int NodeIdentifier, float weight) 
@@ -131,7 +131,9 @@ std::string Connection::GeneAsString(BR_RETURN_INT_TYPE* Gene)
 		Gene[1] << ", " << 
 		Gene[2] << ", " << 
 		Gene[3] << ", " << 
-		Gene[4] << ", " << 
-		(Gene[5] == 1 ? -1 : 1) * Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR;
+		Gene[4] << ", " <<
+		Gene[5] << ", " <<
+		Gene[6] << ", " <<
+		(Gene[5] == 1 ? -1 : 1) * (Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR);
 	return StringStream.str();
 }

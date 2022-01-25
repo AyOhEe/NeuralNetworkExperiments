@@ -36,6 +36,9 @@ public:
 	//creates a node from a bias
 	Node(float bias);
 
+	//default constructor
+	Node();
+
 	//gets the value of this node
 	float CalculateValue(Network* Net);
 

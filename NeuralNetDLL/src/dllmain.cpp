@@ -108,7 +108,7 @@ extern "C"
 
 		//copy over the network outputs to the output array
 		std::vector<float> Outputs = handleLocation->second->GetResults();
-		for (int i = 0; i < n_outputs & i < Outputs.size(); i++) 
+		for (int i = 0; (i < n_outputs) & (i < Outputs.size()); i++) 
 		{
 			_outputs[i] = Outputs[i];
 		}

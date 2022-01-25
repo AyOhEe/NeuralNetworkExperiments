@@ -15,6 +15,9 @@ Node::Node(float bias)
 	Bias = bias;
 }
 
+//default constructor
+Node::Node() {}
+
 //gets the value of this node
 float Node::CalculateValue(Network* Net) 
 {

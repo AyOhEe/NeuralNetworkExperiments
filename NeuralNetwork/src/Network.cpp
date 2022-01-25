@@ -1,5 +1,41 @@
 #include "../Include/Network.h"
 
+//returns sigmoid of x
+float Sigmoid(float x)
+{
+	return (float)(1 / (1 + pow(2.718, -x)));
+}
+//returns ReLu of x
+float ReLu(float x)
+{
+	return std::fmax(0, x);
+}
+//returns leaky ReLu of x
+float LeakyReLu(float x)
+{
+	return std::fmax(0.1 * x, x);
+}
+
+//returns an activation function pointer based on it's index
+float(*GetActivationFunctionPointer(int Index))(float)
+{
+	switch (Index)
+	{
+	case 1:
+		return tanh;
+		break;
+	case 2:
+		return ReLu;
+		break;
+	case 3:
+		return LeakyReLu;
+		break;
+	default:
+		return Sigmoid;
+		break;
+	}
+}
+
 //creates a network based on the genome at GenomePath
 Network::Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose) :
 	Network(GenomePath, inputs, outputs, GetActivationFunctionPointer(ActivationFunctionIndex), Verbose) {}
@@ -194,7 +230,6 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		}
 
 		ConnectionGeneSetA.push_back(Gene);
-		delete Gene;
 	}
 	while (!ConnectionChromosomeB.eof())
 	{
@@ -210,7 +245,6 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		}
 
 		ConnectionGeneSetB.push_back(Gene);
-		delete Gene;
 	}
 
 	//get the smallest chromosome size from each genome
@@ -331,6 +365,16 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		//start parsing the other genome from the same place
 		GenomeProgress += GeneCount;
 	}
+
+	//delete all of the genes
+	for (auto Gene : NodeGeneSetA)
+		delete Gene;
+	for (auto Gene : NodeGeneSetB)
+		delete Gene;
+	for (auto Gene : ConnectionGeneSetA)
+		delete Gene;
+	for (auto Gene : ConnectionGeneSetB)
+		delete Gene;
 }
 
 //returns the values of all of the output nodes
@@ -813,40 +857,4 @@ bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 
 	//successful operation
 	return true;
-}
-
-//returns sigmoid of x
-float Sigmoid(float x)
-{
-	return (float)(1 / (1 + pow(2.718, -x)));
-}
-//returns ReLu of x
-float ReLu(float x)
-{
-	return std::fmax(0, x);
-}
-//returns leaky ReLu of x
-float LeakyReLu(float x)
-{
-	return std::fmax(0.1 * x, x);
-}
-
-//returns an activation function pointer based on it's index
-float(*GetActivationFunctionPointer(int Index))(float)
-{
-	switch (Index)
-	{
-	case 1:
-		return tanh;
-		break;
-	case 2:
-		return ReLu;
-		break;
-	case 3:
-		return LeakyReLu;
-		break;
-	default:
-		return Sigmoid;
-		break;
-	}
 }

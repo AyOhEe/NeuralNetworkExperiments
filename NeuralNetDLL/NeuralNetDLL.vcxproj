@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="..\NeuralNetwork\src\BinaryReader.cpp" />
     <ClCompile Include="..\NeuralNetwork\src\Chromosome.cpp" />
+    <ClCompile Include="..\NeuralNetwork\src\Connection.cpp" />
+    <ClCompile Include="..\NeuralNetwork\src\Network.cpp" />
+    <ClCompile Include="..\NeuralNetwork\src\Node.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
