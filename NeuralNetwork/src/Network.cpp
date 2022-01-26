@@ -172,7 +172,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return;
 	}
 }
@@ -430,7 +430,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return;
 	}
 }
@@ -463,7 +463,7 @@ std::vector<float> Network::GetResults(unsigned int* ErrCode)
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return;
 	}
 }
@@ -508,7 +508,7 @@ void Network::SetInputs(std::vector<float>& Inputs, unsigned int* ErrCode)
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return;
 	}
 }
@@ -577,7 +577,7 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return;
 	}
 }
@@ -694,7 +694,7 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return false;
 	}
 
@@ -772,7 +772,7 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return false;
 	}
 	
@@ -807,7 +807,7 @@ bool Network::RemoveNode(int NodeIndex, unsigned int* ErrCode)
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return false;
 	}
 
@@ -886,7 +886,7 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex, unsigned int*
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return false;
 	}
 
@@ -923,7 +923,7 @@ float Network::GetNodeBias(int NodeIndex, unsigned int* ErrCode)
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return 0;
 	}
 
@@ -960,7 +960,7 @@ void Network::SetNodeBias(int NodeIndex, float bias, unsigned int* ErrCode)
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return;
 	}
 }
@@ -1017,7 +1017,7 @@ int Network::GetTotalNodeConnections(int TargetNodeIndex, unsigned int* ErrCode)
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return -1;
 	}
 }
@@ -1103,7 +1103,7 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, uns
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return -1;
 	}
 }
@@ -1183,7 +1183,7 @@ bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-		std::cout << ex.what() << std::endl;
+		std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 		return false;
 	}
 

@@ -72,7 +72,7 @@ bool Connection::TryAddValue(float* OutValue, Network* Net, unsigned int* ErrCod
 		*ErrCode = SUCCESS; //default to success if not told otherwise
 
 		//is the source an input or internal node?
-		unsigned int NodeErr = 0;
+		unsigned int NodeErr = SUCCESS;
 		if (SourceNode < 0)
 		{
 			//input node

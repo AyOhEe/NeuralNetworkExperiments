@@ -28,7 +28,7 @@ float Node::CalculateValue(Network* Net, unsigned int* ErrCode)
 	{
 		//iterate through the connections of the node
 		float NewVal = 0;
-		unsigned int ConnErr = 0;
+		unsigned int ConnErr = SUCCESS;
 		for (int i = 0; i < Connections.size(); i++) 
 		{
 			//attempt to add the value of the connection. if we fail, remove the connection as it's invalid
