@@ -4,6 +4,7 @@
 #include "BinaryReader.h"
 #include "Network.h"
 #include "Connection.h"
+#include "ErrorCodes.h"
 
 #include <vector>
 
@@ -40,7 +41,7 @@ public:
 	Node();
 
 	//gets the value of this node
-	float CalculateValue(Network* Net);
+	float CalculateValue(Network* Net, unsigned int* ErrCode);
 
 	//appends this node to a node chromosome
 	void AppendNodeToChromosome(std::ofstream &FileStream);

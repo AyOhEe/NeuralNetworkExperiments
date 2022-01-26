@@ -19,18 +19,27 @@ Node::Node(float bias)
 Node::Node() {}
 
 //gets the value of this node
-float Node::CalculateValue(Network* Net) 
+float Node::CalculateValue(Network* Net, unsigned int* ErrCode)
 {
+	*ErrCode = SUCCESS; //default to success if not told otherwise
+
 	//only recalculate if we are required to
 	if (NeedsToRecalc) 
 	{
 		//iterate through the connections of the node
 		float NewVal = 0;
+		unsigned int ConnErr = 0;
 		for (int i = 0; i < Connections.size(); i++) 
 		{
 			//attempt to add the value of the connection. if we fail, remove the connection as it's invalid
-			if (!Connections[i].TryAddValue(&NewVal, Net))
+			if (!Connections[i].TryAddValue(&NewVal, Net, &ConnErr)) 
+			{
 				Connections.erase(Connections.begin() + i--); //we decrement i here as to not skip an element
+
+				//detect and pass on errors
+				if (ConnErr == CONNECTION_MISSING_SOURCE)
+					*ErrCode = NODE_INVALID_CONNECTION_DISCARDED;
+			}
 		}
 		//put the new value through the activation function
 		value = Net->ActivationFunction(NewVal);
