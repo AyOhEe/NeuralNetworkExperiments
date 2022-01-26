@@ -6,6 +6,7 @@
 
 #include "../../NeuralNetwork/Include/Network.h"
 #include "../../NeuralNetwork/Include/Node.h"
+#include "../../NeuralNetwork/Include/ErrorCodes.h"
 
 #if defined(__NT__) | defined(_WIN32)
     #ifdef NEURALNETDLL_EXPORTS
@@ -23,6 +24,7 @@ std::map<unsigned long long int, Network*>::iterator handleLocation = __NETWORKS
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
+	*ErrCode = INVALID_HANDLE; \
 	return false; \
 } \
 
@@ -32,6 +34,7 @@ std::map<unsigned long long int, Network*>::iterator handleLocation = __NETWORKS
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
+	*ErrCode = INVALID_HANDLE; \
 	return; \
 } \
 
@@ -41,6 +44,7 @@ std::map<unsigned long long int, Network*>::iterator handleLocation = __NETWORKS
 if (handleLocation == __NETWORKS.end()) \
 { \
 	/*invalid handle, indicate failure*/ \
+	*ErrCode = INVALID_HANDLE; \
 	return -1; \
 } \
 
@@ -50,225 +54,555 @@ std::map<unsigned long long int, Network*> __NETWORKS = std::map<unsigned long l
 extern "C"
 {
 	//creates a network and returns a handle
-	unsigned long long int NEURALNET_API CREATE_NETWORK(const char* GenomePath, int Inputs, int Outputs, int ActivationFunctionIndex, bool Verbose)
+	unsigned long long int NEURALNET_API CREATE_NETWORK(
+		const char* GenomePath, 
+		unsigned int Inputs, 
+		unsigned int Outputs, 
+		int ActivationFunctionIndex, 
+		unsigned int *ErrCode,
+		bool Verbose)
 	{
-		//create the new network
-		Network* Net = new Network(std::string(GenomePath), Inputs, Outputs, ActivationFunctionIndex, Verbose);
+		//default the error code to success
+		*ErrCode = SUCCESS;
+		unsigned int Err = SUCCESS;
+		try 
+		{
+			//create the new network
+			Network* Net = new Network(std::string(GenomePath), Inputs, Outputs, ActivationFunctionIndex, &Err, Verbose);
+			if(Err != SUCCESS)
+			{
+				//oops, something didn't pan out
+				*ErrCode = Err;
+				return 0;
+			}
 
-		//insert it into the vector
-		__NETWORKS[(unsigned long long int)Net] = Net;
+			//insert it into the vector
+			__NETWORKS[(unsigned long long int)Net] = Net;
 
-		//return the "handle" which is really just the memory address of the network(guaranteed to be unique)
-		return (unsigned long long int)Net;
+			//return the "handle" which is really just the memory address of the network(guaranteed to be unique)
+			return (unsigned long long int)Net;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
 	//removes a network if it exists
-    bool NEURALNET_API DESTROY_NETWORK(unsigned long long int handle)
+    bool NEURALNET_API DESTROY_NETWORK(unsigned long long int handle, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		//valid handle, delete the network and remove it from the vector
-		delete handleLocation->second;
-		__NETWORKS.erase(handleLocation);
+				//valid handle, delete the network and remove it from the vector
+				delete handleLocation->second;
+			__NETWORKS.erase(handleLocation);
 
-		//indicate success
-		return true;
+			//indicate success
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
 	//creates a copy of the network given
-	bool NEURALNET_API COPY_NETWORK(unsigned long long int handle)
+	bool NEURALNET_API COPY_NETWORK(unsigned long long int handle, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try
+		{
+			VALIDATE_HANDLE_BOOL
 
-		//valid handle, create copy of the network and store it
-		Network* Net = new Network(*__NETWORKS[handle]);
-		__NETWORKS[(unsigned long long int)Net] = Net;
+			//valid handle, create copy of the network and store it
+			Network* Net = new Network(*__NETWORKS[handle]);
+			__NETWORKS[(unsigned long long int)Net] = Net;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 
 		//indicate success
 		return true;
 	}
 
 	//sets the inputs of a network
-	bool NEURALNET_API SET_NETWORK_INPUTS(unsigned long long int handle, float* inputs, int n_inputs)
+	bool NEURALNET_API SET_NETWORK_INPUTS(unsigned long long int handle, float* inputs, int n_inputs, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
-
-		//validate n_inputs
-		if (n_inputs != handleLocation->second->InputCount())
+		try 
 		{
+			VALIDATE_HANDLE_BOOL
+
+				//validate n_inputs
+				if (n_inputs != handleLocation->second->InputCount())
+				{
+					return false;
+				}
+
+			//convert the inputs into a vector
+			std::vector<float> Inputs;
+			std::copy(inputs, inputs + n_inputs, std::back_inserter(Inputs));
+
+			//set the inputs
+			unsigned int Err = SUCCESS;
+			handleLocation->second->SetInputs(Inputs, &Err);
+			if (Err != SUCCESS) 
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 			return false;
 		}
-
-		//convert the inputs into a vector
-		std::vector<float> Inputs;
-		std::copy(inputs, inputs + n_inputs, std::back_inserter(Inputs));
-
-		//set the inputs
-		handleLocation->second->SetInputs(Inputs);
-		return true;
 	}
 
 	//calculates the values of a network
-	bool NEURALNET_API GET_NETWORK_OUTPUTS(unsigned long long int handle, float* _outputs, int n_outputs)
+	bool NEURALNET_API GET_NETWORK_OUTPUTS(unsigned long long int handle, float* _outputs, int n_outputs, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
-
-		//validate n_outputs
-		if (n_outputs != handleLocation->second->OutputCount())
+		try
 		{
+			VALIDATE_HANDLE_BOOL
+
+			//validate n_outputs
+			if (n_outputs != handleLocation->second->OutputCount())
+			{
+				return false;
+			}
+
+			//copy over the network outputs to the output array
+			unsigned int Err = SUCCESS;
+			std::vector<float> Outputs = handleLocation->second->GetResults(&Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+			for (int i = 0; (i < n_outputs) & (i < Outputs.size()); i++)
+			{
+				_outputs[i] = Outputs[i];
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
 			return false;
 		}
-
-		//copy over the network outputs to the output array
-		std::vector<float> Outputs = handleLocation->second->GetResults();
-		for (int i = 0; (i < n_outputs) & (i < Outputs.size()); i++) 
-		{
-			_outputs[i] = Outputs[i];
-		}
-
-		return true;
 	}
 
-	//TODO: make like half of these functions give error codes and give them some damn try-catch statements
 	//returns the number of inputs, outputs or nodes in a network
-	int NEURALNET_API GET_NETWORK_INPUT_COUNT(unsigned long long int handle)
+	int NEURALNET_API GET_NETWORK_INPUT_COUNT(unsigned long long int handle, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second->InputCount();
+			return handleLocation->second->InputCount();
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
-	int NEURALNET_API GET_NETWORK_NODE_COUNT(unsigned long long int handle)
+	int NEURALNET_API GET_NETWORK_NODE_COUNT(unsigned long long int handle, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second->NodeCount();
+			return handleLocation->second->NodeCount();
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
-	int NEURALNET_API GET_NETWORK_OUTPUT_COUNT(unsigned long long int handle)
+	int NEURALNET_API GET_NETWORK_OUTPUT_COUNT(unsigned long long int handle, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second->OutputCount();
+			return handleLocation->second->OutputCount();
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
 	//adds a node between a connection to a network
-	bool NEURALNET_API ADD_NODE_BETWEEN_CONNECTION(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, float bias) 
+	bool NEURALNET_API ADD_NODE_BETWEEN_CONNECTION(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, float bias, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		handleLocation->second->AddNodeBetweenConnection(TargetNodeIndex, ConnectionIndex, bias);
-		return true;
+			unsigned int Err = SUCCESS;
+			handleLocation->second->AddNodeBetweenConnection(TargetNodeIndex, ConnectionIndex, bias, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 	//adds a connection between nodes to a network
-	bool NEURALNET_API ADD_CONNECTION_BETWEEN_NODES(unsigned int handle, int SourceNodeIndex, int TargetNodeIndex, float weight) 
+	bool NEURALNET_API ADD_CONNECTION_BETWEEN_NODES(unsigned int handle, int SourceNodeIndex, int TargetNodeIndex, float weight, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
-			
-		handleLocation->second->AddConnectionBetweenNodes(SourceNodeIndex, TargetNodeIndex, weight);
-		return true;
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
+
+			unsigned int Err = SUCCESS;
+			handleLocation->second->AddConnectionBetweenNodes(SourceNodeIndex, TargetNodeIndex, weight, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
 	//removes a node from the network
-	bool NEURALNET_API REMOVE_NODE(unsigned int long long handle, int NodeIndex) 
+	bool NEURALNET_API REMOVE_NODE(unsigned int long long handle, int NodeIndex, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		handleLocation->second->RemoveNode(NodeIndex);
-		return true;
+			unsigned int Err = SUCCESS;
+			handleLocation->second->RemoveNode(NodeIndex, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 	//removes a connection from the network
-	bool NEURALNET_API REMOVE_CONNECTION(unsigned long long int handle, int NodeIndex, int ConnectionIndex) 
+	bool NEURALNET_API REMOVE_CONNECTION(unsigned long long int handle, int NodeIndex, int ConnectionIndex, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		handleLocation->second->RemoveConnection(NodeIndex, ConnectionIndex);
-		return true;
+			unsigned int Err = SUCCESS;
+			handleLocation->second->RemoveConnection(NodeIndex, ConnectionIndex, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
 	//gets the bias of a node
-	float NEURALNET_API GET_NODE_BIAS(unsigned long long int handle, int NodeIndex) 
+	float NEURALNET_API GET_NODE_BIAS(unsigned long long int handle, int NodeIndex, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second->GetNodeBias(NodeIndex);
+			unsigned int Err = SUCCESS;
+			float result = handleLocation->second->GetNodeBias(NodeIndex, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return result;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 	//sets the bias of a node
-	bool NEURALNET_API SET_NODE_BIAS(unsigned long long int handle, int NodeIndex, float bias)
+	bool NEURALNET_API SET_NODE_BIAS(unsigned long long int handle, int NodeIndex, float bias, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		handleLocation->second->SetNodeBias(NodeIndex, bias);
-		return true;
+			unsigned int Err = SUCCESS;
+			handleLocation->second->SetNodeBias(NodeIndex, bias, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
 	//gets the total number of connections going into a connection
-	int NEURALNET_API GET_NODE_CONNECTION_COUNT(unsigned long long int handle, int TargetNodeIndex) 
+	int NEURALNET_API GET_NODE_CONNECTION_COUNT(unsigned long long int handle, int TargetNodeIndex, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_INT
+		try 
+		{
+			VALIDATE_HANDLE_INT
 
-		return handleLocation->second->GetTotalNodeConnections(TargetNodeIndex);
+			unsigned int Err = SUCCESS;
+			int result = handleLocation->second->GetTotalNodeConnections(TargetNodeIndex, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return result;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
 	//gets the weight of a connection
-	float NEURALNET_API GET_CONNECTION_WEIGHT(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex) 
+	float NEURALNET_API GET_CONNECTION_WEIGHT(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		return handleLocation->second->GetConnectionWeight(TargetNodeIndex, ConnectionIndex);
+			unsigned int Err = SUCCESS;
+			float result = handleLocation->second->GetConnectionWeight(TargetNodeIndex, ConnectionIndex, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return result;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 	//sets the weight of a connection
-	bool NEURALNET_API SET_CONNECTION_WEIGHT(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, float weight)
+	bool NEURALNET_API SET_CONNECTION_WEIGHT(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, float weight, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		handleLocation->second->SetConnectionWeight(TargetNodeIndex, ConnectionIndex, weight);
-		return true;
+			unsigned int Err = SUCCESS;
+			handleLocation->second->SetConnectionWeight(TargetNodeIndex, ConnectionIndex, weight, &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
 	//saves a network
-	bool NEURALNET_API SAVE_NETWORK(unsigned long long int handle, const char* path) 
+	bool NEURALNET_API SAVE_NETWORK(unsigned long long int handle, const char* path, unsigned int *ErrCode)
 	{
-		VALIDATE_HANDLE_BOOL
+		try 
+		{
+			VALIDATE_HANDLE_BOOL
 
-		handleLocation->second->SaveNetwork(std::string(path));
-		return true;
+			unsigned int Err = SUCCESS;
+			handleLocation->second->SaveNetwork(std::string(path), &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			return true;
+		}
+		catch (std::exception &ex)
+		{
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
+		}
 	}
 
     //breeds two networks together
-    unsigned long long int NEURALNET_API BREED_NETWORKS(unsigned long long int handleA, unsigned long long int handleB, int inputs, int outputs, int ActivationFunctionIndex, float* _CrossoverPoints, int nCrossoverPoints, float MutationChance, bool verbose)
+    unsigned long long int NEURALNET_API BREED_NETWORKS(
+		unsigned long long int handleA, unsigned long long int handleB, 
+		int inputs, int outputs, int ActivationFunctionIndex, 
+		float* _CrossoverPoints, int nCrossoverPoints, float MutationChance, 
+		unsigned int *ErrCode, bool verbose)
     {
-		//validate the network handles
-		std::map<unsigned long long int, Network*>::iterator handleALocation = __NETWORKS.find(handleA);
-		if (handleALocation == __NETWORKS.end())
+		try 
 		{
-			/*invalid handle, indicate failure*/
-			return 0;
+			//validate the network handles
+			std::map<unsigned long long int, Network*>::iterator handleALocation = __NETWORKS.find(handleA);
+			if (handleALocation == __NETWORKS.end())
+			{
+				/*invalid handle, indicate failure*/
+				*ErrCode = NETWORK_INVALID_BREED_GENOME_A;
+				return 0;
+			}
+			std::map<unsigned long long int, Network*>::iterator handleBLocation = __NETWORKS.find(handleB);
+			if (handleBLocation == __NETWORKS.end())
+			{
+				/*invalid handle, indicate failure*/
+				*ErrCode = NETWORK_INVALID_BREED_GENOME_A;
+				return 0;
+			}
+			//save the networks to be bred
+			unsigned int Err = SUCCESS;
+			handleALocation->second->SaveNetwork("Networks/BreedA", &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+			handleBLocation->second->SaveNetwork("Networks/BreedB", &Err);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			//copy over the crossover points into a vector
+			std::vector<float> CrossoverPoints;
+			std::copy(_CrossoverPoints, _CrossoverPoints + nCrossoverPoints, std::back_inserter(CrossoverPoints));
+			//create the breed settings struct
+			Network::BreedSettings Settings{ CrossoverPoints, MutationChance };
+
+			//breed the networks
+			Network* ChildNet = new Network("Networks/BreedA", "Networks/BreedB", Settings, inputs, outputs, ActivationFunctionIndex, &Err, verbose);
+			if (Err != SUCCESS)
+			{
+				*ErrCode = Err;
+				return false;
+			}
+
+			//insert it into the map
+			__NETWORKS[(unsigned long long int)ChildNet] = ChildNet;
+
+			//return the "handle" which is really just the memory address of the network(guaranteed to be unique)
+			return (unsigned long long int)ChildNet;
 		}
-		std::map<unsigned long long int, Network*>::iterator handleBLocation = __NETWORKS.find(handleB);
-		if (handleBLocation == __NETWORKS.end())
+		catch (std::exception &ex)
 		{
-			/*invalid handle, indicate failure*/
-			return 0;
+			*ErrCode = UNKNOWN_FAILURE;
+			std::stringstream ErrorMessage;
+			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
+			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			return false;
 		}
-		//save the networks to be bred
-		handleALocation->second->SaveNetwork("Networks/BreedA");
-		handleBLocation->second->SaveNetwork("Networks/BreedB");
-
-		//copy over the crossover points into a vector
-		std::vector<float> CrossoverPoints;
-		std::copy(_CrossoverPoints, _CrossoverPoints + nCrossoverPoints, std::back_inserter(CrossoverPoints));
-		//create the breed settings struct
-		Network::BreedSettings Settings{ CrossoverPoints, MutationChance };
-
-		//breed the networks
-		Network* ChildNet = new Network("Networks/BreedA", "Networks/BreedB", Settings, inputs, outputs, ActivationFunctionIndex, verbose);
-
-		//insert it into the map
-		__NETWORKS[(unsigned long long int)ChildNet] = ChildNet;
-
-		//return the "handle" which is really just the memory address of the network(guaranteed to be unique)
-		return (unsigned long long int)ChildNet;
     }
 }
 
 //TODO: throw some definitions for these functions in a header and split this file into multiple files(maybe?)
-//TODO: write bindings for most of these in python
