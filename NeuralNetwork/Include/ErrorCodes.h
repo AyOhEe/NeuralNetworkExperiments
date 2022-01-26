@@ -27,15 +27,6 @@ enum ErrorCodes
 
 	//API Error codes
 	INVALID_HANDLE,						//the api was passed an invalid network handle
-	INVALID_GENOME,						//the api was asked to read an invalid genome
-	INVALID_NODE_INDEX,					//the api was given an invalid node index for the given handle
-	INVALID_CONN_INDEX,					//the api was given an invalid connection index for the given node
-	INVALID_ARGUMENT,					//the api was given an invalid argument
-	INVALID_INPUT_ARRAY,				//the api was asked to use an invalid input array
-	INVALID_OUTPUT_ARRAY,				//the api was asked to use an invalid output array
-	INVALID_SAVE_PATH,		//the api was asked to save in an invalid location
-	INVALID_BREED_GENOME_A,				//the api was asked to breed a network, but genome A was invalid
-	INVALID_BREED_GENOME_B				//the api was asked to breed a network, but genome B was invalid
 };
 
 #endif

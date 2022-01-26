@@ -25,6 +25,7 @@
     <ClInclude Include="Include\BinaryReader.h" />
     <ClInclude Include="Include\Chromosome.h" />
     <ClInclude Include="Include\Connection.h" />
+    <ClInclude Include="Include\ErrorCodes.h" />
     <ClInclude Include="Include\json.hpp" />
     <ClInclude Include="Include\Network.h" />
     <ClInclude Include="Include\Node.h" />

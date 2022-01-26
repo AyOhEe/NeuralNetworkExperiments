@@ -38,8 +38,8 @@ class Network
 public:
 
 	//creates a network based on the genome at GenomePath
-	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), bool Verbose = false);
-	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
+	Network(std::string GenomePath, int inputs, int outputs, float(*ActivationFunction)(float), unsigned int* ErrCode, bool Verbose = false);
+	Network(std::string GenomePath, int inputs, int outputs, int ActivationFunctionIndex, unsigned int* ErrCode, bool Verbose = false);
 
 	//settings determining how networks should be bred
 	struct BreedSettings
@@ -49,45 +49,50 @@ public:
 	};
 
 	//creates a network based on two genomes
-	Network(std::string GenomePathA, std::string GenomePathB, BreedSettings Settings, int inputs, int outputs, int ActivationFunctionIndex, bool Verbose = false);
+	Network(
+		std::string GenomePathA, std::string GenomePathB, 
+		BreedSettings Settings, 
+		int inputs, int outputs, 
+		int ActivationFunctionIndex, 
+		unsigned int* ErrCode, bool Verbose = false
+	);
 
 	//the activation function for this network
 	float(*ActivationFunction)(float);
 
 	//returns the values of all of the output nodes
-	std::vector<float> GetResults();
+	std::vector<float> GetResults(unsigned int* ErrCode);
 	//sets the values of all of the input nodes
-	void SetInputs(std::vector<float> &Inputs);
+	void SetInputs(std::vector<float> &Inputs, unsigned int* ErrCode);
 
 	//saves the network to a file on disk
-	void SaveNetwork(std::string GenomePath, bool verbose = false);
+	void SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool verbose = false);
 
-	//TODO(aria): make like half of these functions give error codes
 	//the number of inputs, outputs and nodes in the network
 	int InputCount();
 	int OutputCount();
 	int NodeCount();
 
 	//adds a node between a connection to the network
-	bool AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex, float bias);
+	bool AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex, float bias, unsigned int* ErrCode);
 	//adds a connection between nodes to the network
-	bool AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex, float weight);
+	bool AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex, float weight, unsigned int* ErrCode);
 
 	//removes a node from the network
-	bool RemoveNode(int NodeIndex);
+	bool RemoveNode(int NodeIndex, unsigned int* ErrCode);
 	//removes a connection from the network
-	bool RemoveConnection(int NodeIndex, int ConnectionIndex);
+	bool RemoveConnection(int NodeIndex, int ConnectionIndex, unsigned int* ErrCode);
 
 	//gets the bias of a node
-	float GetNodeBias(int NodeIndex);
+	float GetNodeBias(int NodeIndex, unsigned int* ErrCode);
 	//sets the bias of a node
-	void SetNodeBias(int NodeIndex, float bias);
+	void SetNodeBias(int NodeIndex, float bias, unsigned int* ErrCode);
 	//get the total number of connections going into a node
-	int GetTotalNodeConnections(int TargetNodeIndex);
+	int GetTotalNodeConnections(int TargetNodeIndex, unsigned int* ErrCode);
 	//gets the weight of a connection
-	float GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex);
+	float GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, unsigned int* ErrCode);
 	//sets the weight of a connection
-	bool SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight);
+	bool SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, float weight, unsigned int* ErrCode);
 };
 
 #endif
