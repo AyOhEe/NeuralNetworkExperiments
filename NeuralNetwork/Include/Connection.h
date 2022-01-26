@@ -3,6 +3,7 @@
 
 #include "BinaryReader.h"
 #include "Network.h"
+#include "ErrorCodes.h"
 
 //forward definitions
 class Network;
@@ -40,7 +41,7 @@ public:
 	static std::string GeneAsString(BR_RETURN_INT_TYPE* Gene);
 
 	//attempts to get the value of this connection
-	bool TryAddValue(float* OutValue, Network* Net);
+	bool TryAddValue(float* OutValue, Network* Net, unsigned int* ErrCode);
 };
 
 #endif

@@ -65,22 +65,25 @@ void Connection::CreateConnection(BR_RETURN_INT_TYPE* Gene, Network *Net)
 }
 
 //attempts to get the value of this connection
-bool Connection::TryAddValue(float* OutValue, Network* Net) 
+bool Connection::TryAddValue(float* OutValue, Network* Net, unsigned int* ErrCode) 
 {
 	try 
 	{
+		*ErrCode = SUCCESS; //default to success if not told otherwise
+
 		//is the source an input or internal node?
+		unsigned int NodeErr = 0;
 		if (SourceNode < 0)
 		{
 			//input node
 			//add the weighted value of the connection
-			*OutValue += Weight * Net->InputNodes[-SourceNode - 1].CalculateValue(Net);
+			*OutValue += Weight * Net->InputNodes[-SourceNode - 1].CalculateValue(Net, &NodeErr);
 		}
 		else
 		{
 			//internal node
 			//add the weighted value of the connection
-			*OutValue += Weight * Net->Nodes[SourceNode].CalculateValue(Net);
+			*OutValue += Weight * Net->Nodes[SourceNode].CalculateValue(Net, &NodeErr);
 		}
 
 		//we succeeded, return true
@@ -90,6 +93,7 @@ bool Connection::TryAddValue(float* OutValue, Network* Net)
 	{
 		//oops, something went wrong. return false
 		std::cout << ex.what() << std::endl;
+		*ErrCode = CONNECTION_MISSING_SOURCE; //it's literally the only thing that can go wrong here
 		return false;
 	}
 
