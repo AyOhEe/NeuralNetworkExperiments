@@ -116,7 +116,11 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 				break;
 
 			//create and add it's node
+            #ifdef __NT__
 			Nodes.insert(std::pair(UniqueNodeIndex++, Node(Gene)));
+            #elif __unix__
+			Nodes.insert(std::pair<long long int, Node>(UniqueNodeIndex++, Node(Gene)));
+            #endif
 
 			if (Verbose)
 			{
@@ -374,7 +378,11 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 			for (int Gene_i = GeneCount; Gene_i < GenomeProgress + GeneCount; Gene_i++)
 			{
 				//construct and append the node to the network
-				Nodes.insert(std::pair(UniqueNodeIndex++, Node(CurrentNodeGeneSet->operator[](Gene_i))));
+                #ifdef __NT__
+                Nodes.insert(std::pair(UniqueNodeIndex++, Node(CurrentNodeGeneSet->operator[](Gene_i))));
+                #elif __unix__
+                Nodes.insert(std::pair<long long int, Node>(UniqueNodeIndex++, Node(CurrentNodeGeneSet->operator[](Gene_i))));
+                #endif
 			}
 
 			//invert the current gene set
@@ -522,7 +530,11 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 		*ErrCode = SUCCESS;
 
 		//create the directory for the genome
+        #ifdef __NT__
 		std::filesystem::create_directory(std::filesystem::path(GenomePath));
+        #elif __unix__
+		std::experimental::filesystem::create_directory(std::experimental::filesystem::path(GenomePath));
+        #endif
 
 		//open the files at the chromosome paths
 		std::ofstream NodeChromosomeFile(GenomePath + "/Nodes.chr", std::ios::out | std::ios::trunc | std::ios::binary);
@@ -654,7 +666,11 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 			OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
 
 			//add the new node to the node map
+            #ifdef __NT__
 			Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
+            #elif __unix__
+			Nodes.insert(std::pair<long long int, Node>(UniqueNodeIndex++, NewNode));
+            #endif
 
 			//change the old connection's source
 			OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex].SourceNode = UniqueNodeIndex - 1;
@@ -683,7 +699,11 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 			Nodes[TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
 
 			//add the new node to the node map
+            #ifdef __NT__
 			Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
+            #elif __unix__
+			Nodes.insert(std::pair<long long int, Node>(UniqueNodeIndex++, NewNode));
+            #endif
 
 			//change the old connection's source
 			Nodes[TargetNodeIdentifier].Connections[ConnectionIndex].SourceNode = UniqueNodeIndex - 1;

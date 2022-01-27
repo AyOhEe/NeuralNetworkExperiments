@@ -1,5 +1,5 @@
 language = "cpp"
-run = "cd NeuralNetwork; clang -lstdc++ -lm src/Chromosome.cpp src/BinaryReader.cpp src/Node.cpp src/Network.cpp src/main.cpp -o main; ./main"
+#run = "cd NeuralNetwork; clang -lstdc++17 -lm src/Chromosome.cpp src/BinaryReader.cpp src/Connection.cpp src/Node.cpp src/Network.cpp src/main.cpp -o main; ./main"
 #run = "cd GenomeGrapher; python -m pip install -r requirements.txt; python main.py"
-#run = "cd NeuralNetDLL; clang -shared -lstdc++ -fPIC -o NeuralNetDLL.so -Wall ../NeuralNetwork/scr/Chromosome.cpp ../NeuralNetwork/src/Node.cpp ../NeuralNetwork/src/BinaryReader.cpp ../NeuralNetwork/src/Network.cpp src/dllmain.cpp; cp NeuralNetDLL.so ../NeuralNetDLLExample/NeuralNetDLL.so"
+run = "cd NeuralNetDLL; clang -shared -lstdc++ -fPIC -o NeuralNetDLL.so -Wall ../NeuralNetwork/src/Chromosome.cpp ../NeuralNetwork/src/BinaryReader.cpp ../NeuralNetwork/src/Connection.cpp ../NeuralNetwork/src/Node.cpp ../NeuralNetwork/src/Network.cpp src/dllmain.cpp; cp NeuralNetDLL.so ../NeuralNetDLLExample/NeuralNetDLL.so"
 #run = "cd NeuralNetDLLExample; python -m pip install -r requirements.txt; python main.py"

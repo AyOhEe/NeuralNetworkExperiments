@@ -7,7 +7,12 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+
+#ifdef __NT__
 #include <filesystem>
+#elif __unix__
+#include <experimental/filesystem>
+#endif
 
 #include "Node.h"
 #include "Chromosome.h"
