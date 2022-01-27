@@ -95,12 +95,14 @@ extern "C"
 	//removes a network if it exists
     bool NEURALNET_API DESTROY_NETWORK(unsigned long long int handle, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
 
-				//valid handle, delete the network and remove it from the vector
-				delete handleLocation->second;
+			//valid handle, delete the network and remove it from the vector
+			delete handleLocation->second;
 			__NETWORKS.erase(handleLocation);
 
 			//indicate success
@@ -119,6 +121,8 @@ extern "C"
 	//creates a copy of the network given
 	bool NEURALNET_API COPY_NETWORK(unsigned long long int handle, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try
 		{
 			VALIDATE_HANDLE_BOOL
@@ -143,6 +147,8 @@ extern "C"
 	//sets the inputs of a network
 	bool NEURALNET_API SET_NETWORK_INPUTS(unsigned long long int handle, float* inputs, int n_inputs, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -181,6 +187,8 @@ extern "C"
 	//calculates the values of a network
 	bool NEURALNET_API GET_NETWORK_OUTPUTS(unsigned long long int handle, float* _outputs, int n_outputs, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try
 		{
 			VALIDATE_HANDLE_BOOL
@@ -219,6 +227,8 @@ extern "C"
 	//returns the number of inputs, outputs or nodes in a network
 	int NEURALNET_API GET_NETWORK_INPUT_COUNT(unsigned long long int handle, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -236,6 +246,8 @@ extern "C"
 	}
 	int NEURALNET_API GET_NETWORK_NODE_COUNT(unsigned long long int handle, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -253,6 +265,8 @@ extern "C"
 	}
 	int NEURALNET_API GET_NETWORK_OUTPUT_COUNT(unsigned long long int handle, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -272,6 +286,8 @@ extern "C"
 	//adds a node between a connection to a network
 	bool NEURALNET_API ADD_NODE_BETWEEN_CONNECTION(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, float bias, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -298,6 +314,8 @@ extern "C"
 	//adds a connection between nodes to a network
 	bool NEURALNET_API ADD_CONNECTION_BETWEEN_NODES(unsigned int handle, int SourceNodeIndex, int TargetNodeIndex, float weight, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -325,6 +343,8 @@ extern "C"
 	//removes a node from the network
 	bool NEURALNET_API REMOVE_NODE(unsigned int long long handle, int NodeIndex, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -351,6 +371,8 @@ extern "C"
 	//removes a connection from the network
 	bool NEURALNET_API REMOVE_CONNECTION(unsigned long long int handle, int NodeIndex, int ConnectionIndex, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -378,6 +400,8 @@ extern "C"
 	//gets the bias of a node
 	float NEURALNET_API GET_NODE_BIAS(unsigned long long int handle, int NodeIndex, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -404,6 +428,8 @@ extern "C"
 	//sets the bias of a node
 	bool NEURALNET_API SET_NODE_BIAS(unsigned long long int handle, int NodeIndex, float bias, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -431,6 +457,8 @@ extern "C"
 	//gets the total number of connections going into a connection
 	int NEURALNET_API GET_NODE_CONNECTION_COUNT(unsigned long long int handle, int TargetNodeIndex, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_INT
@@ -458,6 +486,8 @@ extern "C"
 	//gets the weight of a connection
 	float NEURALNET_API GET_CONNECTION_WEIGHT(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -484,6 +514,8 @@ extern "C"
 	//sets the weight of a connection
 	bool NEURALNET_API SET_CONNECTION_WEIGHT(unsigned long long int handle, int TargetNodeIndex, int ConnectionIndex, float weight, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -511,6 +543,8 @@ extern "C"
 	//saves a network
 	bool NEURALNET_API SAVE_NETWORK(unsigned long long int handle, const char* path, unsigned int *ErrCode)
 	{
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			VALIDATE_HANDLE_BOOL
@@ -542,6 +576,8 @@ extern "C"
 		float* _CrossoverPoints, int nCrossoverPoints, float MutationChance, 
 		unsigned int *ErrCode, bool verbose)
     {
+		//default the error code to success
+		*ErrCode = SUCCESS;
 		try 
 		{
 			//validate the network handles
