@@ -32,7 +32,7 @@ nnd__neuralnetdll.DESTROY_NETWORK.restype = ctypes.c_bool
 nnd__create_network = nnd__neuralnetdll.CREATE_NETWORK
 nnd__destroy_network = nnd__neuralnetdll.DESTROY_NETWORK
 
-nnd__neuralnetdll.COPY_NETWORK.restype = ctypes.c_bool
+nnd__neuralnetdll.COPY_NETWORK.restype = ctypes.c_uint64
 nnd__copy_network = nnd__neuralnetdll.COPY_NETWORK
 
 nnd__neuralnetdll.GET_NETWORK_OUTPUTS.restype = ctypes.c_bool
@@ -161,6 +161,8 @@ class Network:
     def copy(self, verbose=False, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         #create the copy
         copy_handle = nnd__copy_network(self.__handle, ctypes.byref(ErrCode))
+        if verbose:
+            print(f"Network copied, new handle: {copy_handle}")
         #return a network object created with that handle
         return Network("", self._inputs, self._outputs, self._activation_function, verbose, copy_handle)
 

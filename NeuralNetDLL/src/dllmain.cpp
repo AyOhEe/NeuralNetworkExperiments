@@ -128,7 +128,7 @@ extern "C"
 			VALIDATE_HANDLE_BOOL
 
 			//valid handle, create copy of the network and store it
-			Network* Net = new Network(*__NETWORKS[handle]);
+			Network* Net = new Network((*handleLocation->second));
 			__NETWORKS[(unsigned long long int)Net] = Net;
 
 			//return the handle
