@@ -119,7 +119,7 @@ extern "C"
 	}
 
 	//creates a copy of the network given
-	bool NEURALNET_API COPY_NETWORK(unsigned long long int handle, unsigned int *ErrCode)
+	unsigned long long int NEURALNET_API COPY_NETWORK(unsigned long long int handle, unsigned int *ErrCode)
 	{
 		//default the error code to success
 		*ErrCode = SUCCESS;
@@ -130,6 +130,9 @@ extern "C"
 			//valid handle, create copy of the network and store it
 			Network* Net = new Network(*__NETWORKS[handle]);
 			__NETWORKS[(unsigned long long int)Net] = Net;
+
+			//return the handle
+			return (unsigned long long int)Net;
 		}
 		catch (std::exception &ex)
 		{
@@ -137,11 +140,8 @@ extern "C"
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
 			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
-			return false;
+			return 0;
 		}
-
-		//indicate success
-		return true;
 	}
 
 	//sets the inputs of a network
