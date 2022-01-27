@@ -99,11 +99,11 @@ class ErrorCodes(enum.Enum):
     NETWORK_INVALID_CONN_INDEX = 7          #the network was given an invalid connection index
     NETWORK_INVALID_ARGUMENT = 8            #the network was given an invalid argument
     NETWORK_INVALID_SAVE_PATH = 9           #the network was given an invalid save path
-    NETWORK_INVALID_BREED_GENOME_A = 12     #the network was given an invalid genome A path to breed
-    NETWORK_INVALID_BREED_GENOME_B = 13     #the network was given an invalid genome B path to breed
+    NETWORK_INVALID_BREED_GENOME_A = 10     #the network was given an invalid genome A path to breed
+    NETWORK_INVALID_BREED_GENOME_B = 11     #the network was given an invalid genome B path to breed
 
     #API Error codes
-    INVALID_HANDLE = 14                     #the api was passed an invalid network handle
+    INVALID_HANDLE = 12                     #the api was passed an invalid network handle
 
 
 def nnd__assert_errcode_success(error_code):
