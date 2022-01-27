@@ -63,32 +63,32 @@ nnd__breed_networks = nnd__neuralnetdll.BREED_NETWORKS
 
 #store the error codes
 class ErrorCodes(enum.Enum):
-	#general codes
-	SUCCESS = 0,							#the operation succeeded
-	UNKNOWN_FAILURE = 1,					#the operation failed for an unknown reason,
-										#the error was logged in console
-
-	#connection error codes
-	CONNECTION_MISSING_SOURCE = 2,			#a connection attempted to calculate it's value, but found it's source invalid
-
-	#node error codes
-	NODE_INVALID_CONNECTION_DISCARDED = 3,	#a connection was found to be invalid, and was removed
-
-	#network error codes
-	NETWORK_INVALID_GENOME = 4,				#the network was given an invalid genome
-	NETWORK_INVALID_INPUTS = 5,				#the network was passed invalid inputs
-	NETWORK_INVALID_NODE_INDEX = 6,			#the network was given an invalid node index
-	NETWORK_INVALID_CONN_INDEX = 7,			#the network was given an invalid connection index
-	NETWORK_INVALID_ARGUMENT = 8,			#the network was given an invalid argument
-	NETWORK_INVALID_SAVE_PATH = 9,			#the network was given an invalid save path
-	NETWORK_INVALID_BREED_GENOME_A = 12,		#the network was given an invalid genome A path to breed
-	NETWORK_INVALID_BREED_GENOME_B = 13,		#the network was given an invalid genome B path to breed
-
-	#API Error codes
-	INVALID_HANDLE = 14,						#the api was passed an invalid network handle
-    
     def __int__(self):
         return self.value
+
+    #general codes
+    SUCCESS = 0                             #the operation succeeded
+    UNKNOWN_FAILURE = 1                     #the operation failed for an unknown reason,
+                                            #the error was logged in console
+
+    #connection error codes
+    CONNECTION_MISSING_SOURCE = 2           #a connection attempted to calculate it's value, but found it's source invalid
+
+    #node error codes
+    NODE_INVALID_CONNECTION_DISCARDED = 3   #a connection was found to be invalid, and was removed
+
+    #network error codes
+    NETWORK_INVALID_GENOME = 4              #the network was given an invalid genome
+    NETWORK_INVALID_INPUTS = 5              #the network was passed invalid inputs
+    NETWORK_INVALID_NODE_INDEX = 6          #the network was given an invalid node index
+    NETWORK_INVALID_CONN_INDEX = 7          #the network was given an invalid connection index
+    NETWORK_INVALID_ARGUMENT = 8            #the network was given an invalid argument
+    NETWORK_INVALID_SAVE_PATH = 9           #the network was given an invalid save path
+    NETWORK_INVALID_BREED_GENOME_A = 12     #the network was given an invalid genome A path to breed
+    NETWORK_INVALID_BREED_GENOME_B = 13     #the network was given an invalid genome B path to breed
+
+    #API Error codes
+    INVALID_HANDLE = 14                     #the api was passed an invalid network handle
 
 def nnd__assert_errcode_success(error_code):
     if(error_code != 0) and (error_code != ErrorCodes.SUCCESS):
@@ -96,10 +96,11 @@ def nnd__assert_errcode_success(error_code):
 
 def nnd__errcode_check(func):
     def wrapper(*args, **kwargs):
-            error_code = ctypes.c_uint(int(ErrorCodes.SUCCESS))
+            error_code = ctypes.c_uint(0)
             result = func(*args, ErrCode=error_code, **kwargs)
-            nnd__assert_errcode_success(ErrorCode(ErrCode))
+            nnd__assert_errcode_success(ErrorCodes(error_code.value))
             return result
+    return wrapper
 
 
 #interface class for the bindings in NeuralNetDLL.dll
@@ -116,7 +117,7 @@ class Network:
 
     #constructor
     @nnd__errcode_check
-    def __init__(self, genome_path, inputs, outputs, activation_function, verbose=False, __handle=None, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
+    def __init__(self, genome_path, inputs, outputs, activation_function, verbose=False, __handle=None, ErrCode=ctypes.c_uint(1)):
         #are we creating a new network or just storing an existing one?
         if __handle == None:
             #create a network and store the handle
@@ -126,7 +127,7 @@ class Network:
                 ctypes.c_int(outputs),
                 ctypes.c_int(int(activation_function)),
                 ctypes.c_bool(verbose),
-                ctypes.POINTER(ErrCode)
+                ctypes.byref(ErrCode)
             ))
         else:
             #store the handle
@@ -143,7 +144,7 @@ class Network:
     @nnd__errcode_check
     def copy(self, verbose=False, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         #create the copy
-        copy_handle = nnd__copy_network(self.__handle, ctypes.POINTER(ErrCode))
+        copy_handle = nnd__copy_network(self.__handle, ctypes.byref(ErrCode))
         #return a network object created with that handle
         return Network("", self._inputs, self._outputs, self._activation_function, verbose, copy_handle)
 
@@ -151,7 +152,7 @@ class Network:
     @nnd__errcode_check
     def destroy(self, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         #destroy the network on the c++ end
-        nnd__destroy_network(self.__handle, ctypes.POINTER(ErrCode))
+        nnd__destroy_network(self.__handle, ctypes.byref(ErrCode))
        
     #looks at and returns the outputs from the last call of CalculateOutputs
     @nnd__errcode_check
@@ -164,7 +165,7 @@ class Network:
             self.__handle,
             last_outputs_array,
             ctypes.c_int(self._outputs), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
         #return the last outputs
@@ -180,7 +181,7 @@ class Network:
             self.__handle,
             inputs_array,
             ctypes.c_int(len(inputs)), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
         #return the new outputs
         return self.PeekOutputs()
@@ -188,15 +189,15 @@ class Network:
     #returns relevant information about the network
     @nnd__errcode_check
     def GetInputCount(self, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
-        return nnd__get_network_input_count(self.__handle, ctypes.POINTER(ErrCode))
+        return nnd__get_network_input_count(self.__handle, ctypes.byref(ErrCode))
 
     @nnd__errcode_check
     def GetNodeCount(self, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
-        return nnd__get_network_node_count(self.__handle, ctypes.POINTER(ErrCode))
+        return nnd__get_network_node_count(self.__handle, ctypes.byref(ErrCode))
 
     @nnd__errcode_check
-    def GetOutputCount(self), ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS)):
-        return nnd__get_network_output_count(self.__handle, ctypes.POINTER(ErrCode))
+    def GetOutputCount(self, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
+        return nnd__get_network_output_count(self.__handle, ctypes.byref(ErrCode))
 
     def GetNetworkStructure(self):
         return (self.GetInputCount(), self.GetNodeCount(), self.GetOutputCount())
@@ -209,7 +210,7 @@ class Network:
             ctypes.c_int(NodeIndex),
             ctypes.c_int(ConnectionIndex), 
             ctypes.c_float(bias), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #adds a connection to the network
@@ -220,7 +221,7 @@ class Network:
             ctypes.c_int(SourceNodeIndex),
             ctypes.c_int(TargetNodeIndex),
             ctypes.c_float(weight), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #removes a node from the network
@@ -229,7 +230,7 @@ class Network:
         nnd__remove_node(
             self.__handle,
             ctypes.c_int(NodeIndex), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #removes a connection from the network
@@ -239,7 +240,7 @@ class Network:
             self.__handle,
             ctypes.c_int(NodeIndex),
             ctypes.c_int(ConnectionIndex), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #returns the bias of a node
@@ -248,7 +249,7 @@ class Network:
         return nnd__get_node_bias(
             self.__handle,
             ctypes.c_int(NodeIndex), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #sets the bias of a node
@@ -258,7 +259,7 @@ class Network:
             self.__handle, 
             ctypes.c_int(NodeIndex), 
             ctypes.c_float(bias), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #returns the number of connections targeting node NodeIndex
@@ -267,7 +268,7 @@ class Network:
         return nnd__get_node_connection_count(
             self.__handle, 
             ctypes.c_int(NodeIndex), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #returns the weight of a connection
@@ -277,7 +278,7 @@ class Network:
             self.__handle, 
             ctypes.c_int(NodeIndex), 
             ctypes.c_int(ConnectionIndex), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #sets the weight of a connection
@@ -288,7 +289,7 @@ class Network:
             ctypes.c_int(NodeIndex), 
             ctypes.c_int(ConnectionIndex), 
             ctypes.c_float(weight), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
 
     #saves the network in it's current state to a file
@@ -297,7 +298,7 @@ class Network:
         nnd__save_network(
             self.__handle, 
             ctypes.c_char_p(bytes(GenomePath, "utf-8")), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
     
     #breeds this network with another with Settings and returns the new network
@@ -313,7 +314,7 @@ class Network:
             ctypes.c_int(4), 
             ctypes.c_float(MutationChance), 
             ctypes.c_bool(verbose), 
-            ctypes.POINTER(ErrCode)
+            ctypes.byref(ErrCode)
         )
         #create a network with the new handle
         return Network(
