@@ -28,7 +28,7 @@ if __name__ == "__main__":
     env.reset()
     
     for gen_i in range(generation_length):
-        print(f"\n\n================================\n\tGENERATION {gen_i}\n================================\n")
+        print(f"\n\n{bcolors.HEADER}================================\n\tGENERATION {gen_i}\n================================{bcolors.ENDC}\n")
         #test the networks on the environment
         scores = []
         for net_i in range(len(networks)):
@@ -40,7 +40,7 @@ if __name__ == "__main__":
                 total_reward += reward #store the reward for this iteration
 
                 if done: #exit if we've finished the episode
-                    print(f"Episode for network {net_i} in {gen_i} finished after {t+1} timesteps with {total_reward} reward")
+                    print(f"Episode for network {bcolors.OKGREEN}{net_i}{bcolors.ENDC} in {bcolors.OKCYAN}{gen_i}{bcolors.ENDC} finished after {bcolors.WARNING}{t+1}{bcolors.ENDC} timesteps with {bcolors.FAIL}{total_reward}{bcolors.ENDC} reward")
                     break
             scores.append((net_i, total_reward))
             env.reset()
@@ -139,7 +139,7 @@ if __name__ == "__main__":
             total_reward += reward #store the reward for this iteration
 
             if done: #exit if we've finished the episode
-                print(f"Episode for network {net_i}finished after {t+1} timesteps with {total_reward} reward")
+                print(f"Episode for network {bcolors.OKGREEN}{net_i}{bcolors.ENDC} finished after {bcolors.WARNING}{t+1}{bcolors.ENDC} timesteps with {bcolors.FAIL}{total_reward}{bcolors.ENDC} reward")
                 break
         scores.append((net_i, total_reward))
         env.reset()

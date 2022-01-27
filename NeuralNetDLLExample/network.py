@@ -3,6 +3,21 @@ import pathlib
 import enum
 import platform
 
+import os
+os.system("") #have to do this bullshit for console colours i guess
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    BLINK = '\033[m'
+
 #load the library
 nnd__neuralnetdllname = ""
 if platform.system() == "Windows":
@@ -90,9 +105,10 @@ class ErrorCodes(enum.Enum):
     #API Error codes
     INVALID_HANDLE = 14                     #the api was passed an invalid network handle
 
+
 def nnd__assert_errcode_success(error_code):
     if(error_code != 0) and (error_code != ErrorCodes.SUCCESS):
-        raise Exception(f"Error thrown from Network Library! Error: {str(error_code)}")
+        raise Exception(f"{bcolors.FAIL}Error thrown from Network Library! Error: {str(error_code)}{bcolors.ENDC}")
 
 def nnd__errcode_check(func):
     def wrapper(*args, **kwargs):
