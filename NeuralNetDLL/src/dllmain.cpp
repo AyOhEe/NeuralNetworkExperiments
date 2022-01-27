@@ -87,7 +87,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -113,7 +113,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -136,7 +136,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 
@@ -179,7 +179,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -219,7 +219,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -240,7 +240,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -259,7 +259,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -278,7 +278,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -307,7 +307,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -335,7 +335,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -364,7 +364,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -392,7 +392,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -421,7 +421,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -449,7 +449,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -478,7 +478,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -507,7 +507,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -535,7 +535,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -564,7 +564,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
 	}
@@ -635,7 +635,7 @@ extern "C"
 			*ErrCode = UNKNOWN_FAILURE;
 			std::stringstream ErrorMessage;
 			ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
-			std::cout << ErrorMessage.str() << std::endl << ex.what() << std::endl;
+			std::cout << ex.what() << std::endl << ErrorMessage.str() << std::endl;
 			return false;
 		}
     }
