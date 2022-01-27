@@ -91,6 +91,10 @@ bool Connection::TryAddValue(float* OutValue, Network* Net, unsigned int* ErrCod
 	}
 	catch(std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		//oops, something went wrong. return false
 		std::cout << ex.what() << std::endl;
 		*ErrCode = CONNECTION_MISSING_SOURCE; //it's literally the only thing that can go wrong here

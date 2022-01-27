@@ -112,7 +112,7 @@ def nnd__assert_errcode_success(error_code):
 
 def nnd__errcode_check(func):
     def wrapper(*args, **kwargs):
-            error_code = ctypes.c_uint(0)
+            error_code = ctypes.c_uint(int(ErrorCodes.SUCCESS))
             result = func(*args, ErrCode=error_code, **kwargs)
             nnd__assert_errcode_success(ErrorCodes(error_code.value))
             return result
@@ -133,7 +133,7 @@ class Network:
 
     #constructor
     @nnd__errcode_check
-    def __init__(self, genome_path, inputs, outputs, activation_function, verbose=False, __handle=None, ErrCode=ctypes.c_uint(1)):
+    def __init__(self, genome_path, inputs, outputs, activation_function, verbose=False, __handle=None, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         #are we creating a new network or just storing an existing one?
         if __handle == None:
             #create a network and store the handle
@@ -142,8 +142,8 @@ class Network:
                 ctypes.c_int(inputs),
                 ctypes.c_int(outputs),
                 ctypes.c_int(int(activation_function)),
-                ctypes.c_bool(verbose),
-                ctypes.byref(ErrCode)
+                ctypes.byref(ErrCode),
+                ctypes.c_bool(verbose)
             ))
         else:
             #store the handle
@@ -328,9 +328,9 @@ class Network:
             ctypes.c_int(int(self._activation_function)),
             CrossoverPoints, 
             ctypes.c_int(4), 
-            ctypes.c_float(MutationChance), 
-            ctypes.c_bool(verbose), 
-            ctypes.byref(ErrCode)
+            ctypes.c_float(MutationChance),
+            ctypes.byref(ErrCode),
+            ctypes.c_bool(verbose)
         )
         #create a network with the new handle
         return Network(
@@ -351,7 +351,7 @@ if __name__ == "__main__":
         b"../NeuralNetwork/Genomes/test_genome", #genome path
         2,                                             #inputs
         1,                                             #outputs
-        Network.ActivationFunction.LeakyReLu,          #activation function index
+        Network.ActivationFunction.Sigmoid,          #activation function index
         verbose=False                                  #optional: verbosity
     )
 

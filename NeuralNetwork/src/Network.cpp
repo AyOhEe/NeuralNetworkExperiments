@@ -173,6 +173,10 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -435,6 +439,10 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -468,6 +476,10 @@ std::vector<float> Network::GetResults(unsigned int* ErrCode)
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -513,6 +525,10 @@ void Network::SetInputs(std::vector<float>& Inputs, unsigned int* ErrCode)
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -586,6 +602,10 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -711,6 +731,10 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -789,6 +813,10 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -824,6 +852,10 @@ bool Network::RemoveNode(int NodeIndex, unsigned int* ErrCode)
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -903,6 +935,10 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex, unsigned int*
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -940,6 +976,10 @@ float Network::GetNodeBias(int NodeIndex, unsigned int* ErrCode)
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -977,6 +1017,10 @@ void Network::SetNodeBias(int NodeIndex, float bias, unsigned int* ErrCode)
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -1034,6 +1078,10 @@ int Network::GetTotalNodeConnections(int TargetNodeIndex, unsigned int* ErrCode)
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -1120,6 +1168,10 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, uns
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
@@ -1200,6 +1252,10 @@ bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 	}
 	catch (std::exception &ex)
 	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
 		*ErrCode = UNKNOWN_FAILURE;
 		std::stringstream ErrorMessage;
 		ErrorMessage << "Unknwon Failure at" << __FILE__ << ":" << __LINE__;
