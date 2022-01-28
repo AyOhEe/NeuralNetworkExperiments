@@ -578,8 +578,8 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 			{
 				//save this connection in the file
 				ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, InternalNodeIdentifier, this);
-				InternalNodeIdentifier += 1;
 			}
+			InternalNodeIdentifier += 1;
 			//save this node in the file
 			NodeIter.second.AppendNodeToChromosome(NodeChromosomeFile);
 		}
@@ -595,8 +595,8 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 			{
 				//save this connection in the file
 				ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, OutputNodeIdentifier, this);
-				OutputNodeIdentifier -= 1;
 			}
+			OutputNodeIdentifier -= 1;
 		}
 
 		//close the filestreams

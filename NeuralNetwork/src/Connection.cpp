@@ -109,7 +109,7 @@ bool Connection::TryAddValue(float* OutValue, Network* Net, unsigned int* ErrCod
 void Connection::AppendConnectionToChromosome(std::ofstream &FileStream, long long int TargetNode, Network* Net) 
 {
 	//calculate the old weight as an integer
-	int IntWeight = abs(Weight * CONNECTION_GENE_WEIGHT_DIVISOR);
+	int IntWeight = abs(Weight) * CONNECTION_GENE_WEIGHT_DIVISOR;
 
 	//determine node types
 	bool SourceType = SourceNode < 0;
@@ -137,14 +137,15 @@ void Connection::AppendConnectionToChromosome(std::ofstream &FileStream, long lo
 
 	//recreate the gene
 	char* Gene = new char[4];
-	Gene[0] = 0b10000000 + (SourceType ? 0 : 0b01000000) + (TargetType ? 0b00100000 : 0);
+	Gene[0] = (SourceType ? 0 : 0b01000000) + (TargetType ? 0b00100000 : 0);
 	Gene[0] += (SourceIndex & 0b1111100000) >> 5;
-	Gene[1] += ((SourceIndex & 0b0000011111) << 3) + ((TargetIndex & 0b1110000000) >> 7);
-	Gene[2] += ((TargetIndex & 0b0001111111) << 1) + (Weight < 0 ? 0b1 : 0);
-	Gene[3] += IntWeight;
+	Gene[1] = ((SourceIndex & 0b0000011111) << 3) + ((TargetIndex & 0b1110000000) >> 7);
+	Gene[2] = ((TargetIndex & 0b0001111111) << 1) + (Weight < 0 ? 0b1 : 0);
+	Gene[3] = IntWeight;
 
 	//write the gene
 	FileStream << Gene[0] << Gene[1] << Gene[2] << Gene[3];
+	std::cout << Gene[0] << Gene[1] << Gene[2] << Gene[4];
 }
 
 //returns Gene as a string
