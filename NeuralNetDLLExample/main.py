@@ -2,9 +2,9 @@ from network import Network
 
 if __name__ == "__main__":
     #test settings
-    network_count = 200
-    episode_length = 200
-    generation_length = 2000
+    network_count = 25
+    episode_length = 500
+    generation_length = 100
 
     node_add_chance = 50
     connection_add_chance = 50
@@ -36,12 +36,12 @@ if __name__ == "__main__":
         BLINK = '\033[m'
 
     #create the networks
-    networks = [Network(b"Genomes/Default", 4, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
+    networks = [Network("Genomes/Default", 4, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
 
     #start the test environment
     env = gym.make('CartPole-v0')
     env.reset()
-    
+
     for gen_i in range(generation_length):
         print(f"\n\n{bcolors.HEADER}================================\n\tGENERATION {gen_i}\n================================{bcolors.ENDC}\n")
         #test the networks on the environment
@@ -59,7 +59,7 @@ if __name__ == "__main__":
                     break
             scores.append((net_i, total_reward))
             env.reset()
-            
+
         #sort the networks based on their scores
         scores = sorted(scores, key=lambda x: x[1], reverse=True)
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
             if random.randint(1, 1000) < node_remove_chance:
                 try:
-                    node_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                    node_index = random.randrange(0, new_networks[-1].GetNodeCount())
                     new_networks[-1].RemoveNode(node_index)
                 except ValueError:
                     pass
@@ -117,8 +117,8 @@ if __name__ == "__main__":
                     target_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
                     connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(target_index))
                     new_networks[-1].SetConnectionWeight(
-                        target_index, 
-                        connection_index, 
+                        target_index,
+                        connection_index,
                         new_networks[-1].GetConnectionWeight(target_index, connection_index) + (random.random() - 0.5) * 0.05
                     )
                 except ValueError:
@@ -128,7 +128,7 @@ if __name__ == "__main__":
                 try:
                     node_index = random.randrange(0, new_networks[-1].GetNodeCount())
                     new_networks[-1].SetNodeBias(
-                        node_index, 
+                        node_index,
                         new_networks[-1].GetNodeBias(node_index) + (random.random() - 0.5) * 0.05
                     )
                 except ValueError:
