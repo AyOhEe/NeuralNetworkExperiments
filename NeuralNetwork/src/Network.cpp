@@ -577,7 +577,8 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 				ConnectionIter++)
 			{
 				//save this connection in the file
-				ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, InternalNodeIdentifier++, this);
+				ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, InternalNodeIdentifier, this);
+				InternalNodeIdentifier += 1;
 			}
 			//save this node in the file
 			NodeIter.second.AppendNodeToChromosome(NodeChromosomeFile);
@@ -593,7 +594,8 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 				ConnectionIter++)
 			{
 				//save this connection in the file
-				ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, OutputNodeIdentifier--, this);
+				ConnectionIter->AppendConnectionToChromosome(ConnectionChromosomeFile, OutputNodeIdentifier, this);
+				OutputNodeIdentifier -= 1;
 			}
 		}
 
@@ -650,7 +652,7 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 		else if ((TargetNodeIndex < NodeCount() + OutputCount()) & (TargetNodeIndex >= 0))
 		{
 			//output node
-			TargetNodeIdentifier = -OutputCount() - (TargetNodeIndex - NodeCount());
+			TargetNodeIdentifier = -(TargetNodeIndex - NodeCount()) - 1;
 		}
 		else
 		{
@@ -766,7 +768,7 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 		else if ((TargetNodeIndex < NodeCount() + OutputCount()) & (TargetNodeIndex >= 0))
 		{
 			//output node
-			TargetNodeIdentifier = -OutputCount() - (TargetNodeIndex - NodeCount());
+			TargetNodeIdentifier = -(TargetNodeIndex - NodeCount()) - 1;
 		}
 		else
 		{
@@ -1139,7 +1141,7 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, uns
 			//output node
 			//get the start of the nodes vector and move by NodeIndex places
 			auto NodePlace = OutputNodes.begin();
-			std::advance(NodePlace, TargetNodeIndex);
+			std::advance(NodePlace, TargetNodeIndex - NodeCount());
 
 			//ensure that the connectionindex is valid
 			if ((ConnectionIndex >= NodePlace->Connections.size()) | (ConnectionIndex < 0))
@@ -1223,7 +1225,7 @@ bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 			//output node
 			//get the start of the nodes vector and move by NodeIndex places
 			auto NodePlace = OutputNodes.begin();
-			std::advance(NodePlace, TargetNodeIndex);
+			std::advance(NodePlace, TargetNodeIndex - NodeCount());
 
 			//ensure that the connectionindex is valid
 			if ((ConnectionIndex >= NodePlace->Connections.size()) | (ConnectionIndex < 0))

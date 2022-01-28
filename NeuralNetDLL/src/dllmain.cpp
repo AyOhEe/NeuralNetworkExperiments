@@ -312,7 +312,7 @@ extern "C"
 		}
 	}
 	//adds a connection between nodes to a network
-	bool NEURALNET_API ADD_CONNECTION_BETWEEN_NODES(unsigned int handle, int SourceNodeIndex, int TargetNodeIndex, float weight, unsigned int *ErrCode)
+	bool NEURALNET_API ADD_CONNECTION_BETWEEN_NODES(unsigned long long int handle, int SourceNodeIndex, int TargetNodeIndex, float weight, unsigned int *ErrCode)
 	{
 		//default the error code to success
 		*ErrCode = SUCCESS;

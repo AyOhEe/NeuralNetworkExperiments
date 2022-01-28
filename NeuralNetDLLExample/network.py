@@ -127,7 +127,7 @@ class Network:
         Tanh = 1
         ReLu = 2
         LeakyReLu = 3
-        
+
         def __int__(self):
             return self.value
 
@@ -138,7 +138,7 @@ class Network:
         if __handle == None:
             #create a network and store the handle
             self.__handle = ctypes.c_uint64(nnd__create_network(
-                ctypes.c_char_p(genome_path),
+                ctypes.c_char_p(bytes(genome_path, "utf-8")),
                 ctypes.c_int(inputs),
                 ctypes.c_int(outputs),
                 ctypes.c_int(int(activation_function)),
@@ -171,7 +171,7 @@ class Network:
     def destroy(self, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         #destroy the network on the c++ end
         nnd__destroy_network(self.__handle, ctypes.byref(ErrCode))
-       
+
     #looks at and returns the outputs from the last call of CalculateOutputs
     @nnd__errcode_check
     def PeekOutputs(self, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
@@ -182,7 +182,7 @@ class Network:
         nnd__get_network_outputs(
             self.__handle,
             last_outputs_array,
-            ctypes.c_int(self._outputs), 
+            ctypes.c_int(self._outputs),
             ctypes.byref(ErrCode)
         )
 
@@ -198,7 +198,7 @@ class Network:
         nnd__set_network_inputs(
             self.__handle,
             inputs_array,
-            ctypes.c_int(len(inputs)), 
+            ctypes.c_int(len(inputs)),
             ctypes.byref(ErrCode)
         )
         #return the new outputs
@@ -224,10 +224,10 @@ class Network:
     @nnd__errcode_check
     def AddNode(self, NodeIndex, ConnectionIndex, bias, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         nnd__add_node_between_connection(
-            self.__handle, 
+            self.__handle,
             ctypes.c_int(NodeIndex),
-            ctypes.c_int(ConnectionIndex), 
-            ctypes.c_float(bias), 
+            ctypes.c_int(ConnectionIndex),
+            ctypes.c_float(bias),
             ctypes.byref(ErrCode)
         )
 
@@ -238,7 +238,7 @@ class Network:
             self.__handle,
             ctypes.c_int(SourceNodeIndex),
             ctypes.c_int(TargetNodeIndex),
-            ctypes.c_float(weight), 
+            ctypes.c_float(weight),
             ctypes.byref(ErrCode)
         )
 
@@ -247,7 +247,7 @@ class Network:
     def RemoveNode(self, NodeIndex, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         nnd__remove_node(
             self.__handle,
-            ctypes.c_int(NodeIndex), 
+            ctypes.c_int(NodeIndex),
             ctypes.byref(ErrCode)
         )
 
@@ -257,7 +257,7 @@ class Network:
         nnd__remove_connection(
             self.__handle,
             ctypes.c_int(NodeIndex),
-            ctypes.c_int(ConnectionIndex), 
+            ctypes.c_int(ConnectionIndex),
             ctypes.byref(ErrCode)
         )
 
@@ -266,7 +266,7 @@ class Network:
     def GetNodeBias(self, NodeIndex, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         return nnd__get_node_bias(
             self.__handle,
-            ctypes.c_int(NodeIndex), 
+            ctypes.c_int(NodeIndex),
             ctypes.byref(ErrCode)
         )
 
@@ -274,9 +274,9 @@ class Network:
     @nnd__errcode_check
     def SetNodeBias(self, NodeIndex, bias, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         nnd__set_node_bias(
-            self.__handle, 
-            ctypes.c_int(NodeIndex), 
-            ctypes.c_float(bias), 
+            self.__handle,
+            ctypes.c_int(NodeIndex),
+            ctypes.c_float(bias),
             ctypes.byref(ErrCode)
         )
 
@@ -284,8 +284,8 @@ class Network:
     @nnd__errcode_check
     def GetNodeConnectionCount(self, NodeIndex, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         return nnd__get_node_connection_count(
-            self.__handle, 
-            ctypes.c_int(NodeIndex), 
+            self.__handle,
+            ctypes.c_int(NodeIndex),
             ctypes.byref(ErrCode)
         )
 
@@ -293,9 +293,9 @@ class Network:
     @nnd__errcode_check
     def GetConnectionWeight(self, NodeIndex, ConnectionIndex, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         return nnd__get_connection_weight(
-            self.__handle, 
-            ctypes.c_int(NodeIndex), 
-            ctypes.c_int(ConnectionIndex), 
+            self.__handle,
+            ctypes.c_int(NodeIndex),
+            ctypes.c_int(ConnectionIndex),
             ctypes.byref(ErrCode)
         )
 
@@ -303,10 +303,10 @@ class Network:
     @nnd__errcode_check
     def SetConnectionWeight(self, NodeIndex, ConnectionIndex, weight, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         nnd__set_connection_weight(
-            self.__handle, 
-            ctypes.c_int(NodeIndex), 
-            ctypes.c_int(ConnectionIndex), 
-            ctypes.c_float(weight), 
+            self.__handle,
+            ctypes.c_int(NodeIndex),
+            ctypes.c_int(ConnectionIndex),
+            ctypes.c_float(weight),
             ctypes.byref(ErrCode)
         )
 
@@ -314,22 +314,22 @@ class Network:
     @nnd__errcode_check
     def SaveNetwork(self, GenomePath, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         nnd__save_network(
-            self.__handle, 
-            ctypes.c_char_p(bytes(GenomePath, "utf-8")), 
+            self.__handle,
+            ctypes.c_char_p(bytes(GenomePath, "utf-8")),
             ctypes.byref(ErrCode)
         )
-    
+
     #breeds this network with another with Settings and returns the new network
     @nnd__errcode_check
     def BreedNetwork(self, OtherNetwork, CrossoverPoints, MutationChance, verbose=False, ErrCode=ctypes.c_uint(int(ErrorCodes.SUCCESS))):
         NewHandle = nnd__neuralnetdll.BREED_NETWORKS(
-            self.__handle, 
-            OtherNetwork.__handle, 
-            self._inputs, 
-            self._outputs, 
+            self.__handle,
+            OtherNetwork.__handle,
+            self._inputs,
+            self._outputs,
             ctypes.c_int(int(self._activation_function)),
-            CrossoverPoints, 
-            ctypes.c_int(4), 
+            CrossoverPoints,
+            ctypes.c_int(4),
             ctypes.c_float(MutationChance),
             ctypes.byref(ErrCode),
             ctypes.c_bool(verbose)
@@ -337,7 +337,7 @@ class Network:
         #create a network with the new handle
         return Network(
             "",
-            self._inputs, 
+            self._inputs,
             self._outputs,
             self._activation_function,
             verbose,
@@ -350,7 +350,7 @@ if __name__ == "__main__":
     print("-----TEST 1-----")
     #create a network
     net = Network(
-        b"../NeuralNetwork/Genomes/test_genome", #genome path
+        "../NeuralNetwork/Genomes/test_genome", #genome path
         2,                                             #inputs
         1,                                             #outputs
         Network.ActivationFunction.Sigmoid,          #activation function index
@@ -376,12 +376,16 @@ if __name__ == "__main__":
     print(f"{net.CalculateOutputs([1, 1]) = }")
 
     net.AddNode(0, 0, -1.5)
+    print("Added node")
     net.AddConnection(0, net.GetNodeCount(), 1.875)
+    print("Added connection")
     net.SetNodeBias(0, 0.5)
+    print("Set bias")
     net.SetConnectionWeight(1, 0, -0.875)
+    print("Set weight")
 
     print(f"\n{net.GetNetworkStructure() = }")
-    
+
     print("\nNodes: ")
     for i in range(net.GetNodeCount()):
         print(f"  node{i}_bias = {net.GetNodeBias(i)}")
@@ -398,13 +402,13 @@ if __name__ == "__main__":
     print(f"{net.CalculateOutputs([1, 0]) = }")
     print(f"{net.CalculateOutputs([1, 1]) = }")
 
-    net.SaveNetwork(b"../NeuralNetwork/Genomes/altered_genome")
+    net.SaveNetwork("../NeuralNetwork/Genomes/altered_genome")
 
     #-----TEST 2-----
     print("\n\n-----TEST 2-----")
     #create a network
     net = Network(
-        b"../NeuralNetwork/Genomes/altered_genome", #genome path
+        "../NeuralNetwork/Genomes/altered_genome", #genome path
         2,                                             #inputs
         1,                                             #outputs
         Network.ActivationFunction.LeakyReLu,          #activation function index
@@ -412,7 +416,7 @@ if __name__ == "__main__":
     )
 
     print(f"\n{net.GetNetworkStructure() = }")
-    
+
     print("\nNodes: ")
     for i in range(net.GetNodeCount()):
         print(f"  node{i}_bias = {net.GetNodeBias(i)}")
@@ -433,7 +437,7 @@ if __name__ == "__main__":
     net.RemoveConnection(0, 0)
 
     print(f"\n{net.GetNetworkStructure() = }")
-    
+
     print("\nNodes: ")
     for i in range(net.GetNodeCount()):
         print(f"  node{i}_bias = {net.GetNodeBias(i)}")
@@ -450,4 +454,4 @@ if __name__ == "__main__":
     print(f"{net.CalculateOutputs([1, 0]) = }")
     print(f"{net.CalculateOutputs([1, 1]) = }")
 
-    net.SaveNetwork(b"../NeuralNetwork/Genomes/further_altered_genome")
+    net.SaveNetwork("../NeuralNetwork/Genomes/further_altered_genome")
