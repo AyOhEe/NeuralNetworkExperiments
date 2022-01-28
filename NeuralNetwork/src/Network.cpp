@@ -116,9 +116,9 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 				break;
 
 			//create and add it's node
-            #ifdef __NT__
+            #ifndef __unix__
 			Nodes.insert(std::pair(UniqueNodeIndex++, Node(Gene)));
-            #elif __unix__
+            #else
 			Nodes.insert(std::pair<long long int, Node>(UniqueNodeIndex++, Node(Gene)));
             #endif
 
@@ -382,9 +382,9 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 			for (int Gene_i = GeneCount; Gene_i < GenomeProgress + GeneCount; Gene_i++)
 			{
 				//construct and append the node to the network
-                #ifdef __NT__
+                #ifndef __unix__
                 Nodes.insert(std::pair(UniqueNodeIndex++, Node(CurrentNodeGeneSet->operator[](Gene_i))));
-                #elif __unix__
+                #else
                 Nodes.insert(std::pair<long long int, Node>(UniqueNodeIndex++, Node(CurrentNodeGeneSet->operator[](Gene_i))));
                 #endif
 			}
@@ -521,6 +521,7 @@ void Network::SetInputs(std::vector<float>& Inputs, unsigned int* ErrCode)
 		for (int i = 0; i < InputNodes.size(); i++)
 		{
 			InputNodes[i].value = Inputs[i];
+			InputNodes[i].NeedsToRecalc = false;
 		}
 	}
 	catch (std::exception &ex)
@@ -546,9 +547,9 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 		*ErrCode = SUCCESS;
 
 		//create the directory for the genome
-        #ifdef __NT__
+        #ifndef __unix__
 		std::filesystem::create_directory(std::filesystem::path(GenomePath));
-        #elif __unix__
+        #else
 		std::experimental::filesystem::create_directory(std::experimental::filesystem::path(GenomePath));
         #endif
 
@@ -686,9 +687,9 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 			OutputNodes[TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
 
 			//add the new node to the node map
-            #ifdef __NT__
+            #ifndef __unix__
 			Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
-            #elif __unix__
+            #else
 			Nodes.insert(std::pair<long long int, Node>(UniqueNodeIndex++, NewNode));
             #endif
 
@@ -719,9 +720,9 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 			Nodes[TargetNodeIdentifier].Connections[ConnectionIndex].Weight = 1;
 
 			//add the new node to the node map
-            #ifdef __NT__
+            #ifndef __unix__
 			Nodes.insert(std::pair(UniqueNodeIndex++, NewNode));
-            #elif __unix__
+            #else
 			Nodes.insert(std::pair<long long int, Node>(UniqueNodeIndex++, NewNode));
             #endif
 

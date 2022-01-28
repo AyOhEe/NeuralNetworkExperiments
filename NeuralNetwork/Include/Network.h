@@ -9,9 +9,9 @@
 #include <sstream>
 #include <algorithm>
 
-#ifdef __NT__
+#ifndef __unix__
 #include <filesystem>
-#elif __unix__
+#else
 #include <experimental/filesystem>
 #endif
 
