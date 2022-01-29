@@ -2,25 +2,23 @@ from network import Network
 
 if __name__ == "__main__":
     #test settings
-    network_count = 1000 # the amount of networks in the population
+    network_count = 100 # the amount of networks in the population
     episode_length = 5000 # the maximum length of an episode
-    generation_length = 100 # the amount of generations to run
+    generation_length = 1000 # the amount of generations to run
 
     node_add_chance = 100 # x/1000 chance that a node is added
     connection_add_chance = 100 # x/1000 chance that a connection is added
     node_remove_chance = 100 # x/1000 chance that a node is removed
     connection_remove_chance = 100 # x/1000 chance that a connection is removed
 
-    max_mutations = 10 #the maximum number of mutations that happen per copied network per generation
+    max_mutations = 5 #the maximum number of mutations that happen per copied network per generation
 
     bias_alter_chance = 100 # x/1000 chance that a bias is altered
     weight_alter_chance = 100 # x/1000 chance that a weight is altered
 
     #import openai-gym https://gym.openai.com/docs/
     import gym
-    import math
     import random
-    import ctypes
 
     import os
     os.system("") #have to do this bullshit for console colours i guess
@@ -38,10 +36,10 @@ if __name__ == "__main__":
         BLINK = '\033[m'
 
     #create the networks
-    networks = [Network("Genomes/Default", 6, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
+    networks = [Network("Genomes/Default", 2, 2, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
 
     #start the test environment
-    env = gym.make('Acrobot-v1')
+    env = gym.make('MountainCarContinuous-v0')
     env.reset()
 
     for gen_i in range(generation_length):
@@ -52,8 +50,8 @@ if __name__ == "__main__":
             total_reward = 0
             observation, reward, done, info = (0, 0, 0, 0), 0, False, {}
             for t in range(episode_length):
-                act = networks[net_i].CalculateOutputs(observation)[0]
-                observation, reward, done, info = env.step(int(round(act * 2))) #do an action
+                act = networks[net_i].CalculateOutputs(observation)
+                observation, reward, done, info = env.step(act) #do an action
                 total_reward += reward #store the reward for this iteration
 
                 if done: #exit if we've finished the episode
@@ -85,7 +83,7 @@ if __name__ == "__main__":
             new_networks.append(random.choice(good_networks).copy())
 
             #do a random amount of mutations
-            for mut_i in range(int(random.randrange(1, max_mutations)))
+            for mut_i in range(int(random.randrange(1, max_mutations))):
                 #decide if we should mutate the network's structure
                 if random.randint(1, 1000) < connection_add_chance:
                     try:
