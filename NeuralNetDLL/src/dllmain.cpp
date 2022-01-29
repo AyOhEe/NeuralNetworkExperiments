@@ -207,7 +207,7 @@ extern "C"
 				*ErrCode = Err;
 				return false;
 			}
-			for (int i = 0; (i < n_outputs) & (i < Outputs.size()); i++)
+			for (int i = 0; (i < n_outputs) && (i < Outputs.size()); i++)
 			{
 				_outputs[i] = Outputs[i];
 			}

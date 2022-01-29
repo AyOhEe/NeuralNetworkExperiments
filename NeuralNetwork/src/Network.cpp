@@ -49,7 +49,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 		*ErrCode = SUCCESS;
 
 		//make sure we were given a valid number of inputs or outputs
-		if ((inputs <= 0) | (outputs <= 0))
+		if ((inputs <= 0) || (outputs <= 0))
 		{
 			//invalid!
 			*ErrCode = NETWORK_INVALID_ARGUMENT;
@@ -70,7 +70,7 @@ Network::Network(std::string GenomePath, int inputs, int outputs, float(*Activat
 		Chromosome ConnectionChromosome(GenomePath + "/Connections.chr", ConnectionBitPattern);
 
 		//make sure we could open the files
-		if (!NodeChromosome | !ConnectionChromosome)
+		if (!NodeChromosome || !ConnectionChromosome)
 		{
 			//we couldn't open one of them, throw an exception
 			std::stringstream ErrorMessage;
@@ -194,7 +194,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		*ErrCode = SUCCESS;
 
 		//make sure we were given a valid number of inputs or outputs
-		if ((inputs <= 0) | (outputs <= 0))
+		if ((inputs <= 0) || (outputs <= 0))
 		{
 			//invalid!
 			*ErrCode = NETWORK_INVALID_ARGUMENT;
@@ -217,7 +217,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 		Chromosome ConnectionChromosomeB(GenomePathB + "/Connections.chr", ConnectionBitPattern);
 
 		//make sure we could open the files
-		if (!NodeChromosomeA | !ConnectionChromosomeA)
+		if (!NodeChromosomeA || !ConnectionChromosomeA)
 		{
 			//we couldn't open one of them, throw an exception
 			std::stringstream ErrorMessage;
@@ -225,7 +225,7 @@ Network::Network(std::string GenomePathA, std::string GenomePathB, BreedSettings
 			*ErrCode = NETWORK_INVALID_BREED_GENOME_A;
 			throw std::invalid_argument(ErrorMessage.str().c_str());
 		}
-		if (!NodeChromosomeA | !ConnectionChromosomeA)
+		if (!NodeChromosomeA || !ConnectionChromosomeA)
 		{
 			//we couldn't open one of them, throw an exception
 			std::stringstream ErrorMessage;
@@ -464,9 +464,9 @@ std::vector<float> Network::GetResults(unsigned int* ErrCode)
 
 		//iterate through the output nodes
 		unsigned int Err = SUCCESS;
-		for (auto NodeIter : OutputNodes)
+		for (std::vector<Node>::iterator NodeIter = OutputNodes.begin(); NodeIter != OutputNodes.end(); NodeIter++)
 		{
-			Results.push_back(NodeIter.CalculateValue(this, &Err));
+			Results.push_back(NodeIter->CalculateValue(this, &Err));
 			if (Err != SUCCESS)
 				*ErrCode = Err;
 		}
@@ -558,7 +558,7 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 		std::ofstream ConnectionChromosomeFile(GenomePath + "/Connections.chr", std::ios::out | std::ios::trunc | std::ios::binary);
 
 		//make sure we can open both files
-		if (!NodeChromosomeFile.good() | !ConnectionChromosomeFile.good())
+		if (!NodeChromosomeFile.good() || !ConnectionChromosomeFile.good())
 		{
 			//we couldn't open one of them, throw an exception
 			std::stringstream ErrorMessage;
@@ -569,11 +569,11 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 
 		//iterate through all of the internal nodes in the network to save them and their connections
 		long long int InternalNodeIdentifier = 0;
-		for (auto NodeIter : Nodes)
+		for (std::map<long long, Node>::iterator NodeIter = Nodes.begin(); NodeIter != Nodes.end(); NodeIter++)
 		{
 			//iterate through all of the connections for this node
-			for (std::vector<Connection>::iterator ConnectionIter = NodeIter.second.Connections.begin();
-				ConnectionIter != NodeIter.second.Connections.end();
+			for (std::vector<Connection>::iterator ConnectionIter = NodeIter->second.Connections.begin();
+				ConnectionIter != NodeIter->second.Connections.end();
 				ConnectionIter++)
 			{
 				//save this connection in the file
@@ -581,16 +581,16 @@ void Network::SaveNetwork(std::string GenomePath, unsigned int* ErrCode, bool ve
 			}
 			InternalNodeIdentifier += 1;
 			//save this node in the file
-			NodeIter.second.AppendNodeToChromosome(NodeChromosomeFile);
+			NodeIter->second.AppendNodeToChromosome(NodeChromosomeFile);
 		}
 
 		//iterate through all of the output nodes in the network to save ONLY their connections
 		long long int OutputNodeIdentifier = -1;
-		for (auto NodeIter : OutputNodes)
+		for (std::vector<Node>::iterator NodeIter = OutputNodes.begin(); NodeIter != OutputNodes.end(); NodeIter++)
 		{
 			//iterate through all of the connections for this node
-			for (std::vector<Connection>::iterator ConnectionIter = NodeIter.Connections.begin();
-				ConnectionIter != NodeIter.Connections.end();
+			for (std::vector<Connection>::iterator ConnectionIter = NodeIter->Connections.begin();
+				ConnectionIter != NodeIter->Connections.end();
 				ConnectionIter++)
 			{
 				//save this connection in the file
@@ -642,14 +642,14 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 
 		//find the target node
 		long long int TargetNodeIdentifier = 0;
-		if ((TargetNodeIndex < NodeCount()) & (TargetNodeIndex >= 0))
+		if ((TargetNodeIndex < NodeCount()) && (TargetNodeIndex >= 0))
 		{
 			//internal node
 			auto NodePlace = Nodes.begin();
 			std::advance(NodePlace, TargetNodeIndex);
 			TargetNodeIdentifier = NodePlace->first;
 		}
-		else if ((TargetNodeIndex < NodeCount() + OutputCount()) & (TargetNodeIndex >= 0))
+		else if ((TargetNodeIndex < NodeCount() + OutputCount()) && (TargetNodeIndex >= 0))
 		{
 			//output node
 			TargetNodeIdentifier = -(TargetNodeIndex - NodeCount()) - 1;
@@ -670,7 +670,7 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 			TargetNodeIdentifier = -TargetNodeIdentifier - 1;
 
 			//ensure that the connection index is valid
-			if ((ConnectionIndex >= OutputNodes[TargetNodeIdentifier].Connections.size()) | (ConnectionIndex < 0))
+			if ((ConnectionIndex >= OutputNodes[TargetNodeIdentifier].Connections.size()) || (ConnectionIndex < 0))
 			{
 				//invalid index
 				std::stringstream ErrorMessage;
@@ -703,7 +703,7 @@ bool Network::AddNodeBetweenConnection(int TargetNodeIndex, int ConnectionIndex,
 			//we're dealing with an internal node
 
 			//ensure that the connection index is valid
-			if ((ConnectionIndex >= Nodes[TargetNodeIdentifier].Connections.size()) | (ConnectionIndex < 0))
+			if ((ConnectionIndex >= Nodes[TargetNodeIdentifier].Connections.size()) || (ConnectionIndex < 0))
 			{
 				//invalid index
 				std::stringstream ErrorMessage;
@@ -758,14 +758,14 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 
 		//find the target node
 		long long int TargetNodeIdentifier = 0;
-		if ((TargetNodeIndex < NodeCount()) & (TargetNodeIndex >= 0))
+		if ((TargetNodeIndex < NodeCount()) && (TargetNodeIndex >= 0))
 		{
 			//internal node
 			auto NodePlace = Nodes.begin();
 			std::advance(NodePlace, TargetNodeIndex);
 			TargetNodeIdentifier = NodePlace->first;
 		}
-		else if ((TargetNodeIndex < NodeCount() + OutputCount()) & (TargetNodeIndex >= 0))
+		else if ((TargetNodeIndex < NodeCount() + OutputCount()) && (TargetNodeIndex >= 0))
 		{
 			//output node
 			TargetNodeIdentifier = -(TargetNodeIndex - NodeCount()) - 1;
@@ -781,12 +781,12 @@ bool Network::AddConnectionBetweenNodes(int SourceNodeIndex, int TargetNodeIndex
 
 		//find the source node
 		long long int SourceNodeIdentifier = 0;
-		if ((SourceNodeIndex < InputCount()) & (SourceNodeIndex >= 0))
+		if ((SourceNodeIndex < InputCount()) && (SourceNodeIndex >= 0))
 		{
 			//input node
 			SourceNodeIdentifier = -SourceNodeIndex - 1;
 		}
-		else if ((SourceNodeIndex < InputCount() + NodeCount()) & (SourceNodeIndex >= 0))
+		else if ((SourceNodeIndex < InputCount() + NodeCount()) && (SourceNodeIndex >= 0))
 		{
 			//internal node
 			auto NodePlace = Nodes.begin();
@@ -839,7 +839,7 @@ bool Network::RemoveNode(int NodeIndex, unsigned int* ErrCode)
 		*ErrCode = SUCCESS;
 
 		//ensure that the nodeindex is valid
-		if ((NodeIndex >= NodeCount()) | (NodeIndex < 0))
+		if ((NodeIndex >= NodeCount()) || (NodeIndex < 0))
 		{
 			//invalid index
 			std::stringstream ErrorMessage;
@@ -878,7 +878,7 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex, unsigned int*
 		*ErrCode = SUCCESS;
 
 		//ensure that the nodeindex is valid
-		if ((NodeIndex >= NodeCount() + OutputCount()) | (NodeIndex < 0))
+		if ((NodeIndex >= NodeCount() + OutputCount()) || (NodeIndex < 0))
 		{
 			//invalid index
 			std::stringstream ErrorMessage;
@@ -888,7 +888,7 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex, unsigned int*
 		}
 
 		//what kind of node are we dealing with
-		if ((NodeIndex < NodeCount()) & (NodeIndex >= 0))
+		if ((NodeIndex < NodeCount()) && (NodeIndex >= 0))
 		{
 			//internal node
 			//get the start of the nodes map and move by NodeIndex places
@@ -896,7 +896,7 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex, unsigned int*
 			std::advance(NodePlace, NodeIndex);
 
 			//ensure that the connectionindex is valid
-			if ((ConnectionIndex >= NodePlace->second.Connections.size()) | (ConnectionIndex < 0))
+			if ((ConnectionIndex >= NodePlace->second.Connections.size()) || (ConnectionIndex < 0))
 			{
 				//invalid index
 				std::stringstream ErrorMessage;
@@ -908,14 +908,14 @@ bool Network::RemoveConnection(int NodeIndex, int ConnectionIndex, unsigned int*
 			//find and remove the connection from the vector
 			NodePlace->second.Connections.erase(NodePlace->second.Connections.begin() + ConnectionIndex);
 		}
-		else if ((NodeIndex < NodeCount() + OutputCount()) & (NodeIndex >= 0))
+		else if ((NodeIndex < NodeCount() + OutputCount()) && (NodeIndex >= 0))
 		{
 			//output node
 			//get the output node
 			auto NodePlace = OutputNodes.begin() + (NodeIndex - NodeCount());
 
 			//ensure that the connectionindex is valid
-			if ((ConnectionIndex >= NodePlace->Connections.size()) | (ConnectionIndex < 0))
+			if ((ConnectionIndex >= NodePlace->Connections.size()) || (ConnectionIndex < 0))
 			{
 				//invalid index
 				std::stringstream ErrorMessage;
@@ -961,7 +961,7 @@ float Network::GetNodeBias(int NodeIndex, unsigned int* ErrCode)
 		*ErrCode = SUCCESS;
 
 		//ensure the index is within the number of nodes
-		if ((NodeIndex >= NodeCount()) | (NodeIndex < 0))
+		if ((NodeIndex >= NodeCount()) || (NodeIndex < 0))
 		{
 			//invalid index
 			std::stringstream ErrorMessage;
@@ -1002,7 +1002,7 @@ void Network::SetNodeBias(int NodeIndex, float bias, unsigned int* ErrCode)
 		*ErrCode = SUCCESS;
 
 		//ensure the index is within the number of nodes
-		if ((NodeIndex >= NodeCount()) | (NodeIndex < 0))
+		if ((NodeIndex >= NodeCount()) || (NodeIndex < 0))
 		{
 			//invalid index
 			std::stringstream ErrorMessage;
@@ -1041,7 +1041,7 @@ int Network::GetTotalNodeConnections(int TargetNodeIndex, unsigned int* ErrCode)
 		*ErrCode = SUCCESS;
 
 		//ensure the index is within the number of nodes
-		if ((TargetNodeIndex >= NodeCount() + OutputCount()) | (TargetNodeIndex < 0))
+		if ((TargetNodeIndex >= NodeCount() + OutputCount()) || (TargetNodeIndex < 0))
 		{
 			//invalid index
 			std::stringstream ErrorMessage;
@@ -1051,7 +1051,7 @@ int Network::GetTotalNodeConnections(int TargetNodeIndex, unsigned int* ErrCode)
 		}
 
 		//what kind of node are we dealing with
-		if ((TargetNodeIndex < NodeCount()) & (TargetNodeIndex >= 0))
+		if ((TargetNodeIndex < NodeCount()) && (TargetNodeIndex >= 0))
 		{
 			//internal node
 			//get the start of the nodes map and move by NodeIndex places
@@ -1061,7 +1061,7 @@ int Network::GetTotalNodeConnections(int TargetNodeIndex, unsigned int* ErrCode)
 			//get and return the bias of the node
 			return NodePlace->second.Connections.size();
 		}
-		else if ((TargetNodeIndex < NodeCount() + OutputCount()) & (TargetNodeIndex >= 0))
+		else if ((TargetNodeIndex < NodeCount() + OutputCount()) && (TargetNodeIndex >= 0))
 		{
 			//output node
 			//get the output node
@@ -1102,7 +1102,7 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, uns
 		*ErrCode = SUCCESS;
 
 		//ensure the index is within the number of nodes
-		if ((TargetNodeIndex >= NodeCount() + OutputCount()) | (TargetNodeIndex < 0))
+		if ((TargetNodeIndex >= NodeCount() + OutputCount()) || (TargetNodeIndex < 0))
 		{
 			//invalid index
 			std::stringstream ErrorMessage;
@@ -1112,7 +1112,7 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, uns
 		}
 
 		//what type of target node are we looking at?
-		if((TargetNodeIndex < NodeCount()) & (TargetNodeIndex >= 0))
+		if((TargetNodeIndex < NodeCount()) && (TargetNodeIndex >= 0))
 		{
 			//internal node
 			//get the start of the nodes map and move by NodeIndex places
@@ -1120,7 +1120,7 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, uns
 			std::advance(NodePlace, TargetNodeIndex);
 
 			//ensure that the connectionindex is valid
-			if ((ConnectionIndex >= NodePlace->second.Connections.size()) | (ConnectionIndex < 0))
+			if ((ConnectionIndex >= NodePlace->second.Connections.size()) || (ConnectionIndex < 0))
 			{
 				//invalid index
 				std::stringstream ErrorMessage;
@@ -1136,7 +1136,7 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, uns
 			//get and return the weight of the connection
 			return ConnectionPlace->Weight;
 		}
-		else if ((TargetNodeIndex < NodeCount() + OutputCount()) & (TargetNodeIndex >= 0))
+		else if ((TargetNodeIndex < NodeCount() + OutputCount()) && (TargetNodeIndex >= 0))
 		{
 			//output node
 			//get the start of the nodes vector and move by NodeIndex places
@@ -1144,7 +1144,7 @@ float Network::GetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, uns
 			std::advance(NodePlace, TargetNodeIndex - NodeCount());
 
 			//ensure that the connectionindex is valid
-			if ((ConnectionIndex >= NodePlace->Connections.size()) | (ConnectionIndex < 0))
+			if ((ConnectionIndex >= NodePlace->Connections.size()) || (ConnectionIndex < 0))
 			{
 				//invalid index
 				std::stringstream ErrorMessage;
@@ -1196,7 +1196,7 @@ bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 			return false; //it isn't. return -1
 
 		//what type of target node are we looking at?
-		if ((TargetNodeIndex < NodeCount()) & (TargetNodeIndex >= 0))
+		if ((TargetNodeIndex < NodeCount()) && (TargetNodeIndex >= 0))
 		{
 			//internal node
 			//get the start of the nodes map and move by NodeIndex places
@@ -1204,7 +1204,7 @@ bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 			std::advance(NodePlace, TargetNodeIndex);
 
 			//ensure that the connectionindex is valid
-			if ((ConnectionIndex >= NodePlace->second.Connections.size()) | (ConnectionIndex < 0))
+			if ((ConnectionIndex >= NodePlace->second.Connections.size()) || (ConnectionIndex < 0))
 			{
 				//invalid index
 				std::stringstream ErrorMessage;
@@ -1220,7 +1220,7 @@ bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 			//set the weight of the connection
 			ConnectionPlace->Weight = weight;
 		}
-		else if ((TargetNodeIndex < NodeCount() + OutputCount()) & (TargetNodeIndex >= 0))
+		else if ((TargetNodeIndex < NodeCount() + OutputCount()) && (TargetNodeIndex >= 0))
 		{
 			//output node
 			//get the start of the nodes vector and move by NodeIndex places
@@ -1228,7 +1228,7 @@ bool Network::SetConnectionWeight(int TargetNodeIndex, int ConnectionIndex, floa
 			std::advance(NodePlace, TargetNodeIndex - NodeCount());
 
 			//ensure that the connectionindex is valid
-			if ((ConnectionIndex >= NodePlace->Connections.size()) | (ConnectionIndex < 0))
+			if ((ConnectionIndex >= NodePlace->Connections.size()) || (ConnectionIndex < 0))
 			{
 				//invalid index
 				std::stringstream ErrorMessage;
