@@ -91,4 +91,4 @@ if __name__ == "__main__":
     #once we've escaped the loop we have a valid choice
     print(f"Genome Selected: {genome_paths[selection]}")
 
-    reader = GenomeReader(GENOME_DIR + "\\" + genome_paths[selection], genome_paths[selection], 2, 1)
+    reader = GenomeReader(GENOME_DIR + "\\" + genome_paths[selection], genome_paths[selection], 6, 1)

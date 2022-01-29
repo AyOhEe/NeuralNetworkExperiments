@@ -2,17 +2,19 @@ from network import Network
 
 if __name__ == "__main__":
     #test settings
-    network_count = 1000
-    episode_length = 5000
-    generation_length = 100
+    network_count = 1000 # the amount of networks in the population
+    episode_length = 5000 # the maximum length of an episode
+    generation_length = 100 # the amount of generations to run
 
-    node_add_chance = 100
-    connection_add_chance = 100
-    node_remove_chance = 100
-    connection_remove_chance = 100
+    node_add_chance = 100 # x/1000 chance that a node is added
+    connection_add_chance = 100 # x/1000 chance that a connection is added
+    node_remove_chance = 100 # x/1000 chance that a node is removed
+    connection_remove_chance = 100 # x/1000 chance that a connection is removed
 
-    bias_alter_chance = 100
-    weight_alter_chance = 100
+    max_mutations = 10 #the maximum number of mutations that happen per copied network per generation
+
+    bias_alter_chance = 100 # x/1000 chance that a bias is altered
+    weight_alter_chance = 100 # x/1000 chance that a weight is altered
 
     #import openai-gym https://gym.openai.com/docs/
     import gym
@@ -82,61 +84,63 @@ if __name__ == "__main__":
             #copy a good network
             new_networks.append(random.choice(good_networks).copy())
 
-            #decide if we should mutate the network's structure
-            if random.randint(1, 1000) < connection_add_chance:
-                try:
-                    source_index = random.randrange(0, new_networks[-1].GetInputCount() + new_networks[-1].GetNodeCount())
-                    target_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
-                    new_networks[-1].AddConnection(source_index, target_index, (random.random()-0.5)*3.9)
-                except ValueError:
-                    pass
+            #do a random amount of mutations
+            for mut_i in range(int(random.randrange(1, max_mutations)))
+                #decide if we should mutate the network's structure
+                if random.randint(1, 1000) < connection_add_chance:
+                    try:
+                        source_index = random.randrange(0, new_networks[-1].GetInputCount() + new_networks[-1].GetNodeCount())
+                        target_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                        new_networks[-1].AddConnection(source_index, target_index, (random.random()-0.5)*3.9)
+                    except ValueError:
+                        pass
 
-            if random.randint(1, 1000) < node_add_chance:
-                try:
-                    node_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
-                    connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(node_index))
-                    new_networks[-1].AddNode(node_index, connection_index, (random.random()-0.5)*3.9)
-                except ValueError:
-                    pass
+                if random.randint(1, 1000) < node_add_chance:
+                    try:
+                        node_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                        connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(node_index))
+                        new_networks[-1].AddNode(node_index, connection_index, (random.random()-0.5)*3.9)
+                    except ValueError:
+                        pass
 
-            #decide if we should remove from the network's structure
-            if random.randint(1, 1000) < connection_remove_chance:
-                try:
-                    node_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
-                    connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(node_index))
-                    new_networks[-1].RemoveConnection(node_index, connection_index)
-                except ValueError:
-                    pass
+                #decide if we should remove from the network's structure
+                if random.randint(1, 1000) < connection_remove_chance:
+                    try:
+                        node_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                        connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(node_index))
+                        new_networks[-1].RemoveConnection(node_index, connection_index)
+                    except ValueError:
+                        pass
 
-            if random.randint(1, 1000) < node_remove_chance:
-                try:
-                    node_index = random.randrange(0, new_networks[-1].GetNodeCount())
-                    new_networks[-1].RemoveNode(node_index)
-                except ValueError:
-                    pass
+                if random.randint(1, 1000) < node_remove_chance:
+                    try:
+                        node_index = random.randrange(0, new_networks[-1].GetNodeCount())
+                        new_networks[-1].RemoveNode(node_index)
+                    except ValueError:
+                        pass
 
-            #decide if we should alter the network's properties
-            if random.randint(1, 1000) < weight_alter_chance:
-                try:
-                    target_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
-                    connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(target_index))
-                    new_networks[-1].SetConnectionWeight(
-                        target_index,
-                        connection_index,
-                        new_networks[-1].GetConnectionWeight(target_index, connection_index) + (random.random() - 0.5) * 0.05
-                    )
-                except ValueError:
-                    pass
+                #decide if we should alter the network's properties
+                if random.randint(1, 1000) < weight_alter_chance:
+                    try:
+                        target_index = random.randrange(0, new_networks[-1].GetNodeCount() + new_networks[-1].GetOutputCount())
+                        connection_index = random.randrange(0, new_networks[-1].GetNodeConnectionCount(target_index))
+                        new_networks[-1].SetConnectionWeight(
+                            target_index,
+                            connection_index,
+                            new_networks[-1].GetConnectionWeight(target_index, connection_index) + (random.random() - 0.5) * 0.05
+                        )
+                    except ValueError:
+                        pass
 
-            if random.randint(1, 1000) < bias_alter_chance:
-                try:
-                    node_index = random.randrange(0, new_networks[-1].GetNodeCount())
-                    new_networks[-1].SetNodeBias(
-                        node_index,
-                        new_networks[-1].GetNodeBias(node_index) + (random.random() - 0.5) * 0.05
-                    )
-                except ValueError:
-                    pass
+                if random.randint(1, 1000) < bias_alter_chance:
+                    try:
+                        node_index = random.randrange(0, new_networks[-1].GetNodeCount())
+                        new_networks[-1].SetNodeBias(
+                            node_index,
+                            new_networks[-1].GetNodeBias(node_index) + (random.random() - 0.5) * 0.05
+                        )
+                    except ValueError:
+                        pass
 
 
         #store the next generation
