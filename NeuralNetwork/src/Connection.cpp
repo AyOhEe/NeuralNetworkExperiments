@@ -145,6 +145,9 @@ void Connection::AppendConnectionToChromosome(std::ofstream &FileStream, long lo
 
 	//write the gene
 	FileStream << Gene[0] << Gene[1] << Gene[2] << Gene[3];
+
+	//delete the gene now that it's been written
+	delete[] Gene;
 }
 
 //returns Gene as a string

@@ -2,17 +2,17 @@ from network import Network
 
 if __name__ == "__main__":
     #test settings
-    network_count = 25
-    episode_length = 500
+    network_count = 1000
+    episode_length = 5000
     generation_length = 100
 
-    node_add_chance = 50
-    connection_add_chance = 50
-    node_remove_chance = 50
-    connection_remove_chance = 50
+    node_add_chance = 100
+    connection_add_chance = 100
+    node_remove_chance = 100
+    connection_remove_chance = 100
 
-    bias_alter_chance = 50
-    weight_alter_chance = 50
+    bias_alter_chance = 100
+    weight_alter_chance = 100
 
     #import openai-gym https://gym.openai.com/docs/
     import gym
@@ -36,10 +36,10 @@ if __name__ == "__main__":
         BLINK = '\033[m'
 
     #create the networks
-    networks = [Network("Genomes/Default", 4, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
+    networks = [Network("Genomes/Default", 6, 1, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
 
     #start the test environment
-    env = gym.make('CartPole-v0')
+    env = gym.make('Acrobot-v1')
     env.reset()
 
     for gen_i in range(generation_length):
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             observation, reward, done, info = (0, 0, 0, 0), 0, False, {}
             for t in range(episode_length):
                 act = networks[net_i].CalculateOutputs(observation)[0]
-                observation, reward, done, info = env.step(1 if act > 0.5 else 0) #do an action
+                observation, reward, done, info = env.step(int(round(act * 2))) #do an action
                 total_reward += reward #store the reward for this iteration
 
                 if done: #exit if we've finished the episode
@@ -62,6 +62,10 @@ if __name__ == "__main__":
 
         #sort the networks based on their scores
         scores = sorted(scores, key=lambda x: x[1], reverse=True)
+
+        #save and report the best network
+        networks[scores[0][0]].SaveNetwork(f"Networks/{gen_i}")
+        print(f"Generation finished with peak reward total {bcolors.FAIL}{scores[0][1]}{bcolors.ENDC} from network {bcolors.OKGREEN}{scores[0][0]}{bcolors.ENDC}")
 
         #destroy the bottom half
         for net_tuple in scores[len(scores)//2:]:
@@ -137,10 +141,6 @@ if __name__ == "__main__":
 
         #store the next generation
         networks = good_networks + new_networks
-
-        #TEMP ADD save all networks
-        for net_i in range(len(networks)):
-            networks[net_i].SaveNetwork(f"Networks/{gen_i}_{net_i}")
 
     #test the networks on the environment
     scores = []

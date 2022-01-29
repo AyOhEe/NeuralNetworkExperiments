@@ -62,6 +62,9 @@ void Node::AppendNodeToChromosome(std::ofstream &FileStream)
 
 	//write the gene to the file
 	FileStream << Gene[0] << Gene[1];
+
+	//delete the gene now that it's been written
+	delete[] Gene;
 }
 
 //returns Gene as a string
