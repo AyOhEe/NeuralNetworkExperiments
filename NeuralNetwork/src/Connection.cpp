@@ -71,20 +71,12 @@ bool Connection::TryAddValue(float* OutValue, Network* Net, unsigned int* ErrCod
 	{
 		*ErrCode = SUCCESS; //default to success if not told otherwise
 
-		//is the source an input or internal node?
 		unsigned int NodeErr = SUCCESS;
-		if (SourceNode < 0)
-		{
-			//input node
-			//add the weighted value of the connection
-			*OutValue += Weight * Net->InputNodes[-SourceNode - 1].CalculateValue(Net, &NodeErr);
-		}
-		else
-		{
-			//internal node
-			//add the weighted value of the connection
-			*OutValue += Weight * Net->Nodes[SourceNode].CalculateValue(Net, &NodeErr);
-		}
+		Node* SourceNodePtr = TryGetSourceNode(SourceNode, Net, &NodeErr);
+		if (NodeErr != SUCCESS) //only continue if we got the node
+			return false;
+		if (SourceNodePtr != (Node*)NULL)
+			*OutValue += Weight * SourceNodePtr->value;
 
 		//we succeeded, return true
 		return true;
@@ -164,4 +156,36 @@ std::string Connection::GeneAsString(BR_RETURN_INT_TYPE* Gene)
 		Gene[6] << ", " <<
 		(Gene[5] == 1 ? -1 : 1) * (Gene[6] / CONNECTION_GENE_WEIGHT_DIVISOR);
 	return StringStream.str();
+}
+
+//attempts to get the source node for this connection
+Node* Connection::TryGetSourceNode(long long SourceNodeIdentifier, Network* Net, unsigned int* ErrCode)
+{
+	try
+	{
+		*ErrCode = SUCCESS; //default to success if not told otherwise
+
+		//is the source an input or internal node?
+		if (SourceNodeIdentifier < 0)
+		{
+			//input node
+			return &(Net->InputNodes[-SourceNodeIdentifier - 1]);
+		}
+		else
+		{
+			//internal node
+			return &(Net->Nodes[SourceNodeIdentifier]);
+		}
+	}
+	catch (std::exception& ex)
+	{
+		//did we throw an error already?
+		if (*ErrCode != SUCCESS)
+			throw ex; //yes, just throw the error again
+
+		//oops, something went wrong. return false
+		std::cout << ex.what() << std::endl;
+		*ErrCode = CONNECTION_MISSING_SOURCE; //it's literally the only thing that can go wrong here
+		return (Node*)NULL;
+	}
 }

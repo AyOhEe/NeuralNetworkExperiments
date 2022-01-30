@@ -42,6 +42,9 @@ public:
 
 	//attempts to get the value of this connection
 	bool TryAddValue(float* OutValue, Network* Net, unsigned int* ErrCode);
+
+	//attempts to get the source node for this connection
+	static Node* TryGetSourceNode(long long SourceNodeIdentifier, Network* Net, unsigned int* ErrCode);
 };
 
 #endif
