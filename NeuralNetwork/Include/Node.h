@@ -29,6 +29,8 @@ class Node
 
 	//does this node need to recalculate it's value?
 	bool NeedsToRecalc;
+	//has this node been registered in a determination order? (note: only used in calculation)
+	bool DeterminationRegistered;
 
 public:
 

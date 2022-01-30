@@ -475,6 +475,12 @@ std::vector<float> Network::GetResults(unsigned int* ErrCode)
 			Node* NextNode = DeterminationOrder.front(); 
 			DeterminationOrder.pop();
 
+			//skip this node if it's already had it's determination registered
+			if (NextNode->DeterminationRegistered) 
+				continue;
+			//set this node as having had it's determination registered
+			NextNode->DeterminationRegistered = true;
+
 			//iterate through this node's connections
 			for(std::vector<Connection>::iterator ConnIter = NextNode->Connections.begin(); ConnIter != NextNode->Connections.end(); ConnIter++)
 			{
@@ -482,6 +488,10 @@ std::vector<float> Network::GetResults(unsigned int* ErrCode)
 				Node* Source = Connection::TryGetSourceNode(ConnIter->SourceNode, this, &Error);
 				if (Source != (Node*)NULL && Error == SUCCESS) 
 				{
+					//don't store the connection if the source is also it's target
+					if (Source == NextNode)
+						continue;
+					//source is okay, store the source
 					CalculationOrder.push(Source);
 					DeterminationOrder.push(Source);
 				}
@@ -563,11 +573,16 @@ void Network::SetInputs(std::vector<float>& Inputs, unsigned int* ErrCode)
 		{
 			//require it to recalculate
 			NodeIter->second.NeedsToRecalc = true;
+			//set it's determination as unregistered
+			NodeIter->second.DeterminationRegistered = false;
 		}
 		//iterate through all of the output nodes
 		for (int i = 0; i < OutputNodes.size(); i++)
 		{
+			//require it to recalculate
 			OutputNodes[i].NeedsToRecalc = true;
+			//set it's determination as unregistered
+			OutputNodes[i].DeterminationRegistered = false;
 		}
 
 		//set the values of the input nodes
@@ -575,6 +590,8 @@ void Network::SetInputs(std::vector<float>& Inputs, unsigned int* ErrCode)
 		{
 			InputNodes[i].value = Inputs[i];
 			InputNodes[i].NeedsToRecalc = false;
+			//set it's determination as registered so that we skip it when determining paths
+			InputNodes[i].DeterminationRegistered = true;
 		}
 	}
 	catch (std::exception &ex)
