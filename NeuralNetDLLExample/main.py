@@ -11,7 +11,7 @@ if __name__ == "__main__":
     node_remove_chance = 100 # x/1000 chance that a node is removed
     connection_remove_chance = 100 # x/1000 chance that a connection is removed
 
-    max_mutations = 5 #the maximum number of mutations that happen per copied network per generation
+    max_mutations = 20 #the maximum number of mutations that happen per copied network per generation
 
     bias_alter_chance = 100 # x/1000 chance that a bias is altered
     weight_alter_chance = 100 # x/1000 chance that a weight is altered
@@ -44,6 +44,13 @@ if __name__ == "__main__":
 
     for gen_i in range(generation_length):
         print(f"\n\n{bcolors.HEADER}================================\n\tGENERATION {gen_i}\n================================{bcolors.ENDC}\n")
+        
+        #save the networks in this generation for potentially necessary debugging
+        print(f"Saving generation {gen_i} before testing")
+        for net_i in range(len(networks)):
+            networks[net_i].SaveNetwork(f"Networks/DEBUG_{net_i}")
+        print("Saved")
+        
         #test the networks on the environment
         scores = []
         for net_i in range(len(networks)):
@@ -64,7 +71,7 @@ if __name__ == "__main__":
         scores = sorted(scores, key=lambda x: x[1], reverse=True)
 
         #save and report the best network
-        networks[scores[0][0]].SaveNetwork(f"Networks/{gen_i}")
+        networks[scores[0][0]].SaveNetwork(f"Networks/BestNetFromGen_{gen_i}")
         print(f"Generation finished with peak reward total {bcolors.FAIL}{scores[0][1]}{bcolors.ENDC} from network {bcolors.OKGREEN}{scores[0][0]}{bcolors.ENDC}")
 
         #destroy the bottom half

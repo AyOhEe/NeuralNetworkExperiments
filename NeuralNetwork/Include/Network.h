@@ -8,6 +8,8 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <stack>
+#include <queue>
 
 #ifndef __unix__
 #include <filesystem>

@@ -456,17 +456,70 @@ std::vector<float> Network::GetResults(unsigned int* ErrCode)
 {
 	try 
 	{
+		//starting at the output nodes, determine the order that node values need to be calculated in
+		std::stack<Node*> CalculationOrder; //the final order to calculate values in
+		std::queue<Node*> DeterminationOrder; //the order to determine connections in
+
+		//fill determination order and calculation order with output nodes
+		for (std::vector<Node>::iterator OutputNodeIter = OutputNodes.begin(); OutputNodeIter != OutputNodes.end(); OutputNodeIter++)
+		{
+			CalculationOrder.push(&(*OutputNodeIter));
+			DeterminationOrder.push(&(*OutputNodeIter));
+		}
+
+		//iterate through the determination order until it is empty
+		unsigned int Error = SUCCESS;
+		while (!DeterminationOrder.empty()) 
+		{
+			//get and remove the next node in the determination order
+			Node* NextNode = DeterminationOrder.front(); 
+			DeterminationOrder.pop();
+
+			//iterate through this node's connections
+			for(std::vector<Connection>::iterator ConnIter = NextNode->Connections.begin(); ConnIter != NextNode->Connections.end(); ConnIter++)
+			{
+				//store the source node for this connection in both the queue and stack
+				Node* Source = Connection::TryGetSourceNode(ConnIter->SourceNode, this, &Error);
+				if (Source != (Node*)NULL && Error == SUCCESS) 
+				{
+					CalculationOrder.push(Source);
+					DeterminationOrder.push(Source);
+				}
+				else if (Error != SUCCESS)
+				{
+					//whoops, error. throw an exception, the catch block will take it from there
+					throw std::exception();
+				}
+			}
+		}
+
+		//iterate through the calculation order and calculate the values of the nodes
+		while (!CalculationOrder.empty()) 
+		{
+			//get and remove the next node in the calculation order
+			Node* NextNode = CalculationOrder.top();
+			CalculationOrder.pop();
+
+			//calculate it's value. we don't need to do anything with the result right now.
+			NextNode->CalculateValue(this, &Error);
+			if (Error != SUCCESS)
+			{
+				//whoops, error. throw an exception, the catch block will take it from there
+				throw std::exception();
+			}
+		}
+
 		//default the error code to success
 		*ErrCode = SUCCESS;
 
 		//the vector for the results to be stored in
 		std::vector<float> Results;
 
-		//iterate through the output nodes
+		//iterate through the output nodes and store their values
 		unsigned int Err = SUCCESS;
 		for (std::vector<Node>::iterator NodeIter = OutputNodes.begin(); NodeIter != OutputNodes.end(); NodeIter++)
 		{
-			Results.push_back(NodeIter->CalculateValue(this, &Err));
+			Results.push_back(NodeIter->value);
 			if (Err != SUCCESS)
 				*ErrCode = Err;
 		}

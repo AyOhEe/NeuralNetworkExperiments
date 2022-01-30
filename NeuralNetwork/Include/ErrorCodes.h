@@ -18,6 +18,7 @@ enum ErrorCodes
 	//network error codes
 	NETWORK_INVALID_GENOME,				//the network was given an invalid genome
 	NETWORK_INVALID_INPUTS,				//the network was passed invalid inputs
+	NETWORK_NEURAL_TREE_ERROR,			//something went wrong when the network attempted to parse/calculate it's neural tree
 	NETWORK_INVALID_NODE_INDEX,			//the network was given an invalid node index
 	NETWORK_INVALID_CONN_INDEX,			//the network was given an invalid connection index
 	NETWORK_INVALID_ARGUMENT,			//the network was given an invalid argument
