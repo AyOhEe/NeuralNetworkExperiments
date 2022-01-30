@@ -4,7 +4,7 @@ if __name__ == "__main__":
     #test settings
     network_count = 250 # the amount of networks in the population
     episode_length = 5000 # the maximum length of an episode
-    generation_length = 500 # the amount of generations to run
+    generation_length = 200 # the amount of generations to run
 
     node_add_chance = 100 # x/1000 chance that a node is added
     connection_add_chance = 100 # x/1000 chance that a connection is added
@@ -69,6 +69,19 @@ if __name__ == "__main__":
         #save and report the best network
         networks[scores[0][0]].SaveNetwork(f"Networks/BestNetFromGen_{gen_i}")
         print(f"Generation finished with peak reward total {bcolors.FAIL}{scores[0][1]}{bcolors.ENDC} from network {bcolors.OKGREEN}{scores[0][0]}{bcolors.ENDC}")
+
+        #test and display the best network
+        total_reward = 0
+        observation, reward, done, info = (0, 0), 0, False, {}
+        for t in range(episode_length):
+            env.render()
+            act = networks[scores[0][0]].CalculateOutputs(observation)
+            observation, reward, done, info = env.step(act) #do an action
+            total_reward += reward #store the reward for this iteration
+
+            if done: #exit if we've finished the episode
+                break
+        env.reset()
 
         #destroy the bottom half
         for net_tuple in scores[len(scores)//2:]:
