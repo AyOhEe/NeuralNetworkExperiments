@@ -2,16 +2,16 @@ from network import Network
 
 if __name__ == "__main__":
     #test settings
-    network_count = 100 # the amount of networks in the population
+    network_count = 250 # the amount of networks in the population
     episode_length = 5000 # the maximum length of an episode
-    generation_length = 1000 # the amount of generations to run
+    generation_length = 500 # the amount of generations to run
 
     node_add_chance = 100 # x/1000 chance that a node is added
     connection_add_chance = 100 # x/1000 chance that a connection is added
     node_remove_chance = 100 # x/1000 chance that a node is removed
     connection_remove_chance = 100 # x/1000 chance that a connection is removed
 
-    max_mutations = 20 #the maximum number of mutations that happen per copied network per generation
+    max_mutations = 30 #the maximum number of mutations that happen per copied network per generation
 
     bias_alter_chance = 100 # x/1000 chance that a bias is altered
     weight_alter_chance = 100 # x/1000 chance that a weight is altered
@@ -34,28 +34,24 @@ if __name__ == "__main__":
         BOLD = '\033[1m'
         UNDERLINE = '\033[4m'
         BLINK = '\033[m'
+        
+    #start the test environment
+    env = gym.make('LunarLanderContinuous-v2')
+    env.reset()
 
     #create the networks
-    networks = [Network("Genomes/Default", 2, 2, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
-
-    #start the test environment
-    env = gym.make('MountainCarContinuous-v0')
-    env.reset()
+    n_inputs = env.observation_space.shape[0]
+    n_outputs = env.action_space.shape[0]
+    networks = [Network("Genomes/Default", n_inputs, n_outputs, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
 
     for gen_i in range(generation_length):
         print(f"\n\n{bcolors.HEADER}================================\n\tGENERATION {gen_i}\n================================{bcolors.ENDC}\n")
-        
-        #save the networks in this generation for potentially necessary debugging
-        print(f"Saving generation {gen_i} before testing")
-        for net_i in range(len(networks)):
-            networks[net_i].SaveNetwork(f"Networks/DEBUG_{net_i}")
-        print("Saved")
         
         #test the networks on the environment
         scores = []
         for net_i in range(len(networks)):
             total_reward = 0
-            observation, reward, done, info = (0, 0, 0, 0), 0, False, {}
+            observation, reward, done, info = (0, 0), 0, False, {}
             for t in range(episode_length):
                 act = networks[net_i].CalculateOutputs(observation)
                 observation, reward, done, info = env.step(act) #do an action
