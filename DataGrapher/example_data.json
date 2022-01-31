@@ -1,0 +1,14 @@
+{
+  "Title": "Demonstration Graph",
+  "Plot Type": "Plot",
+
+  "Labels": [ "This is the X axis", "This is the Y Axis" ],
+  "Lines": {
+    "Important data visualisation": {
+      "Data": [ 5, 7, 8, 2, 4, 5, 7, 8, 2, 4, 5 ]
+    },
+    "Less important data visualisation": {
+      "Data": [ 5, 4, 2, 8, 7, 5, 4, 2, 8, 7, 5 ]
+    }
+  }
+}
