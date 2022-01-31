@@ -42,7 +42,7 @@ if __name__ == "__main__":
     #create the networks
     n_inputs = env.observation_space.shape[0]
     n_outputs = env.action_space.shape[0]
-    networks = [Network("Genomes/Default", n_inputs, n_outputs, Network.ActivationFunction.Sigmoid) for i in range(network_count)]
+    networks = [Network("Genomes/Default", n_inputs, n_outputs, Network.ActivationFunction.Tanh) for i in range(network_count)]
 
     for gen_i in range(generation_length):
         print(f"\n\n{bcolors.HEADER}================================\n\tGENERATION {gen_i}\n================================{bcolors.ENDC}\n")
@@ -95,8 +95,8 @@ if __name__ == "__main__":
         #randomly copy and mutate these networks to make up for the deficit
         new_networks = []
         for i in range(network_count - len(good_networks)):
-            #copy a good network
-            new_networks.append(random.choice(good_networks).copy())
+            #copy the best good network that hasn't already been copied
+            new_networks.append(good_networks[i].copy())
 
             #do a random amount of mutations
             for mut_i in range(int(random.randrange(1, max_mutations))):

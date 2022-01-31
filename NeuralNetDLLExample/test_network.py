@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     n_inputs = env.observation_space.shape[0]
     n_outputs = env.action_space.shape[0]
-    net = Network(f"Networks/{input('Select Network: ')}", n_inputs, n_outputs, Network.ActivationFunction.Sigmoid)
+    net = Network(f"Networks/{input('Select Network: ')}", n_inputs, n_outputs, Network.ActivationFunction.Tanh)
 
     #test the networks on the environment
     total_reward = 0

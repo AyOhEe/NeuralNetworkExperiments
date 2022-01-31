@@ -2,6 +2,9 @@
 GenomeGrapher/Lib/
 GenomeGrapher/Scripts/
 GenomeGrapher/Include/
+DataGrapher/Lib/
+DataGrapher/Scripts/
+DataGrapher/Include/
 NeuralNetDLLExample/Lib/
 NeuralNetDLLExample/Scripts/
 pyvenv.cfg
