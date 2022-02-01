@@ -1,0 +1,16 @@
+class Line:
+    #creates a line
+    def __init__(self, label="", **kwargs):
+        self.label = label
+        self.x_data = []
+        self.y_data = []
+        self.properties = kwargs
+
+    #adds a point to the line
+    def add_point(self, x, y):
+        self.x_data.append(x)
+        self.y_data.append(y)
+        
+    #returns this line as a dictionary
+    def as_dict(self):
+        result = { "Label": self.label, "DataX": self.x_data, "DataY": self.y_data, "kwargs": self.properties}
