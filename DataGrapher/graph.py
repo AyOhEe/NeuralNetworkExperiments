@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import json
 
 class Graph:
     #creates a graph
@@ -32,7 +33,7 @@ class Graph:
 
         #plot our lines
         for line in self.lines:
-            plt.plot(label.x_data, label.y_data, label=line.label, line.properties)
+            plt.plot(label.x_data, label.y_data, label=line.label, **line.properties)
 
         #show the plot
         plt.show()
@@ -60,7 +61,7 @@ class Graph:
 
         #plot our lines
         for line in self.lines:
-            plt.plot(label.x_data, label.y_data, label=line.label, line.properties)
+            plt.plot(label.x_data, label.y_data, label=line.label, **line.properties)
         
         #save the graph
         plt.savefig(filename)
@@ -69,7 +70,7 @@ class Graph:
         plt.clf()
 
     #saves this graph's data as a .json file
-    def save_graph_data(self):
+    def save_graph_data(self, filename):
         #calculate our x and y limits
         min_x = min([min(line.x_data) for line in self.lines])
         min_y = min([min(line.y_data) for line in self.lines])
@@ -83,13 +84,100 @@ class Graph:
             "xlim end": max_x, 
             "ylim start": min_y, 
             "ylim end": max_y,
-            "Labels": [self.x_label, self.y_label]
+            "Labels": [self.x_label, self.y_label],
             "Lines": []
         }
 
         #add the lines to the dictionary
         for line in self.lines:
             graph_data["Lines"].append(line.as_dict())
+        
+        #convert the dictionary to json and save the json data to the file
+        with open(filename) as f:
+            f.write(json.dumps(graph_data)))
 
-        #return the dictionary
-        return graph_data
+    #reads in data from a json file and graphs and shows it using matplotlib
+    @staticmethod
+    def show_plot_file(filename):
+        #clear the plot
+        plt.clf()
+
+        #open and load the file
+        data = {}
+        with open(filename) as f
+            data = json.loads(f.read())
+
+        #if there is a title for the graph, use it
+        if "Title" in data:
+            plt.title(data["Title"])
+
+        #if there are labels, use them
+        if "Labels" in data:
+            if len(data["Labels"]) == 2:
+                plt.xlabel(data["Labels"][0])
+                plt.ylabel(data["Labels"][1])
+
+        #if there is valid limit data, use it
+        if "xlim start" in data and "xlim end" in data and "ylim start" in data and "ylim end" in data:
+            plt.xlim(data["xlim start"], data["xlim end"])
+            plt.ylim(data["ylim start"], data["ylim end"])
+
+        #for each of the lines in the data, plot the line
+        if "Lines" in data:
+            for line in data["Lines"]:
+                # plot the points
+                plt.plot(
+                    line["DataX"], 
+                    line["DataY"], 
+                    label=line["Label"],
+                    **line["kwargs"]
+                )
+
+        #show the plot
+        plt.show()
+
+        #clear the plot
+        plt.clf()
+
+    #reads in data from a json file and graphs and saves it using matplotlib
+    @staticmethod
+    def save_plot_file(filename, outfilename):
+        #clear the plot
+        plt.clf()
+
+        #open and load the file
+        data = {}
+        with open(filename) as f
+            data = json.loads(f.read())
+
+        #if there is a title for the graph, use it
+        if "Title" in data:
+            plt.title(data["Title"])
+
+        #if there are labels, use them
+        if "Labels" in data:
+            if len(data["Labels"]) == 2:
+                plt.xlabel(data["Labels"][0])
+                plt.ylabel(data["Labels"][1])
+
+        #if there is valid limit data, use it
+        if "xlim start" in data and "xlim end" in data and "ylim start" in data and "ylim end" in data:
+            plt.xlim(data["xlim start"], data["xlim end"])
+            plt.ylim(data["ylim start"], data["ylim end"])
+
+        #for each of the lines in the data, plot the line
+        if "Lines" in data:
+            for line in data["Lines"]:
+                # plot the points
+                plt.plot(
+                    line["DataX"], 
+                    line["DataY"], 
+                    label=line["Label"],
+                    **line["kwargs"]
+                )
+
+        #show the plot
+        plt.savefig(outfilename)
+
+        #clear the plot
+        plt.clf()
