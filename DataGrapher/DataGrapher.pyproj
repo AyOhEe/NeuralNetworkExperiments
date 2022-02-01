@@ -23,6 +23,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GraphUtil\graph.py" />
+    <Compile Include="GraphUtil\line.py" />
+    <Compile Include="GraphUtil\__init__.py" />
     <Compile Include="main.py" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +38,15 @@
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
       <Architecture>X64</Architecture>
     </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GraphUtil\" />
+    <Folder Include="GraphUtil\__pycache__\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GraphUtil\__pycache__\graph.cpython-310.pyc" />
+    <Content Include="GraphUtil\__pycache__\line.cpython-310.pyc" />
+    <Content Include="GraphUtil\__pycache__\__init__.cpython-310.pyc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

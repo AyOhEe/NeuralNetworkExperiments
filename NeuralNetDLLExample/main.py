@@ -5,6 +5,7 @@ if __name__ == "__main__":
     network_count = 250 # the amount of networks in the population
     episode_length = 5000 # the maximum length of an episode
     generation_length = 200 # the amount of generations to run
+    graph_frequency = 1 # how often a graph is made
 
     node_add_chance = 100 # x/1000 chance that a node is added
     connection_add_chance = 100 # x/1000 chance that a connection is added
@@ -19,6 +20,9 @@ if __name__ == "__main__":
     #import openai-gym https://gym.openai.com/docs/
     import gym
     import random
+    import math
+    from GraphUtil.line import Line
+    from GraphUtil.graph import Graph
 
     import os
     os.system("") #have to do this bullshit for console colours i guess
@@ -38,6 +42,11 @@ if __name__ == "__main__":
     #start the test environment
     env = gym.make('LunarLanderContinuous-v2')
     env.reset()
+
+    #create the lines to store our statistics
+    peak_fitness_line = Line("Peak Fitness")
+    mean_fitness_line = Line("Mean Fitness")
+    median_fitness_line = Line("Median Fitness")
 
     #create the networks
     n_inputs = env.observation_space.shape[0]
@@ -65,6 +74,30 @@ if __name__ == "__main__":
 
         #sort the networks based on their scores
         scores = sorted(scores, key=lambda x: x[1], reverse=True)
+
+        #calculate our statistics
+        peak_fitness = scores[0][1]
+        mean_fitness = sum([score[1] for score in scores]) / len(scores)
+        median_fitness = (scores[math.floor(len(scores) / 2)][1] + scores[math.ceil(len(scores) / 2)][1]) / 2
+
+        #store our statistics
+        peak_fitness_line.add_point(gen_i, peak_fitness)
+        mean_fitness_line.add_point(gen_i, mean_fitness)
+        median_fitness_line.add_point(gen_i, median_fitness)
+
+        #determine if we should make a graph
+        if gen_i % graph_frequency == 0:
+            #create a graph
+            g = Graph("Network Fitness Statistics", "Generation", "Fitness")
+
+            #add the lines
+            g.add_line(peak_fitness_line)
+            g.add_line(mean_fitness_line)
+            g.add_line(median_fitness_line)
+
+            #save the graph
+            g.save_graph("graphs/Fitness.png")
+            g.save_graph_data("graphs/Fitness.json")
 
         #save and report the best network
         networks[scores[0][0]].SaveNetwork(f"Networks/BestNetFromGen_{gen_i}")
