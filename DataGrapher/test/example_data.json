@@ -18,7 +18,7 @@
         "linewidth": 3,
         "marker": "o",
         "markerfacecolor": "blue",
-        "markersize": "12"
+        "markersize": 12
       }
     },
     {
@@ -29,9 +29,9 @@
         "color": "red",
         "linestyle": "solid",
         "linewidth": 1,
-        "marker": ",",
-        "markerfacecolor": "blue",
-        "markersize": "12"
+        "marker": "s",
+        "markerfacecolor": "green",
+        "markersize": 6
       }
     }
   ]

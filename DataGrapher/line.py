@@ -19,4 +19,4 @@ class Line:
         
     #returns this line as a dictionary
     def as_dict(self):
-        result = { "Label": self.label, "DataX": self.x_data, "DataY": self.y_data, "kwargs": self.properties}
+        return { "Label": self.label, "DataX": self.x_data, "DataY": self.y_data, "kwargs": self.properties}

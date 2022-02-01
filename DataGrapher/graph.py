@@ -15,7 +15,7 @@ class Graph:
         else:
             #open and load the file
             data = {}
-            with open(filename) as f
+            with open(filename) as f:
                 data = json.loads(f.read())
 
             #if there is a title for the graph, use it
@@ -47,7 +47,7 @@ class Graph:
 
     #adds a line to this graph
     def add_line(self, line):
-        self.lines.append(line.as_dict())
+        self.lines.append(line)
 
     #displays this graph as a window on screen
     def display_graph(self):
@@ -69,7 +69,7 @@ class Graph:
 
         #plot our lines
         for line in self.lines:
-            plt.plot(label.x_data, label.y_data, label=line.label, **line.properties)
+            plt.plot(line.x_data, line.y_data, label=line.label, **line.properties)
 
         #show the plot
         plt.show()
@@ -97,7 +97,7 @@ class Graph:
 
         #plot our lines
         for line in self.lines:
-            plt.plot(label.x_data, label.y_data, label=line.label, **line.properties)
+            plt.plot(line.x_data, line.y_data, label=line.label, **line.properties)
         
         #save the graph
         plt.savefig(filename)
@@ -121,16 +121,12 @@ class Graph:
             "ylim start": min_y, 
             "ylim end": max_y,
             "Labels": [self.x_label, self.y_label],
-            "Lines": []
+            "Lines": [line.as_dict() for line in self.lines]
         }
-
-        #add the lines to the dictionary
-        for line in self.lines:
-            graph_data["Lines"].append(line.as_dict())
         
         #convert the dictionary to json and save the json data to the file
-        with open(filename) as f:
-            f.write(json.dumps(graph_data)))
+        with open(filename, 'w+') as f:
+            f.write(json.dumps(graph_data))
 
     #reads in data from a json file and graphs and shows it using matplotlib
     @staticmethod
@@ -140,7 +136,7 @@ class Graph:
 
         #open and load the file
         data = {}
-        with open(filename) as f
+        with open(filename) as f:
             data = json.loads(f.read())
 
         #if there is a title for the graph, use it
@@ -183,7 +179,7 @@ class Graph:
 
         #open and load the file
         data = {}
-        with open(filename) as f
+        with open(filename) as f:
             data = json.loads(f.read())
 
         #if there is a title for the graph, use it
