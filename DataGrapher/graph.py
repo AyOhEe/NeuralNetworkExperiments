@@ -126,7 +126,7 @@ class Graph:
         
         #convert the dictionary to json and save the json data to the file
         with open(filename, 'w+') as f:
-            f.write(json.dumps(graph_data))
+            f.write(json.dumps(graph_data, indent=4))
 
     #reads in data from a json file and graphs and shows it using matplotlib
     @staticmethod
