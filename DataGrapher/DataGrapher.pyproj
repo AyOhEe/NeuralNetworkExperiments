@@ -23,8 +23,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="graph.py" />
-    <Compile Include="line.py" />
     <Compile Include="main.py" />
   </ItemGroup>
   <ItemGroup>

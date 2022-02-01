@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt
-from graph import Graph
-from line import Line
+from GraphUtil.graph import Graph
+from GraphUtil.line import Line
 
 if __name__ == "__main__":
     #test line class

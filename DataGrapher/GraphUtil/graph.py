@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import json
-from line import Line
+from .line import Line
 
 class Graph:
     #creates a graph
