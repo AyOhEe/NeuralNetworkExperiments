@@ -1,17 +1,53 @@
 import matplotlib.pyplot as plt
 import json
+from line import Line
 
 class Graph:
     #creates a graph
-    def __init__(self, title="Untitled Graph", x_label="X Axis", y_label="Y Axis"):
-        self.title = title
-        self.lines = []
-        self.x_label = x_label
-        self.y_label = y_label
+    def __init__(self, title="Untitled Graph", x_label="X Axis", y_label="Y Axis", filename=None):
+        #if there's a file, we should prioritise loading that
+        if filename == None:
+            self.title = title
+            self.lines = []
+            self.x_label = x_label
+            self.y_label = y_label
+            self.limits = None
+        else:
+            #open and load the file
+            data = {}
+            with open(filename) as f
+                data = json.loads(f.read())
+
+            #if there is a title for the graph, use it
+            if "Title" in data:
+                self.title = data["Title"]
+            else:
+                self.title = title
+
+            #if there are labels, use them
+            if "Labels" in data:
+                if len(data["Labels"]) == 2:
+                    self.x_label = data["Labels"][0]
+                    self.y_label = data["Labels"][1]
+                else:
+                    self.x_label = x_label
+                    self.y_label = y_label
+
+            #if there is valid limit data, use it
+            if "xlim start" in data and "xlim end" in data and "ylim start" in data and "ylim end" in data:
+                self.limits = [(data["xlim start"], data["xlim end"]), (data["ylim start"], data["ylim end"])]
+
+            #for each of the lines in the data, construct and store the line
+            self.lines = []
+            if "Lines" in data:
+                for line in data["Lines"]:
+                    l = Line(line["Label"], **line["kwargs"])
+                    l.add_points(zip(line["DataX"], line["DataY"]))
+                    self.lines.append(l)
 
     #adds a line to this graph
     def add_line(self, line):
-        self.lines.append(line)
+        self.lines.append(line.as_dict())
 
     #displays this graph as a window on screen
     def display_graph(self):
