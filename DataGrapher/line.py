@@ -10,6 +10,12 @@ class Line:
     def add_point(self, x, y):
         self.x_data.append(x)
         self.y_data.append(y)
+
+    #adds several points to the line. expects list of tuples!
+    def add_points(self, tuple_list):
+        for tup in tuple_list:
+            self.x_data.append(tup[0])
+            self.y_data.append(tup[1])
         
     #returns this line as a dictionary
     def as_dict(self):
