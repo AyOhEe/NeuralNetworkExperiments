@@ -1,14 +1,16 @@
 {
   "Title": "Demonstration Graph",
-  "Plot Type": "Plot",
+  "Plot Type": "Plot", 
 
   "Labels": [ "This is the X axis", "This is the Y Axis" ],
   "Lines": {
     "Important data visualisation": {
-      "Data": [ 5, 7, 8, 2, 4, 5, 7, 8, 2, 4, 5 ]
+      "DataX": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "DataY": [ 5, 7, 8, 2, 4, 5, 7, 8, 2, 4, 5 ]
     },
     "Less important data visualisation": {
-      "Data": [ 5, 4, 2, 8, 7, 5, 4, 2, 8, 7, 5 ]
+      "DataX": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "DataY": [ 5, 4, 2, 8, 7, 5, 4, 2, 8, 7, 5 ]
     }
   }
 }

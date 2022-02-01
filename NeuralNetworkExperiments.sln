@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NeuralNetDLL", "NeuralNetDL
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "NeuralNetDLLExample", "NeuralNetDLLExample\NeuralNetDLLExample.pyproj", "{8D3C6916-6FEC-45B1-B0CB-DC9904FC4187}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "DataGrapher", "DataGrapher\DataGrapher.pyproj", "{B5E94D9F-2210-4EC5-94D0-22824D3555C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,12 @@ Global
 		{8D3C6916-6FEC-45B1-B0CB-DC9904FC4187}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D3C6916-6FEC-45B1-B0CB-DC9904FC4187}.Release|x64.ActiveCfg = Release|Any CPU
 		{8D3C6916-6FEC-45B1-B0CB-DC9904FC4187}.Release|x86.ActiveCfg = Release|Any CPU
+		{B5E94D9F-2210-4EC5-94D0-22824D3555C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E94D9F-2210-4EC5-94D0-22824D3555C1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B5E94D9F-2210-4EC5-94D0-22824D3555C1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B5E94D9F-2210-4EC5-94D0-22824D3555C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E94D9F-2210-4EC5-94D0-22824D3555C1}.Release|x64.ActiveCfg = Release|Any CPU
+		{B5E94D9F-2210-4EC5-94D0-22824D3555C1}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
