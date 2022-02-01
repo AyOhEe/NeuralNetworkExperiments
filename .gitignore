@@ -5,6 +5,7 @@ GenomeGrapher/Include/
 DataGrapher/Lib/
 DataGrapher/Scripts/
 DataGrapher/Include/
+DataGrapher/share/
 NeuralNetDLLExample/Lib/
 NeuralNetDLLExample/Scripts/
 pyvenv.cfg

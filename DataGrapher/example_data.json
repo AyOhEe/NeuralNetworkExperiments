@@ -1,16 +1,39 @@
 {
   "Title": "Demonstration Graph",
-  "Plot Type": "Plot", 
+  "Plot Type": "Plot",
+  
+  "xlim start": 0,
+  "xlim end": 11,
+  "ylim start": 0,
+  "ylim end": 7,
 
   "Labels": [ "This is the X axis", "This is the Y Axis" ],
-  "Lines": {
-    "Important data visualisation": {
-      "DataX": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-      "DataY": [ 5, 7, 8, 2, 4, 5, 7, 8, 2, 4, 5 ]
+  "Lines": [
+    {
+      "Label": "Important data visualisation",
+      "DataX": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ],
+      "DataY": [ 4, 5, 5.5, 6, 2, 4, 5, 5.5, 6, 2, 4, 5 ],
+      "kwargs": {
+        "color": "green",
+        "linestyle": "dashed",
+        "linewidth": 3,
+        "marker": "o",
+        "markerfacecolor": "blue",
+        "markersize": "12"
+      }
     },
-    "Less important data visualisation": {
-      "DataX": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-      "DataY": [ 5, 4, 2, 8, 7, 5, 4, 2, 8, 7, 5 ]
+    {
+      "Label": "Less important data visualisation",
+      "DataX": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ],
+      "DataY": [ 0.5, 1, 2, 4, 0.5, 1, 2, 4, 0.5, 1, 2, 4 ],
+      "kwargs": {
+        "color": "red",
+        "linestyle": "solid",
+        "linewidth": 1,
+        "marker": ",",
+        "markerfacecolor": "blue",
+        "markersize": "12"
+      }
     }
-  }
+  ]
 }
