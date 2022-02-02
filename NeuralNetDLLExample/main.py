@@ -9,6 +9,9 @@ if __name__ == "__main__":
     graph_frequency = 10 # how often a graph is made
     display_frequency = 10 # how often the best network of a generation is displayed
 
+    node_count_punishment = 5 # how much networks are punished for having a high node count
+                              # helps prevent useless nodes in a network by
+                              # encouraging the removal of useless nodes
 
     node_add_chance = 100 # x/1000 chance that a node is added
     connection_add_chance = 100 # x/1000 chance that a connection is added
@@ -72,7 +75,7 @@ if __name__ == "__main__":
         #test the networks on the environment
         scores = []
         for net_i in range(len(networks)):
-            total_reward = 0
+            total_reward = -networks[net_i].GetNodeCount() * node_count_punishment
             observation, reward, done, info = (0, 0), 0, False, {}
             for t in range(episode_length):
                 act = networks[net_i].CalculateOutputs(observation)
