@@ -4,7 +4,7 @@ if __name__ == "__main__":
     #test settings
     network_count = 250 # the amount of networks in the population
     episode_length = 5000 # the maximum length of an episode
-    generation_length = 200 # the amount of generations to run
+    generation_length = 2000 # the amount of generations to run
     graph_frequency = 1 # how often a graph is made
     display_frequency = 1 # how often the best network of a generation is displayed
 
@@ -47,9 +47,11 @@ if __name__ == "__main__":
     env.reset()
 
     #create the lines to store our statistics
-    peak_fitness_line = Line("Peak Fitness")
-    mean_fitness_line = Line("Mean Fitness")
-    median_fitness_line = Line("Median Fitness")
+    peak_fitness_line = Line("Peak Fitness", color="blue")
+    mean_fitness_line = Line("Mean Fitness", color="orange")
+    quartile1_fitness_line = Line("1st Quartile Fitness", color="lightgreen")
+    quartile2_fitness_line = Line("2nd Quartile Fitness", color="green")
+    quartile3_fitness_line = Line("3rd Quartile Fitness", color="lightgreen")
 
     #create the networks
     n_inputs = env.observation_space.shape[0]
@@ -81,12 +83,16 @@ if __name__ == "__main__":
         #calculate our statistics
         peak_fitness = scores[0][1]
         mean_fitness = sum([score[1] for score in scores]) / len(scores)
-        median_fitness = (scores[math.floor(len(scores) / 2)][1] + scores[math.ceil(len(scores) / 2)][1]) / 2
+        quartile1_fitness = (scores[math.floor(len(scores) / 4)][1] + scores[math.ceil(len(scores) / 4)][1]) / 2
+        quartile2_fitness = (scores[2 * math.floor(len(scores) / 4)][1] + scores[2 * math.ceil(len(scores) / 4)][1]) / 2
+        quartile3_fitness = (scores[3 * math.floor(len(scores) / 4)][1] + scores[3 * math.ceil(len(scores) / 4)][1]) / 2
 
         #store our statistics
         peak_fitness_line.add_point(gen_i, peak_fitness)
         mean_fitness_line.add_point(gen_i, mean_fitness)
-        median_fitness_line.add_point(gen_i, median_fitness)
+        quartile1_fitness_line.add_point(gen_i, quartile1_fitness)
+        quartile2_fitness_line.add_point(gen_i, quartile2_fitness)
+        quartile3_fitness_line.add_point(gen_i, quartile3_fitness)
 
         #determine if we should make a graph
         if gen_i % graph_frequency == 0:
@@ -96,7 +102,9 @@ if __name__ == "__main__":
             #add the lines
             g.add_line(peak_fitness_line)
             g.add_line(mean_fitness_line)
-            g.add_line(median_fitness_line)
+            g.add_line(quartile1_fitness_line)
+            g.add_line(quartile2_fitness_line)
+            g.add_line(quartile3_fitness_line)
 
             #save the graph
             g.save_graph("graphs/Fitness.png")
