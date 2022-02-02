@@ -3,7 +3,7 @@ from network import Network
 if __name__ == "__main__":
     #test settings
     network_count = 250 # the amount of networks in the population
-    episode_length = 5000 # the maximum length of an episode
+    episode_length = 750 # the maximum length of an episode
     generation_length = 2000 # the amount of generations to run
 
     graph_frequency = 10 # how often a graph is made
@@ -64,6 +64,12 @@ if __name__ == "__main__":
     quartile2_node_count_line = Line("2nd Quartile Node count", color="green")
     quartile3_node_count_line = Line("3rd Quartile Node count", color="lightgreen")
 
+    best_net_time_taken_line = Line("Best Network time taken", color="blue")
+    mean_time_taken_line = Line("Mean time taken", color="orange")
+    quartile1_time_taken_line = Line("1st Quartile time taken", color="lightgreen")
+    quartile2_time_taken_line = Line("2nd Quartile time taken", color="green")
+    quartile3_time_taken_line = Line("3rd Quartile time taken", color="lightgreen")
+
     #create the networks
     n_inputs = env.observation_space.shape[0]
     n_outputs = env.action_space.shape[0]
@@ -74,6 +80,7 @@ if __name__ == "__main__":
         
         #test the networks on the environment
         scores = []
+        times_taken = []
         for net_i in range(len(networks)):
             total_reward = -networks[net_i].GetNodeCount() * node_count_punishment
             observation, reward, done, info = (0, 0), 0, False, {}
@@ -84,6 +91,7 @@ if __name__ == "__main__":
 
                 if done: #exit if we've finished the episode
                     print(f"Episode for network {bcolors.OKGREEN}{net_i}{bcolors.ENDC} in {bcolors.OKCYAN}{gen_i}{bcolors.ENDC} finished after {bcolors.WARNING}{t+1}{bcolors.ENDC} timesteps with {bcolors.FAIL}{total_reward}{bcolors.ENDC} reward")
+                    times_taken.append(t)
                     break
             scores.append((net_i, total_reward))
             env.reset()
@@ -107,6 +115,14 @@ if __name__ == "__main__":
         quartile2_node_count = (node_counts[2 * math.floor(len(node_counts) / 4)] + node_counts[2 * math.ceil(len(node_counts) / 4)]) / 2
         quartile3_node_count = (node_counts[3 * math.floor(len(node_counts) / 4)] + node_counts[3 * math.ceil(len(node_counts) / 4)]) / 2
 
+        #calculate time statistics
+        best_net_time_taken = times_taken[scores[0][0]]
+        mean_time_taken = sum(times_taken) / len(times_taken)
+        times_taken = sorted(times_taken, reverse=True)
+        quartile1_time_taken = (times_taken[math.floor(len(times_taken) / 4)] + times_taken[math.ceil(len(times_taken) / 4)]) / 2
+        quartile2_time_taken = (times_taken[2 * math.floor(len(times_taken) / 4)] + times_taken[2 * math.ceil(len(times_taken) / 4)]) / 2
+        quartile3_time_taken = (times_taken[3 * math.floor(len(times_taken) / 4)] + times_taken[3 * math.ceil(len(times_taken) / 4)]) / 2
+
         #store our statistics
         peak_fitness_line.add_point(gen_i, peak_fitness)
         mean_fitness_line.add_point(gen_i, mean_fitness)
@@ -119,9 +135,16 @@ if __name__ == "__main__":
         quartile1_node_count_line.add_point(gen_i, quartile1_node_count)
         quartile2_node_count_line.add_point(gen_i, quartile2_node_count)
         quartile3_node_count_line.add_point(gen_i, quartile3_node_count)
+        
+        best_net_time_taken_line.add_point(gen_i, best_net_time_taken)
+        mean_time_taken_line.add_point(gen_i, mean_time_taken)
+        quartile1_time_taken_line.add_point(gen_i, quartile1_time_taken)
+        quartile2_time_taken_line.add_point(gen_i, quartile2_time_taken)
+        quartile3_time_taken_line.add_point(gen_i, quartile3_time_taken)
 
         #determine if we should make a graph
         if gen_i % graph_frequency == 0:
+            #Fitness graph
             #create a graph
             g = Graph("Network Fitness Statistics", "Generation", "Fitness")
 
@@ -136,7 +159,7 @@ if __name__ == "__main__":
             g.save_graph("graphs/Fitness.png")
             g.save_graph_data("graphs/Fitness.json")
 
-
+            #Node count graph
             #create a graph
             g = Graph("Network Node Count Statistics", "Generation", "Node Count")
 
@@ -150,6 +173,21 @@ if __name__ == "__main__":
             #save the graph
             g.save_graph("graphs/Node count.png")
             g.save_graph_data("graphs/Node count.json")
+
+            #Time taken graph
+            #create a graph
+            g = Graph("Time taken Statistics", "Generation", "Timesteps")
+
+            #add the lines
+            g.add_line(best_net_time_taken_line)
+            g.add_line(mean_time_taken_line)
+            g.add_line(quartile1_time_taken_line)
+            g.add_line(quartile2_time_taken_line)
+            g.add_line(quartile3_time_taken_line)
+
+            #save the graph
+            g.save_graph("graphs/Time taken.png")
+            g.save_graph_data("graphs/Time taken.json")
 
         #save and report the best network
         networks[scores[0][0]].SaveNetwork(f"Networks/BestNetFromGen_{gen_i}")
