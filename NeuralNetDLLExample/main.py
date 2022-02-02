@@ -63,8 +63,7 @@ if __name__ == "__main__":
     quartile1_node_count_line = Line("1st Quartile Node count", color="lightgreen")
     quartile2_node_count_line = Line("2nd Quartile Node count", color="green")
     quartile3_node_count_line = Line("3rd Quartile Node count", color="lightgreen")
-
-    best_net_time_taken_line = Line("Best Network time taken", color="blue")
+    
     mean_time_taken_line = Line("Mean time taken", color="orange")
     quartile1_time_taken_line = Line("1st Quartile time taken", color="lightgreen")
     quartile2_time_taken_line = Line("2nd Quartile time taken", color="green")
@@ -138,7 +137,6 @@ if __name__ == "__main__":
         quartile2_node_count_line.add_point(gen_i, quartile2_node_count)
         quartile3_node_count_line.add_point(gen_i, quartile3_node_count)
         
-        best_net_time_taken_line.add_point(gen_i, best_net_time_taken)
         mean_time_taken_line.add_point(gen_i, mean_time_taken)
         quartile1_time_taken_line.add_point(gen_i, quartile1_time_taken)
         quartile2_time_taken_line.add_point(gen_i, quartile2_time_taken)
@@ -181,7 +179,6 @@ if __name__ == "__main__":
             g = Graph("Time taken Statistics", "Generation", "Timesteps")
 
             #add the lines
-            g.add_line(best_net_time_taken_line)
             g.add_line(mean_time_taken_line)
             g.add_line(quartile1_time_taken_line)
             g.add_line(quartile2_time_taken_line)
