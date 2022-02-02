@@ -1,4 +1,4 @@
-from network import Network
+﻿from network import Network
 
 if __name__ == "__main__":
     #test settings
@@ -29,6 +29,7 @@ if __name__ == "__main__":
     import gym
     import random
     import math
+    import time
     from GraphUtil.line import Line
     from GraphUtil.graph import Graph
 
@@ -69,6 +70,8 @@ if __name__ == "__main__":
     quartile2_time_taken_line = Line("2nd Quartile time taken", color="green")
     quartile3_time_taken_line = Line("3rd Quartile time taken", color="lightgreen")
 
+    delta_time_line = Line("ΔTime for Generationn", color="orange")
+
     #create the networks
     n_inputs = env.observation_space.shape[0]
     n_outputs = env.action_space.shape[0]
@@ -76,7 +79,9 @@ if __name__ == "__main__":
 
     for gen_i in range(generation_length):
         print(f"\n\n{bcolors.HEADER}================================\n\tGENERATION {gen_i}\n================================{bcolors.ENDC}\n")
-        
+        #store the time at the start of the generation
+        time_start = time.time()
+
         #test the networks on the environment
         scores = []
         times_taken = []
@@ -96,6 +101,9 @@ if __name__ == "__main__":
             times_taken.append(total_time)
             scores.append((net_i, total_reward))
             env.reset()
+
+        #store the time at the end of the generation
+        time_end = time.time()
 
         #sort the networks based on their scores
         scores = sorted(scores, key=lambda x: x[1], reverse=True)
@@ -142,6 +150,8 @@ if __name__ == "__main__":
         quartile2_time_taken_line.add_point(gen_i, quartile2_time_taken)
         quartile3_time_taken_line.add_point(gen_i, quartile3_time_taken)
 
+        delta_time_line.add_point(gen_i, (time_end - time_start))
+
         #determine if we should make a graph
         if gen_i % graph_frequency == 0:
             #Fitness graph
@@ -187,6 +197,17 @@ if __name__ == "__main__":
             #save the graph
             g.save_graph("graphs/Time taken.png")
             g.save_graph_data("graphs/Time taken.json")
+
+            #Total time taken graph
+            #create a graph
+            g = Graph("ΔTime for Generation Statistics", "Generation", "ΔTime(seconds)")
+
+            #add the line
+            g.add_line(delta_time_line)
+
+            #save the graph
+            g.save_graph("graphs/Generation time taken.png")
+            g.save_graph_data("graphs/Generation time taken.json")
 
         #save and report the best network
         networks[scores[0][0]].SaveNetwork(f"Networks/BestNetFromGen_{gen_i}")
