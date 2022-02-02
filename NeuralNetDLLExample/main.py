@@ -84,15 +84,17 @@ if __name__ == "__main__":
         for net_i in range(len(networks)):
             total_reward = -networks[net_i].GetNodeCount() * node_count_punishment
             observation, reward, done, info = (0, 0), 0, False, {}
+            total_time = 0
             for t in range(episode_length):
                 act = networks[net_i].CalculateOutputs(observation)
                 observation, reward, done, info = env.step(act) #do an action
                 total_reward += reward #store the reward for this iteration
+                total_time += 1
 
                 if done: #exit if we've finished the episode
-                    print(f"Episode for network {bcolors.OKGREEN}{net_i}{bcolors.ENDC} in {bcolors.OKCYAN}{gen_i}{bcolors.ENDC} finished after {bcolors.WARNING}{t+1}{bcolors.ENDC} timesteps with {bcolors.FAIL}{total_reward}{bcolors.ENDC} reward")
-                    times_taken.append(t)
+                    print(f"Episode for network {bcolors.OKGREEN}{net_i}{bcolors.ENDC} in {bcolors.OKCYAN}{gen_i}{bcolors.ENDC} finished after {bcolors.WARNING}{t+1}{bcolors.ENDC} timesteps with {bcolors.FAIL}{total_reward}{bcolors.ENDC} reward")  
                     break
+            times_taken.append(total_time)
             scores.append((net_i, total_reward))
             env.reset()
 
