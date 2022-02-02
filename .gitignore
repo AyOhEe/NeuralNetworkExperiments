@@ -8,6 +8,7 @@ DataGrapher/Include/
 */share/
 NeuralNetDLLExample/Lib/
 NeuralNetDLLExample/Scripts/
+NeuralNetDLLExample/graphs/
 pyvenv.cfg
 
 NeuralNetDLL.dll

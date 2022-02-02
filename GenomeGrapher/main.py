@@ -5,6 +5,7 @@ Graphs a .genome file and stores the resulting graph as a .svg image
 """
 
 import igraph
+import math
 import os
 from chromosome import Chromosome
 
@@ -31,7 +32,9 @@ class GenomeReader:
             g.add_vertex(color=(1, 0.5, 0.5), label="Output: " + str(i))
 
         #iterate through the node chromosome
+        node_count = inputs + outputs
         for gene in NodeChromosome.GeneIter():
+            node_count += 1
             #add a vertex for the node
             colour = (0, 0, 0)
             if gene[1] == 1:
@@ -65,8 +68,17 @@ class GenomeReader:
                 arrow_width=(gene[6] / CONN_GENE_WEIGHT_DIVISOR) + 0.001,
                 color=(-weight / 2, 0, 0) if weight < 0 else (0, weight / 2, 0))
 
+        #determine image size based on node count
+        box_size = math.sqrt(node_count * 150*150)
+
         #plot the graph and save it as a file
-        igraph.plot(g, f"Renders/{filename}.svg", edge_curved=True, bbox=(500,500), margin=64, layout="fruchterman_reingold")
+        igraph.plot(
+            g, 
+            f"Renders/{filename}.svg", 
+            edge_curved=True, 
+            bbox=(box_size, box_size), 
+            margin=64, 
+            layout="fruchterman_reingold")
 
 
 if __name__ == "__main__":
