@@ -5,8 +5,10 @@ if __name__ == "__main__":
     network_count = 250 # the amount of networks in the population
     episode_length = 5000 # the maximum length of an episode
     generation_length = 2000 # the amount of generations to run
-    graph_frequency = 1 # how often a graph is made
-    display_frequency = 1 # how often the best network of a generation is displayed
+
+    graph_frequency = 10 # how often a graph is made
+    display_frequency = 10 # how often the best network of a generation is displayed
+
 
     node_add_chance = 100 # x/1000 chance that a node is added
     connection_add_chance = 100 # x/1000 chance that a connection is added
@@ -53,6 +55,12 @@ if __name__ == "__main__":
     quartile2_fitness_line = Line("2nd Quartile Fitness", color="green")
     quartile3_fitness_line = Line("3rd Quartile Fitness", color="lightgreen")
 
+    best_net_node_count_line = Line("Best Network Node Count", color="blue")
+    mean_node_count_line = Line("Mean Node count", color="orange")
+    quartile1_node_count_line = Line("1st Quartile Node count", color="lightgreen")
+    quartile2_node_count_line = Line("2nd Quartile Node count", color="green")
+    quartile3_node_count_line = Line("3rd Quartile Node count", color="lightgreen")
+
     #create the networks
     n_inputs = env.observation_space.shape[0]
     n_outputs = env.action_space.shape[0]
@@ -87,12 +95,27 @@ if __name__ == "__main__":
         quartile2_fitness = (scores[2 * math.floor(len(scores) / 4)][1] + scores[2 * math.ceil(len(scores) / 4)][1]) / 2
         quartile3_fitness = (scores[3 * math.floor(len(scores) / 4)][1] + scores[3 * math.ceil(len(scores) / 4)][1]) / 2
 
+        #get the node counts of all networks
+        node_counts = sorted([net.GetNodeCount() for net in networks], reverse=True)
+        #calculate node count statistics
+        best_net_node_count = networks[scores[0][0]].GetNodeCount()
+        mean_node_count = sum(node_counts) / len(node_counts)
+        quartile1_node_count = (node_counts[math.floor(len(node_counts) / 4)] + node_counts[math.ceil(len(node_counts) / 4)]) / 2
+        quartile2_node_count = (node_counts[2 * math.floor(len(node_counts) / 4)] + node_counts[2 * math.ceil(len(node_counts) / 4)]) / 2
+        quartile3_node_count = (node_counts[3 * math.floor(len(node_counts) / 4)] + node_counts[3 * math.ceil(len(node_counts) / 4)]) / 2
+
         #store our statistics
         peak_fitness_line.add_point(gen_i, peak_fitness)
         mean_fitness_line.add_point(gen_i, mean_fitness)
         quartile1_fitness_line.add_point(gen_i, quartile1_fitness)
         quartile2_fitness_line.add_point(gen_i, quartile2_fitness)
         quartile3_fitness_line.add_point(gen_i, quartile3_fitness)
+
+        best_net_node_count_line.add_point(gen_i, best_net_node_count)
+        mean_node_count_line.add_point(gen_i, mean_node_count)
+        quartile1_node_count_line.add_point(gen_i, quartile1_node_count)
+        quartile2_node_count_line.add_point(gen_i, quartile2_node_count)
+        quartile3_node_count_line.add_point(gen_i, quartile3_node_count)
 
         #determine if we should make a graph
         if gen_i % graph_frequency == 0:
@@ -109,6 +132,21 @@ if __name__ == "__main__":
             #save the graph
             g.save_graph("graphs/Fitness.png")
             g.save_graph_data("graphs/Fitness.json")
+
+
+            #create a graph
+            g = Graph("Network Node Count Statistics", "Generation", "Node Count")
+
+            #add the lines
+            g.add_line(best_net_node_count_line)
+            g.add_line(mean_node_count_line)
+            g.add_line(quartile1_node_count_line)
+            g.add_line(quartile2_node_count_line)
+            g.add_line(quartile3_node_count_line)
+
+            #save the graph
+            g.save_graph("graphs/Node count.png")
+            g.save_graph_data("graphs/Node count.json")
 
         #save and report the best network
         networks[scores[0][0]].SaveNetwork(f"Networks/BestNetFromGen_{gen_i}")
