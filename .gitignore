@@ -6,6 +6,7 @@ DataGrapher/Lib/
 DataGrapher/Scripts/
 DataGrapher/Include/
 */share/
+*/DONT_SYNC
 NeuralNetDLLExample/Lib/
 NeuralNetDLLExample/Scripts/
 NeuralNetDLLExample/graphs/

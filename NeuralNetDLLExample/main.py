@@ -4,12 +4,12 @@ if __name__ == "__main__":
     #test settings
     network_count = 250 # the amount of networks in the population
     episode_length = 750 # the maximum length of an episode
-    generation_length = 2000 # the amount of generations to run
+    generation_length = 100 # the amount of generations to run
 
-    graph_frequency = 10 # how often a graph is made
+    graph_frequency = 1 # how often a graph is made
     display_frequency = 10 # how often the best network of a generation is displayed
 
-    node_count_punishment = 5 # how much networks are punished for having a high node count
+    node_count_punishment = 0 # how much networks are punished for having a high node count
                               # helps prevent useless nodes in a network by
                               # encouraging the removal of useless nodes
 
