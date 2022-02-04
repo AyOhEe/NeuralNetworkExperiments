@@ -14,6 +14,8 @@ pyvenv.cfg
 
 NeuralNetDLL.dll
 NeuralNetDLL.so
+SpikingNetDLL.dll
+SpikingNetDLL.so
 *.o
 
 NeuralNetDLLExample/Networks/
