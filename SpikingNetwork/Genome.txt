@@ -1,0 +1,10 @@
+Genomes are constructed out of several different chromosomes, which can be expanded to meet different needs
+
+Currently, genomes are constructed of
+	- Chromosome 1: Neurons
+	- Chromosome 2: Connections
+
+Networks can also store mental states, and as such genomes may have an optional third chromosome
+	- Chromosome 3: Mental state
+
+Chromosomes contain genes of fixed size, for the entire length of the chromosome
