@@ -8,3 +8,17 @@ Networks can also store mental states, and as such genomes may have an optional 
 	- Chromosome 3: Mental state
 
 Chromosomes contain genes of fixed size, for the entire length of the chromosome
+Each chromosome contains a different type of gene, detailed below:
+	- Neuron Gene [1b][7eb][2B]
+		- Section 1: Neuron type bit. 0 = Spiking, 1 = Capacitor
+		- Section 2: Seven empty bits, ignored entirely
+		- Section 3: Two bytes, Controling the neuron bias
+	- Connection Gene [1b][1b][6eb][4B][4B]
+		- Section 1: Source type bit. 0 = Input Neuron, 1 = Internal Neuron
+		- Section 2: target type bit. 0 = Internal Neuron, 1 = Output Neuron
+		- Section 3: Six empty bits. 
+		- Section 4: Four Bytes, controling the source index
+		- Section 5: Four Bytes, controling the target index
+	- Mental Gene [4B][4B]
+		- Section 1: Four Bytes, controling the value to initialise the neuron with
+		- Section 2: Four Bytes, The time since the neuron last spiked
