@@ -141,6 +141,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Network.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\Network.h" />
+    <ClInclude Include="Include\Neuron.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
