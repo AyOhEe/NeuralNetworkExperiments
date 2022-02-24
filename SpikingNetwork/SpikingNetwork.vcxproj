@@ -147,6 +147,9 @@
     <ClInclude Include="Include\Network.h" />
     <ClInclude Include="Include\Neuron.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Genome.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
