@@ -1,23 +1,26 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
 using System;
 using System.IO;
 using System.Collections.Generic;
 
 public class GenomeEditorWindow : EditorWindow
 {
-    enum ChromosomeTypes 
-    {
-        Neuron,
-        Chromosome
-    }
-
     //the Chromosomes currently being edited
-    List<NeuronGene> CurrentNeuronChromosome;
-    List<ConnectionGene> CurrentConnectionChromosome;
+    [HideInInspector]
+    public NeuronGene[] CurrentNeuronChromosome;
+    [HideInInspector]
+    public ConnectionGene[] CurrentConnectionChromosome;
 
-    //the type of the chromosome currently being edited
-    ChromosomeTypes CurrentChromosomeType;
+    private static Rect NeuronListRect = new Rect(5, 50, 500, 500);
+    private static Rect ConnectionListRect = new Rect(510, 50, 500, 500);
+
+    SerializedObject _objectSO = null;
+    ReorderableList _neuronListRE = null;
+    ReorderableList _connectionListRE = null;
+
+    string GenomePath = "No Genome Loaded";
 
     [MenuItem("Neural Networks/Genome Editor")]
     public static void ShowWindow() 
@@ -25,10 +28,72 @@ public class GenomeEditorWindow : EditorWindow
         GetWindow<GenomeEditorWindow>("Genome Editor");
     }
 
+    private void InitNeuronListRE()
+    { 
+        //create the list
+        _neuronListRE = new ReorderableList(_objectSO, _objectSO.FindProperty("CurrentNeuronChromosome"), true,
+                true, true, true);
+
+        //handle drawing
+        _neuronListRE.drawHeaderCallback = (rect) => EditorGUI.LabelField(rect, "Neuron Genes");
+        _neuronListRE.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+        {
+            rect.y += 2f;
+            rect.height = EditorGUIUtility.singleLineHeight;
+            GUIContent objectLabel = new GUIContent($"Gene {index}");
+            //the index will help numerate the serialized fields
+            EditorGUI.PropertyField(rect, _neuronListRE.serializedProperty.GetArrayElementAtIndex(index), objectLabel);
+        };
+
+        //change the element height
+        _neuronListRE.elementHeight = EditorGUIUtility.singleLineHeight * 4 + 18;
+    }
+    private void InitConnectionListRE() 
+    {
+        //create the list
+        _connectionListRE = new ReorderableList(_objectSO, _objectSO.FindProperty("CurrentConnectionChromosome"), true,
+            true, true, true);
+
+        //handle drawing
+        _connectionListRE.drawHeaderCallback = (rect) => EditorGUI.LabelField(rect, "Connection Genes");
+        _connectionListRE.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+        {
+            rect.y += 2f;
+            rect.height = EditorGUIUtility.singleLineHeight;
+            GUIContent objectLabel = new GUIContent($"Gene {index}");
+            //the index will help numerate the serialized fields
+            EditorGUI.PropertyField(rect, _connectionListRE.serializedProperty.GetArrayElementAtIndex(index), objectLabel);
+        };
+
+        //change the element height
+        _connectionListRE.elementHeight = EditorGUIUtility.singleLineHeight * 5 + 20;
+    }
+
+    private void OnEnable()
+    {
+        //init serialized object
+        _objectSO = new SerializedObject(this);
+
+        InitNeuronListRE();
+        InitConnectionListRE();
+    }
+
     private void OnGUI()
     {
-        //get the current chromosome type
-        CurrentChromosomeType = (ChromosomeTypes)EditorGUILayout.EnumPopup("Chromosome Type: ", CurrentChromosomeType);
+        //make sure we've been initialised
+        if(_objectSO == null)
+        {
+            //init serialized object
+            _objectSO = new SerializedObject(this);
+        }
+        if(_neuronListRE == null) 
+        {
+            InitNeuronListRE();
+        }
+        if (_connectionListRE == null)
+        {
+            InitConnectionListRE();
+        }
 
         //load genome button
         if (GUILayout.Button("Load Genome"))
@@ -43,6 +108,13 @@ public class GenomeEditorWindow : EditorWindow
             //load the genome
             LoadGenomeFromPath(path, inputs, outputs);
         }
+
+        GUILayout.Label(string.Format("Current Genome: {0}", GenomePath));
+
+        _objectSO.Update();
+        _neuronListRE.DoList(NeuronListRect);
+        _connectionListRE.DoList(ConnectionListRect);
+        _objectSO.ApplyModifiedProperties();
     }
 
     //loads the genome at path as a 3d structure
@@ -119,18 +191,24 @@ public class GenomeEditorWindow : EditorWindow
         }
 
         //begin reading in the Neuron chromosome until we read an incomplete gene
-        Bytes = new byte[5];
-        while (NeuronChromosome.Read(Bytes, 0, 5) == 5)
+        Bytes = new byte[9];
+        List<NeuronGene> _CurrentNeuronChromosome = new List<NeuronGene>();
+        while (NeuronChromosome.Read(Bytes, 0, 9) == 9)
         {
-            Debug.Log(string.Join(", ", Bytes));
+            _CurrentNeuronChromosome.Add(new NeuronGene(Bytes));
         }
 
         //begin reading in the Connections chromosome until we read an incomplete gene
-        Bytes = new byte[11];
-        while (ConnectionChromosome.Read(Bytes, 0, 11) == 11)
+        Bytes = new byte[13];
+        List<ConnectionGene> _CurrentConnectionChromosome = new List<ConnectionGene>();
+        while (ConnectionChromosome.Read(Bytes, 0, 13) == 13)
         {
-            Debug.Log(string.Join(", ", Bytes));
+            _CurrentConnectionChromosome.Add(new ConnectionGene(Bytes));
         }
+
+        //store the chromosomes
+        CurrentNeuronChromosome = _CurrentNeuronChromosome.ToArray();
+        CurrentConnectionChromosome = _CurrentConnectionChromosome.ToArray();
 
         //close the filestreams
         NeuronChromosome.Close();
