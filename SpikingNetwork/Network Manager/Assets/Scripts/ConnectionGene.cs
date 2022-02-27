@@ -1,4 +1,6 @@
 using System;
+using UnityEditor;
+using UnityEngine;
 
 [Serializable]
 public struct ConnectionGene
@@ -10,7 +12,7 @@ public struct ConnectionGene
     public uint TargetIndex;
     public float Weight;
 
-    ConnectionGene(byte[] bytes) 
+    public ConnectionGene(byte[] bytes) 
     {
         //get our values
         SourceType = (bytes[0] & 0b10000000) == 0b10000000;
@@ -18,5 +20,41 @@ public struct ConnectionGene
         SourceIndex = BitConverter.ToUInt32(bytes, 1);
         TargetIndex = BitConverter.ToUInt32(bytes, 5);
         Weight = BitConverter.ToSingle(bytes, 9);
+    }
+}
+
+//https://riptutorial.com/unity3d/example/8282/custom-property-drawer
+[CustomPropertyDrawer(typeof(ConnectionGene))]
+public class ConnectionGeneDrawer : PropertyDrawer
+{
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        // The 6 comes from extra spacing between the fields (2px each)
+        return EditorGUIUtility.singleLineHeight * 5 + 20;
+    }
+
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        EditorGUI.BeginProperty(position, label, property);
+
+        EditorGUI.LabelField(position, label);
+
+        var sourceTypeRect = new Rect(position.x, position.y + 18, position.width, 16);
+        var targetTypeRect = new Rect(position.x, position.y + 36, position.width, 16);
+        var sourceIndexRect = new Rect(position.x, position.y + 54, position.width, 16);
+        var targetIndexRect = new Rect(position.x, position.y + 72, position.width, 16);
+        var weightRect = new Rect(position.x, position.y + 90, position.width, 16);
+
+        EditorGUI.indentLevel++;
+
+            EditorGUI.PropertyField(sourceTypeRect, property.FindPropertyRelative("SourceType"));
+            EditorGUI.PropertyField(targetTypeRect, property.FindPropertyRelative("TargetType"));
+            EditorGUI.PropertyField(sourceIndexRect, property.FindPropertyRelative("SourceIndex"));
+            EditorGUI.PropertyField(targetIndexRect, property.FindPropertyRelative("TargetIndex"));
+            EditorGUI.PropertyField(weightRect, property.FindPropertyRelative("Weight"));
+
+        EditorGUI.indentLevel--;
+
+        EditorGUI.EndProperty();
     }
 }
