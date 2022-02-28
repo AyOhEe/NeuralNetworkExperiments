@@ -15,10 +15,10 @@ public struct NeuronGene
     public NeuronGene(byte[] bytes)
     {
         //get our values
-        Type = (bytes[0] & 0b10000000) == 0b10000000;
-        OutputType = (bytes[0] & 0b01000000) == 0b01000000;
-        MembraneResistance = BitConverter.ToSingle(bytes, 1);
-        ThresholdOffset = BitConverter.ToSingle(bytes, 5);
+        Type = (bytes[8] & 0b10000000) == 0b10000000;
+        OutputType = (bytes[8] & 0b01000000) == 0b01000000;
+        MembraneResistance = BitConverter.ToSingle(bytes, 4);
+        ThresholdOffset = BitConverter.ToSingle(bytes, 0);
     }
 }
 

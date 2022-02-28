@@ -195,6 +195,8 @@ public class GenomeEditorWindow : EditorWindow
         List<NeuronGene> _CurrentNeuronChromosome = new List<NeuronGene>();
         while (NeuronChromosome.Read(Bytes, 0, 9) == 9)
         {
+            //reverse the bytes array due to endianness
+            Array.Reverse(Bytes);
             _CurrentNeuronChromosome.Add(new NeuronGene(Bytes));
         }
 
@@ -203,6 +205,8 @@ public class GenomeEditorWindow : EditorWindow
         List<ConnectionGene> _CurrentConnectionChromosome = new List<ConnectionGene>();
         while (ConnectionChromosome.Read(Bytes, 0, 13) == 13)
         {
+            //reverse the bytes array due to endianness
+            Array.Reverse(Bytes);
             _CurrentConnectionChromosome.Add(new ConnectionGene(Bytes));
         }
 

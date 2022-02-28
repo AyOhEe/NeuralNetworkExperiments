@@ -15,11 +15,11 @@ public struct ConnectionGene
     public ConnectionGene(byte[] bytes) 
     {
         //get our values
-        SourceType = (bytes[0] & 0b10000000) == 0b10000000;
-        TargetType = (bytes[0] & 0b01000000) == 0b01000000;
-        SourceIndex = BitConverter.ToUInt32(bytes, 1);
-        TargetIndex = BitConverter.ToUInt32(bytes, 5);
-        Weight = BitConverter.ToSingle(bytes, 9);
+        SourceType = (bytes[12] & 0b10000000) == 0b10000000;
+        TargetType = (bytes[12] & 0b01000000) == 0b01000000;
+        SourceIndex = BitConverter.ToUInt32(bytes, 8);
+        TargetIndex = BitConverter.ToUInt32(bytes, 4);
+        Weight = BitConverter.ToSingle(bytes, 0);
     }
 }
 
