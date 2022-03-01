@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "Neuron.h"
+
 //forward definitions
 class Neuron;
 
