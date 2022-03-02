@@ -13,8 +13,11 @@ public class GenomeEditorWindow : EditorWindow
     [HideInInspector]
     public ConnectionGene[] CurrentConnectionChromosome;
 
-    private static Rect NeuronListRect = new Rect(5, 50, 500, 500);
-    private static Rect ConnectionListRect = new Rect(510, 50, 500, 500);
+    private static Rect NeuronListRect = new Rect(5, 0, 400, 500);
+    private static Rect ConnectionListRect = new Rect(5, 0, 400, 500);
+
+    private Vector2 NeuronScrollPosition = Vector2.zero;
+    private Vector2 ConnectionScrollPosition = Vector2.zero;
 
     SerializedObject _objectSO = null;
     ReorderableList _neuronListRE = null;
@@ -76,6 +79,8 @@ public class GenomeEditorWindow : EditorWindow
 
         InitNeuronListRE();
         InitConnectionListRE();
+
+        minSize = new Vector2(840, 700);
     }
 
     private void OnGUI()
@@ -111,13 +116,39 @@ public class GenomeEditorWindow : EditorWindow
 
         GUILayout.Label(string.Format("Current Genome: {0}", GenomePath));
 
+        //render the gene lists
         _objectSO.Update();
-        _neuronListRE.DoList(NeuronListRect);
-        _connectionListRE.DoList(ConnectionListRect);
+        GUILayout.BeginArea(new Rect(0, EditorGUIUtility.singleLineHeight * 3 + 8, 820, 500));
+        EditorGUILayout.BeginHorizontal();
+        {
+            NeuronScrollPosition = EditorGUILayout.BeginScrollView(
+                NeuronScrollPosition,
+                GUIStyle.none,
+                GUI.skin.verticalScrollbar
+            );
+            {
+                _neuronListRE.DoList(NeuronListRect);
+                GUILayout.Space(_neuronListRE.GetHeight());
+            }
+            EditorGUILayout.EndScrollView();
+
+            ConnectionScrollPosition = EditorGUILayout.BeginScrollView(
+                ConnectionScrollPosition,
+                GUIStyle.none,
+                GUI.skin.verticalScrollbar
+            );
+            {
+                _connectionListRE.DoList(ConnectionListRect);
+                GUILayout.Space(_connectionListRE.GetHeight());
+            }
+            EditorGUILayout.EndScrollView();
+        }
+        EditorGUILayout.EndHorizontal();
+        GUILayout.EndArea();
         _objectSO.ApplyModifiedProperties();
     }
 
-    //loads the genome at path as a 3d structure
+    //loads the genome at path
     public void LoadGenomeFromPath(string path, int inputs, int outputs)
     {
         //input validation
