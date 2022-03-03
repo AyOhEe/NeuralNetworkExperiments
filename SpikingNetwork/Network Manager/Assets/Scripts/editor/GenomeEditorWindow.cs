@@ -106,14 +106,23 @@ public class GenomeEditorWindow : EditorWindow
         if (GUILayout.Button("Load Genome"))
         {
             //get the path to load from
-            string path = EditorUtility.OpenFolderPanel("Select Genome Folder", "", "");
+            GenomePath = EditorUtility.OpenFolderPanel("Select Genome Folder", "", "");
 
             //get the input and output counts for the network
             int inputs = 2;
             int outputs = 2;
 
             //load the genome
-            LoadGenomeFromPath(path, inputs, outputs);
+            LoadGenomeFromPath(GenomePath, out LobeSizes, out CurrentNeuronChromosome, out CurrentConnectionChromosome);
+        }
+        //save genome button
+        if (GUILayout.Button("Save Genome")) 
+        {
+            //get the path to save to
+            string path = EditorUtility.SaveFolderPanel("Select Genome Folder", "", "");
+
+            //save the genome
+            SaveGenomeToPath(path, LobeSizes, CurrentNeuronChromosome, CurrentConnectionChromosome);
         }
 
         GUILayout.Label(string.Format("Current Genome: {0}", GenomePath));
@@ -152,7 +161,7 @@ public class GenomeEditorWindow : EditorWindow
 
 
     //loads the genome at path
-    public static void LoadGenomeFromPath(string path, uint[] LobeSizes, NeuronGene[] NeuronGenes, ConnectionGene[] ConnectionGenes)
+    public static void LoadGenomeFromPath(string path, out uint[] LobeSizes, out NeuronGene[] NeuronGenes, out ConnectionGene[] ConnectionGenes)
     {
         //input validation
         if (!Directory.Exists(path))  //path
@@ -162,12 +171,12 @@ public class GenomeEditorWindow : EditorWindow
         }
 
         //load the chromosomes
-        LoadNeuronChromosomeFromPath(path, LobeSizes, NeuronGenes);
-        LoadConnectionChromosomeFromPath(path, ConnectionGenes);
+        LoadNeuronChromosomeFromPath(path, out LobeSizes, out NeuronGenes);
+        LoadConnectionChromosomeFromPath(path, out ConnectionGenes);
     }
 
     //loads a neuron chromosome at path
-    private static void LoadNeuronChromosomeFromPath(string path, uint[] LobeSizes, NeuronGene[] NeuronGenes) 
+    private static void LoadNeuronChromosomeFromPath(string path, out uint[] LobeSizes, out NeuronGene[] NeuronGenes) 
     {
         //try to create a filestream for the chromosome
         FileStream NeuronChromosome = null;
@@ -235,7 +244,7 @@ public class GenomeEditorWindow : EditorWindow
     }
 
     //loads a connection chromosome at path
-    private static void LoadConnectionChromosomeFromPath(string path, ConnectionGene[] ConnectionGenes) 
+    private static void LoadConnectionChromosomeFromPath(string path, out ConnectionGene[] ConnectionGenes) 
     {
         //try to create a filestream for the connection and neuron chromosomes
         FileStream ConnectionChromosome = null;
@@ -267,6 +276,77 @@ public class GenomeEditorWindow : EditorWindow
 
         //store the genes
         ConnectionGenes = _ConnectionGenesList.ToArray();
+
+        //close the file
+        ConnectionChromosome.Close();
+    }
+
+
+    //saves the genome to path
+    public static void SaveGenomeToPath(string path, uint[] Lobes, NeuronGene[] NeuronGenes, ConnectionGene[] ConnectionGenes) 
+    {
+        //create the genome folder if it doesn't exist
+        if (!Directory.Exists(path))
+        {
+            //oops, the directory was invalid
+            //TODO: this
+            throw new Exception("Oops need to fix this search through \"//TODO: this\" instances");
+        }
+
+        //save the neuron chromosome
+        SaveNeuronChromosomeToPath(path, Lobes, NeuronGenes);
+        //save the connection chromosome
+        SaveConnectionChromosomeToPath(path, ConnectionGenes);
+    }
+    
+    //saves a neuron chromosome to a path
+    private static void SaveNeuronChromosomeToPath(string path, uint[] LobeSizes, NeuronGene[] NeuronGenes) 
+    {
+        //create the neuron chromosome file
+        FileStream NeuronChromosome = new FileStream(
+            path + Path.DirectorySeparatorChar + "Neurons.chr2",
+            FileMode.Create, FileAccess.Write
+        );
+
+        //append the lobe count
+        byte[] LobeCountBytes = BitConverter.GetBytes(LobeSizes.Length);
+        Array.Reverse(LobeCountBytes);
+        NeuronChromosome.Write(LobeCountBytes, 0, 4);
+        Debug.Log(String.Format("{0} {1} {2} {3}", LobeCountBytes[0], LobeCountBytes[1], LobeCountBytes[2], LobeCountBytes[3]));
+        //append the lobe sizes
+        byte[] LobeSizeBytes;
+        for (int i = 0; i < LobeSizes.Length; i++)
+        {
+            LobeSizeBytes = BitConverter.GetBytes(LobeSizes[i]);
+            Array.Reverse(LobeSizeBytes);
+            NeuronChromosome.Write(LobeSizeBytes, 0, 4);
+            Debug.Log(String.Format("{0} {1} {2} {3}", LobeSizeBytes[0], LobeSizeBytes[1], LobeSizeBytes[2], LobeSizeBytes[3]));
+        }
+
+        //append the neuron genes
+        for (int i = 0; i < NeuronGenes.Length; i++)
+        {
+            NeuronChromosome.Write(NeuronGenes[i].ToBytes(), 0, 9);
+        }
+
+        //close the file
+        NeuronChromosome.Close();
+    }
+    
+    //saves a connection chromosome to a path
+    private static void SaveConnectionChromosomeToPath(string path, ConnectionGene[] ConnectionGenes) 
+    {
+        //create the connection chromosome file
+        FileStream ConnectionChromosome = new FileStream(
+            path + Path.DirectorySeparatorChar + "Connections.chr2",
+            FileMode.Create, FileAccess.Write
+        );
+
+        //append the connection genes
+        for(int i = 0; i < ConnectionGenes.Length; i++) 
+        {
+            ConnectionChromosome.Write(ConnectionGenes[i].ToBytes(), 0, 13);
+        }
 
         //close the file
         ConnectionChromosome.Close();
