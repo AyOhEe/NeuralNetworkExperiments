@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,6 +21,30 @@ public struct ConnectionGene
         SourceIndex = BitConverter.ToUInt32(bytes, 8);
         TargetIndex = BitConverter.ToUInt32(bytes, 4);
         Weight = BitConverter.ToSingle(bytes, 0);
+    }
+
+    //returns this gene as a byte sequence
+    public byte[] ToBytes()
+    {
+        //the byte array
+        List<byte> bytes = new List<byte>();
+
+        //get the source and target index and weight as bytes
+        byte[] SourceIndexBytes = BitConverter.GetBytes(SourceIndex);
+        byte[] TargetIndexBytes = BitConverter.GetBytes(TargetIndex);
+        byte[] WeightBytes = BitConverter.GetBytes(Weight);
+        Array.Reverse(SourceIndexBytes);
+        Array.Reverse(TargetIndexBytes);
+        Array.Reverse(WeightBytes);
+
+        //store our values
+        bytes.Add((byte)((SourceType ? 0b10000000 : 0) + (TargetType ? 0b01000000 : 0)));
+        bytes.InsertRange(1, SourceIndexBytes);
+        bytes.InsertRange(5, TargetIndexBytes);
+        bytes.InsertRange(9, WeightBytes);
+
+        //return our byte array
+        return bytes.ToArray();
     }
 }
 

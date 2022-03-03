@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,6 +20,27 @@ public struct NeuronGene
         OutputType = (bytes[8] & 0b01000000) == 0b01000000;
         MembraneResistance = BitConverter.ToSingle(bytes, 4);
         ThresholdOffset = BitConverter.ToSingle(bytes, 0);
+    }
+    
+    //returns this gene as a byte sequence
+    public byte[] ToBytes() 
+    {
+        //the byte array
+        List<byte> bytes = new List<byte>();
+
+        //get the membrane resistance and threshold offset as bytes
+        byte[] MembraneBytes = BitConverter.GetBytes(MembraneResistance);
+        byte[] ThresholdBytes = BitConverter.GetBytes(ThresholdOffset);
+        Array.Reverse(MembraneBytes);
+        Array.Reverse(ThresholdBytes);
+
+        //store our values
+        bytes.Add((byte)((Type ? 0b10000000u : 0) + (OutputType ? 0b01000000u : 0)));
+        bytes.InsertRange(1, MembraneBytes);
+        bytes.InsertRange(5, ThresholdBytes);
+
+        //return our byte array
+        return bytes.ToArray();
     }
 }
 
