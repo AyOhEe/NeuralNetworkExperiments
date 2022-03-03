@@ -4,7 +4,7 @@
 #include "Network.h"
 
 //forward definitions
-class Network;
+class SpikingNetwork;
 
 class Connection
 {
@@ -14,10 +14,13 @@ class Connection
 public:
 
 	//creates a connection in Network from bytes
-	Connection(unsigned char* bytes, Network& Network);
+	Connection(char* bytes, SpikingNetwork* Net);
+
+	//creates a connection
+	static void CreateConnection(char* bytes, SpikingNetwork* Net);
 
 	//attempts to add the value of this connection to OutVal. returns false if the source doesn't exist
-	bool TryAddValue(Network& Network, float* OutVal);
+	bool TryAddValue(SpikingNetwork* Network, float* OutVal);
 };
 
 #endif
