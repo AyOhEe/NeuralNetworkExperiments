@@ -3,8 +3,11 @@
 
 #include <vector>
 #include <string>
+#include <fstream>
+#include <iostream>
 
 #include "Neuron.h"
+#include "Lobe.h"
 
 //forward definitions
 class Neuron;
@@ -13,12 +16,16 @@ class Neuron;
 class SpikingNetwork 
 {
 	//all neurons in the network
-	std::vector<Neuron> Neurons;
+	std::vector<Neuron*> Neurons;
+	//all of the lobes in the network
+	std::vector<Lobe> Lobes;
 
 public:
 	
 	//creates a spiking network based on the genome at genomepath
 	SpikingNetwork(std::string GenomePath, int inputs, int outputs, int* ErrCode, bool verbose = false);
+	//destructor to handle potential data leaks
+	~SpikingNetwork();
 
 	//loads a mental state from a file
 	void LoadMentalState(std::string StatePath, int* ErrCode, bool verbose = false);

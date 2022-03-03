@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "Connection.h"
+
 class Neuron 
 {
 	bool NeuronType; //the type of the neuron. false == spiking, true == capacitor
@@ -12,6 +14,9 @@ class Neuron
 	float MembraneResistance; //the neuron's membrane resistance
 	float ThresholdOffset; //the neuron's spike potential threshold offset
 
+	//the connections to the neuron's sources
+	std::vector<Connection> Connections;
+
 public:
 
 	//calculates and returns(but does not store!) the new value of the neuron
@@ -20,7 +25,7 @@ public:
 	void SetValue(float NewValue);
 
 	//creates a neuron from a byte sequence
-	Neuron(unsigned char* bytes);
+	Neuron(char* bytes);
 };
 
 #endif
