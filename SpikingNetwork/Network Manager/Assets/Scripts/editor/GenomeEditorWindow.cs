@@ -12,6 +12,8 @@ public class GenomeEditorWindow : EditorWindow
     public NeuronGene[] CurrentNeuronChromosome;
     [HideInInspector]
     public ConnectionGene[] CurrentConnectionChromosome;
+    [HideInInspector]
+    public uint[] LobeSizes;
 
     private static Rect NeuronListRect = new Rect(5, 0, 400, 500);
     private static Rect ConnectionListRect = new Rect(5, 0, 400, 500);
@@ -148,53 +150,46 @@ public class GenomeEditorWindow : EditorWindow
         _objectSO.ApplyModifiedProperties();
     }
 
+
     //loads the genome at path
-    public void LoadGenomeFromPath(string path, int inputs, int outputs)
+    public static void LoadGenomeFromPath(string path, uint[] LobeSizes, NeuronGene[] NeuronGenes, ConnectionGene[] ConnectionGenes)
     {
         //input validation
-        if (string.IsNullOrEmpty(path))  //path
+        if (!Directory.Exists(path))  //path
         {
             Debug.LogError(string.Format("Invalid path for LoadGenomeFromPath! \"{0}\"", path));
             throw new ArgumentException(string.Format("Invalid path for LoadGenomeFromPath \"{0}\"", path), "path");
         }
-        if (inputs < 1)  //inputs
-        {
-            //invalid inputs. throw
-            Debug.LogError("Invalid inputs for LoadGenomeFromPath!");
-            throw new ArgumentException("Invalid inputs for LoadGenomeFromPath: expected greater than zero", "inputs");
-        }
-        if (outputs < 1)  //outputs
-        {
-            //invalid outputs. throw
-            Debug.LogError("Invalid outputs for LoadGenomeFromPath!");
-            throw new ArgumentException("Invalid outputs for LoadGenomeFromPath: expected greater than zero", "outputs");
-        }
 
-        //try to create a filestream for the connection and neuron chromosomes
-        FileStream ConnectionChromosome = null;
+        //load the chromosomes
+        LoadNeuronChromosomeFromPath(path, LobeSizes, NeuronGenes);
+        LoadConnectionChromosomeFromPath(path, ConnectionGenes);
+    }
+
+    //loads a neuron chromosome at path
+    private static void LoadNeuronChromosomeFromPath(string path, uint[] LobeSizes, NeuronGene[] NeuronGenes) 
+    {
+        //try to create a filestream for the chromosome
         FileStream NeuronChromosome = null;
         try
         {
-            ConnectionChromosome = new FileStream(path + "/Connections.chr2", FileMode.Open, FileAccess.Read);
             NeuronChromosome = new FileStream(path + "/Neurons.chr2", FileMode.Open, FileAccess.Read);
         }
         catch (IOException e)
         {
             //we couldn't open the files for some reason. 
-            Debug.LogError(string.Format("Could not Load Chromosomes at path {0}! {1}", path, e.ToString()));
+            Debug.LogError(string.Format("Could not Load Neuron Chromosome at path {0}! {1}", path, e.ToString()));
 
-            //make sure we close the filestreams if we opened any
-            if (ConnectionChromosome != null)
-                ConnectionChromosome.Close();
+            //make sure we close the filestream if we opened it
             if (NeuronChromosome != null)
                 NeuronChromosome.Close();
 
-            throw new Exception(string.Format("Could not Load Chromosomes at path {0}!", path), e);
+            throw new Exception(string.Format("Could not Load Neuron Chromosome at path {0}!", path), e);
         }
 
         //read in the lobe sizes from the Neuron gene
         byte[] Bytes = new byte[4];
-        List<uint> LobeSizes = new List<uint>();
+        List<uint> _LobeSizes = new List<uint>();
         if (NeuronChromosome.Read(Bytes, 0, 4) == 4)
         {
             uint LobeCount = ((uint)Bytes[0] << 24) + ((uint)Bytes[1] << 16) + ((uint)Bytes[2] << 8) + (uint)Bytes[3];
@@ -203,7 +198,7 @@ public class GenomeEditorWindow : EditorWindow
             {
                 if (NeuronChromosome.Read(Bytes, 0, 4) == 4)
                 {
-                    LobeSizes.Add(((uint)Bytes[0] << 24) + ((uint)Bytes[1] << 16) + ((uint)Bytes[2] << 8) + (uint)Bytes[3]);
+                    _LobeSizes.Add(((uint)Bytes[0] << 24) + ((uint)Bytes[1] << 16) + ((uint)Bytes[2] << 8) + (uint)Bytes[3]);
                 }
                 else
                 {
@@ -212,6 +207,7 @@ public class GenomeEditorWindow : EditorWindow
                     throw new Exception("Oops need to fix this search through \"//TODO: this\" instances");
                 }
             }
+            LobeSizes = _LobeSizes.ToArray();
             Debug.Log("Lobe Sizes read");
         }
         else
@@ -223,30 +219,56 @@ public class GenomeEditorWindow : EditorWindow
 
         //begin reading in the Neuron chromosome until we read an incomplete gene
         Bytes = new byte[9];
-        List<NeuronGene> _CurrentNeuronChromosome = new List<NeuronGene>();
+        List<NeuronGene> _NeuronGenesList = new List<NeuronGene>();
         while (NeuronChromosome.Read(Bytes, 0, 9) == 9)
         {
             //reverse the bytes array due to endianness
             Array.Reverse(Bytes);
-            _CurrentNeuronChromosome.Add(new NeuronGene(Bytes));
+            _NeuronGenesList.Add(new NeuronGene(Bytes));
+        }
+
+        //store the genes
+        NeuronGenes = _NeuronGenesList.ToArray();
+
+        //close the file
+        NeuronChromosome.Close();
+    }
+
+    //loads a connection chromosome at path
+    private static void LoadConnectionChromosomeFromPath(string path, ConnectionGene[] ConnectionGenes) 
+    {
+        //try to create a filestream for the connection and neuron chromosomes
+        FileStream ConnectionChromosome = null;
+        try
+        {
+            ConnectionChromosome = new FileStream(path + "/Connections.chr2", FileMode.Open, FileAccess.Read);
+        }
+        catch (IOException e)
+        {
+            //we couldn't open the files for some reason. 
+            Debug.LogError(string.Format("Could not Load Connection Chromosome at path {0}! {1}", path, e.ToString()));
+
+            //make sure we close the filestreams if we opened any
+            if (ConnectionChromosome != null)
+                ConnectionChromosome.Close();
+
+            throw new Exception(string.Format("Could not Load Connection Chromosome at path {0}!", path), e);
         }
 
         //begin reading in the Connections chromosome until we read an incomplete gene
-        Bytes = new byte[13];
-        List<ConnectionGene> _CurrentConnectionChromosome = new List<ConnectionGene>();
+        byte[] Bytes = new byte[13];
+        List<ConnectionGene> _ConnectionGenesList = new List<ConnectionGene>();
         while (ConnectionChromosome.Read(Bytes, 0, 13) == 13)
         {
             //reverse the bytes array due to endianness
             Array.Reverse(Bytes);
-            _CurrentConnectionChromosome.Add(new ConnectionGene(Bytes));
+            _ConnectionGenesList.Add(new ConnectionGene(Bytes));
         }
 
-        //store the chromosomes
-        CurrentNeuronChromosome = _CurrentNeuronChromosome.ToArray();
-        CurrentConnectionChromosome = _CurrentConnectionChromosome.ToArray();
+        //store the genes
+        ConnectionGenes = _ConnectionGenesList.ToArray();
 
-        //close the filestreams
-        NeuronChromosome.Close();
+        //close the file
         ConnectionChromosome.Close();
     }
 }
