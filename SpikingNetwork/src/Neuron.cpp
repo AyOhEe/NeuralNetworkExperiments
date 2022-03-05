@@ -1,5 +1,11 @@
 #include "../Include/Neuron.h"
 
+//sets the value of the neuron
+void Neuron::SetValue(float NewValue) 
+{
+	Value = NewValue;
+}
+
 //creates a neuron from a byte sequence
 Neuron::Neuron(unsigned char* bytes) 
 {
