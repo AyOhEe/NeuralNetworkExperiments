@@ -23,8 +23,8 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	}
 
 	//read in the number of lobes
-	char* Bytes = new char[4];
-	NeuronChromosome.read(Bytes, 4);
+	unsigned char* Bytes = new unsigned char[4];
+	NeuronChromosome.read((char*)Bytes, 4);
 	unsigned int LobeCount = (Bytes[0] << 24) + (Bytes[1] << 16) + (Bytes[2] << 8) + Bytes[3];
 	if (verbose)
 	{
@@ -35,7 +35,7 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	unsigned int* LobeSizes = new unsigned int[LobeCount];
 	for (unsigned int i = 0; i < LobeCount; i++)
 	{
-		NeuronChromosome.read(Bytes, 4);
+		NeuronChromosome.read((char*)Bytes, 4);
 		LobeSizes[i] = (Bytes[0] << 24) + (Bytes[1] << 16) + (Bytes[2] << 8) + Bytes[3];
 		if (verbose)
 		{
@@ -59,7 +59,7 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	}
 
 	//read the neuron chromosome
-	Bytes = new char[9];
+	Bytes = new unsigned char[9];
 	for(unsigned int i = 0; i < LobeCount; i++)
 	{
 		//create the lobe to contain the next neurons
@@ -70,7 +70,7 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 		for(unsigned int j = 0; j < LobeSizes[i]; j++)
 		{
 			//read the gene
-			NeuronChromosome.read(Bytes, 9);
+			NeuronChromosome.read((char*)Bytes, 9);
 			//check if we've hit eof
 			if(NeuronChromosome.eof())
 			{
@@ -93,11 +93,11 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	delete[] Bytes;
 
 	//read the connection chromosome
-	Bytes = new char[13];
+	Bytes = new unsigned char[13];
 	while (!ConnectionChromosome.eof()) 
 	{
 		//read in the gene
-		ConnectionChromosome.read(Bytes, 13);
+		ConnectionChromosome.read((char*)Bytes, 13);
 		//create the connection
 		Connection::CreateConnection(Bytes, this);
 	}

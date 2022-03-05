@@ -14,8 +14,9 @@ class Neuron
 	float MembraneResistance; //the neuron's membrane resistance
 	float ThresholdOffset; //the neuron's spike potential threshold offset
 
-	//the connections to the neuron's sources
-	std::vector<Connection> Connections;
+	//the connections to the neuron's sources and targets
+	std::vector<Connection> SourceConnections;
+	std::vector<Connection*> TargetConnections;
 
 public:
 
@@ -25,7 +26,7 @@ public:
 	void SetValue(float NewValue);
 
 	//creates a neuron from a byte sequence
-	Neuron(char* bytes);
+	Neuron(unsigned char* bytes);
 };
 
 #endif

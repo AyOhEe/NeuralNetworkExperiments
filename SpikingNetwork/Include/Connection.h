@@ -14,10 +14,10 @@ class Connection
 public:
 
 	//creates a connection in Network from bytes
-	Connection(char* bytes, SpikingNetwork* Net);
+	Connection(unsigned char* bytes, SpikingNetwork* Net);
 
 	//creates a connection
-	static void CreateConnection(char* bytes, SpikingNetwork* Net);
+	static void CreateConnection(unsigned char* bytes, SpikingNetwork* Net);
 
 	//attempts to add the value of this connection to OutVal. returns false if the source doesn't exist
 	bool TryAddValue(SpikingNetwork* Network, float* OutVal);
