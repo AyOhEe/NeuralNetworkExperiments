@@ -2,6 +2,7 @@
 #define SPIKING_NETWORK_H
 
 #include <vector>
+#include <map>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -11,14 +12,18 @@
 
 //forward definitions
 class Neuron;
+class Connection;
 
 //network class that uses spiking neurons and STDP
 class SpikingNetwork 
 {
+    //connections need special access to the neuron and lobe maps
+    friend Connection;
+
 	//all neurons in the network
-	std::vector<Neuron*> Neurons;
+	std::map<unsigned int, Neuron*> Neurons;
 	//all of the lobes in the network
-	std::vector<Lobe> Lobes;
+	std::map<unsigned int, Lobe> Lobes;
 
 public:
 	

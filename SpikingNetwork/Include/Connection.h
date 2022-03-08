@@ -2,6 +2,7 @@
 #define CONNECTION_H
 
 #include "Network.h"
+#include <exception>
 
 //forward definitions
 class SpikingNetwork;

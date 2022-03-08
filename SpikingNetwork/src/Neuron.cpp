@@ -6,6 +6,12 @@ void Neuron::SetValue(float NewValue)
 	Value = NewValue;
 }
 
+//returns the value of the neuron
+float Neuron::GetValue()
+{
+    return Value;
+}
+
 //creates a neuron from a byte sequence
 Neuron::Neuron(unsigned char* bytes) 
 {

@@ -24,6 +24,8 @@ public:
 	float CalculateNewValue(bool verbose = false);
 	//sets the value of the neuron
 	void SetValue(float NewValue);
+    //returns the value of the neuron
+    float GetValue();
 
 	//creates a neuron from a byte sequence
 	Neuron(unsigned char* bytes);
