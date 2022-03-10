@@ -21,7 +21,7 @@ class Neuron
 public:
 
 	//calculates and returns(but does not store!) the new value of the neuron
-	float CalculateNewValue(bool verbose = false);
+	float CalculateNewValue(SpikingNetwork* Network, bool verbose = false);
 	//sets the value of the neuron
 	void SetValue(float NewValue);
     //returns the value of the neuron
