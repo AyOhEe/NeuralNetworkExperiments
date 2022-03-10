@@ -1,10 +1,11 @@
 #include "../Include/Neuron.h"
 
 //calculates and returns(but does not store!) the new value of the neuron
-float Neuron::CalculateNewValue(SpikingNetwork* Network, bool verbose)
+std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwork* Network, bool verbose)
 {
     //calculate and apply value falloff
     float NewValue = Value - (Value / MembraneResistance);
+    unsigned long long int NewTimeSinceLastFire = TimeSinceLastFire + 1;
     
     //iterate through our connections
     for(std::vector<Connection>::iterator ConnIter = SourceConnections.begin(); 
@@ -21,14 +22,17 @@ float Neuron::CalculateNewValue(SpikingNetwork* Network, bool verbose)
         }
     }
 
-    //if we're past our spike threshold, multiply our value by 5
+    //if we're past our spike threshold, 
     if(NewValue > ThresholdOffset)
     {
+        //multiply our value by 5
         NewValue *= 5;
+        //reset the time since last spike
+        NewTimeSinceLastFire = 0;
     }
 
-    //return the new value
-    return NewValue;
+    //return the new value and new time since last fire
+    return std::make_pair(NewValue, NewTimeSinceLastFire);
 }
 
 //sets the value of the neuron

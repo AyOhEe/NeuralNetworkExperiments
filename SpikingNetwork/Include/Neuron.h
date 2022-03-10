@@ -16,12 +16,11 @@ class Neuron
 
 	//the connections to the neuron's sources and targets
 	std::vector<Connection> SourceConnections;
-	std::vector<Connection*> TargetConnections;
 
 public:
 
 	//calculates and returns(but does not store!) the new value of the neuron
-	float CalculateNewValue(SpikingNetwork* Network, bool verbose = false);
+	std::pair<float, unsigned long long int> CalculateNewValue(SpikingNetwork* Network, bool verbose = false);
 	//sets the value of the neuron
 	void SetValue(float NewValue);
     //returns the value of the neuron
