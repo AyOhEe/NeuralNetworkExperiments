@@ -1,6 +1,8 @@
 #ifndef LOBE_H
 #define LOBE_H
 
+#include <algorithm>
+
 #include "Neuron.h"
 
 class Lobe
