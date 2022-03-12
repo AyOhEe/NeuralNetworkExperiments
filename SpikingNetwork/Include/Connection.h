@@ -1,8 +1,10 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include "Network.h"
 #include <exception>
+#include <iterator>
+
+#include "Network.h"
 
 //forward definitions
 class SpikingNetwork;

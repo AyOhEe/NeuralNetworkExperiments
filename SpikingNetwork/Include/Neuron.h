@@ -5,8 +5,14 @@
 
 #include "Connection.h"
 
+//forward definitions
+class Connection;
+
 class Neuron 
 {
+	//connections need special access to neurons
+	friend Connection;
+
 	bool NeuronType; //the type of the neuron. false == spiking, true == capacitor
 	bool OutputType; //the output type of the neuron. false == depressive, true == potentiating
 	float Value; //the current value of the neuron
