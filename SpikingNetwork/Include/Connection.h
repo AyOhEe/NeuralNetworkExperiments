@@ -13,6 +13,7 @@ class Connection
 {
 	float Weight; //the weight of the connection
 	unsigned int SourceNeuron; //the id of the source neuron in the neuron map
+	bool SourceNeuronType; //the type of the source neuron(false == input, true == internal)
 
 public:
 

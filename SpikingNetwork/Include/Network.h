@@ -25,6 +25,7 @@ class SpikingNetwork
 	//all of the lobes in the network
 	std::map<unsigned int, Lobe> Lobes;
 
+
 public:
 	
 	//creates a spiking network based on the genome at genomepath
@@ -46,6 +47,11 @@ public:
 	std::vector<float> GetOutputs(int* ErrCode, bool verbose = false);
 	//performs an update on the network
 	void PerformUpdate(int* ErrCode, bool verbose = false);
+
+	//returns a pointer to a neuron from an id and type
+	Neuron* GetNeuronPtr(unsigned int ID, unsigned int Type);
+	//returns the neuron's id(or index if input/output)
+	unsigned int GetNeuronID(unsigned int Index, unsigned int Type);
 };
 
 #endif
