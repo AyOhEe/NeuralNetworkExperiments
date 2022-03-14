@@ -118,6 +118,23 @@ SpikingNetwork::~SpikingNetwork()
 	}
 }
 
+//loads a mental state from a file
+/*void SpikingNetwork::LoadMentalState(std::string StatePath, int* ErrCode, bool verbose)
+{
+
+}
+//stores a mental state to a file
+void SpikingNetwork::StoreMentalState(std::string StatePath, int* ErrCode, bool verbose) 
+{
+
+}/**/
+
+//saves the network to the genome at genomepath
+/*void SpikingNetwork::SaveNetwork(std::string GenomePath, int* ErrCode, bool verbose)
+{
+
+}/**/
+
 //the number of inputs, outputs and neurons in the network
 int SpikingNetwork::InputCount()
 {
@@ -131,3 +148,46 @@ int SpikingNetwork::NeuronCount()
 {
 	return Neurons.size();
 }
+
+//adds a neuron to the network
+/*void SpikingNetwork::AddNeuron(unsigned int NeuronIndex, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose)
+{
+
+}
+//removes the nth neuron
+void SpikingNetwork::RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose) 
+{
+
+}
+//get the number of connections in a neuron
+unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int Index, int* ErrCode, bool verbose) 
+{
+
+}/**/
+
+//sets the input values
+/*void SpikingNetwork::SetInputs(std::vector<float> inputs, int* ErrCode, bool verbose)
+{
+
+}
+//gets the output values
+std::vector<float> SpikingNetwork::GetOutputs(int* ErrCode, bool verbose) 
+{
+
+}
+//performs an update on the network
+void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose) 
+{
+
+}/**/
+
+//returns a pointer to a neuron from an id and type
+/*Neuron* SpikingNetwork::GetNeuronPtr(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose)
+{
+
+}
+//returns the neuron's id(or index if input/output)
+unsigned int SpikingNetwork::GetNeuronID(unsigned int Index, unsigned int Type, int* ErrCode, bool verbose) 
+{
+
+}/**/
