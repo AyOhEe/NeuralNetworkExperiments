@@ -107,3 +107,14 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	//close the files
 	NeuronChromosome.close();
 	ConnectionChromosome.close();
+}
+//destructor to handle potential data leaks
+SpikingNetwork::~SpikingNetwork()
+{
+	//destroy every neuron that we own
+	for(std::map<unsigned int, Neuron*>::iterator NeuronIter; NeuronIter != Neurons.end(); NeuronIter++)
+	{
+		delete NeuronIter->second;
+	}
+}
+
