@@ -22,9 +22,14 @@ class SpikingNetwork
 
 	//all neurons in the network
 	std::map<unsigned int, Neuron*> Neurons;
+	//all of the input and output neurons in this network
+	std::vector<Neuron> InputNeurons;
+	std::vector<Neuron> OutputNeurons;
 	//all of the lobes in the network
 	std::map<unsigned int, Lobe> Lobes;
 
+	//the index for all neurons ever added to this network
+	long long int UniqueNeuronIndex;
 
 public:
 	
@@ -41,6 +46,18 @@ public:
 	//saves the network to the genome at genomepath
 	void SaveNetwork(std::string GenomePath, int* ErrCode, bool verbose = false);
 
+	//the number of inputs, outputs and neurons in the network
+	int InputCount();
+	int OutputCount();
+	int NeuronCount();
+
+	//adds a neuron to the network
+	void AddNeuron(unsigned int NeuronIndex, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose = false);
+	//removes the nth neuron
+	void RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose = false);
+	//get the number of connections in a neuron
+	unsigned int GetNeuronConnectionCount(unsigned int Index, int* ErrCode, bool verbose = false);
+
 	//sets the input values
 	void SetInputs(std::vector<float> inputs, int* ErrCode, bool verbose = false);
 	//gets the output values
@@ -49,9 +66,9 @@ public:
 	void PerformUpdate(int* ErrCode, bool verbose = false);
 
 	//returns a pointer to a neuron from an id and type
-	Neuron* GetNeuronPtr(unsigned int ID, unsigned int Type);
+	Neuron* GetNeuronPtr(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose = false);
 	//returns the neuron's id(or index if input/output)
-	unsigned int GetNeuronID(unsigned int Index, unsigned int Type);
+	unsigned int GetNeuronID(unsigned int Index, unsigned int Type, int* ErrCode, bool verbose = false);
 };
 
 #endif

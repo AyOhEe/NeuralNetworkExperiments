@@ -1,4 +1,4 @@
-#include "../Include/Network.h"
+#include "../Include/SpikingNetwork.h"
 
 SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, int* ErrCode, bool verbose)
 {
