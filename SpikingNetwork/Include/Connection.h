@@ -4,7 +4,7 @@
 #include <exception>
 #include <iterator>
 
-#include "Network.h"
+#include "SpikingNetwork.h"
 
 //forward definitions
 class SpikingNetwork;

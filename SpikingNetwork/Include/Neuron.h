@@ -4,9 +4,11 @@
 #include <vector>
 
 #include "Connection.h"
+#include "SpikingNetwork.h"
 
 //forward definitions
 class Connection;
+class SpikingNetwork;
 
 class Neuron 
 {

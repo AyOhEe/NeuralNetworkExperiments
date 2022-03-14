@@ -5,6 +5,9 @@
 
 #include "Neuron.h"
 
+//forward definitions
+class Neuron;
+
 class Lobe
 {
 	//the neurons that belong to this lobe
