@@ -1,5 +1,6 @@
 #include "../Include/SpikingNetwork.h"
 
+//creates a spiking network based on the genome at genomepath
 SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, int* ErrCode, bool verbose)
 {
 	//try to open the files
@@ -63,7 +64,7 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	for(unsigned int i = 0; i < LobeCount; i++)
 	{
 		//create the lobe to contain the next neurons
-		Lobes.push_back(Lobe());
+		Lobes.insert(std::make_pair(UniqueLobeIndex++, Lobe()));
 		Lobe* CurrentLobe = &(Lobes[Lobes.size()]);
 
 		//begin reading the genes
@@ -79,9 +80,9 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 			}
 
 			//create the neuron and store it's pointer
-			Neurons.push_back(new Neuron(Bytes));
+			Neurons.insert(std::make_pair(UniqueNeuronIndex, new Neuron(Bytes)));
 			//register it with the lobe
-			CurrentLobe->AddNeuron(Neurons[i]);
+			CurrentLobe->AddNeuron(Neurons[UniqueNeuronIndex++]);
 		}
 		//check if we've hit eof
 		if (NeuronChromosome.eof())
@@ -106,4 +107,3 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	//close the files
 	NeuronChromosome.close();
 	ConnectionChromosome.close();
-}

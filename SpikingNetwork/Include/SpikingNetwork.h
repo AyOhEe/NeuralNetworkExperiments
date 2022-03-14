@@ -29,7 +29,9 @@ class SpikingNetwork
 	std::map<unsigned int, Lobe> Lobes;
 
 	//the index for all neurons ever added to this network
-	long long int UniqueNeuronIndex;
+	unsigned int UniqueNeuronIndex;
+	//the index for all lobes ever added to this network
+	unsigned int UniqueLobeIndex;
 
 public:
 	
