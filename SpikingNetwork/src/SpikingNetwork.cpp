@@ -118,3 +118,16 @@ SpikingNetwork::~SpikingNetwork()
 	}
 }
 
+//the number of inputs, outputs and neurons in the network
+int SpikingNetwork::InputCount()
+{
+	return InputNeurons.size();
+}
+int SpikingNetwork::OutputCount() 
+{
+	return OutputNeurons.size();
+}
+int SpikingNetwork::NeuronCount()
+{
+	return Neurons.size();
+}
