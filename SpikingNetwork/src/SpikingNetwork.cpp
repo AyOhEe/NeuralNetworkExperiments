@@ -1,15 +1,16 @@
 #include "../Include/SpikingNetwork.h"
 
+//TODO(aria): error codes here
 //creates a spiking network based on the genome at genomepath
 SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, int* ErrCode, bool verbose)
 {
 	//try to open the files
-	//TODO: replace "/" with system path separator
+	//TODO(aria): replace "/" with system path separator
 	std::ifstream NeuronChromosome = std::ifstream(
 		GenomePath + "/" + "Neurons.chr2",
 		std::ios::binary | std::ios::in
 	);
-	//TODO: replace "/" with system path separator
+	//TODO(aria): replace "/" with system path separator
 	std::ifstream ConnectionChromosome = std::ifstream(
 		GenomePath + "/" + "Connections.chr2",
 		std::ios::binary | std::ios::in
@@ -118,6 +119,7 @@ SpikingNetwork::~SpikingNetwork()
 	}
 }
 
+//TODO(aria): error codes here
 //loads a mental state from a file
 /*void SpikingNetwork::LoadMentalState(std::string StatePath, int* ErrCode, bool verbose)
 {
@@ -129,6 +131,7 @@ void SpikingNetwork::StoreMentalState(std::string StatePath, int* ErrCode, bool 
 
 }/**/
 
+//TODO(aria): error codes here
 //saves the network to the genome at genomepath
 /*void SpikingNetwork::SaveNetwork(std::string GenomePath, int* ErrCode, bool verbose)
 {
@@ -149,6 +152,7 @@ int SpikingNetwork::NeuronCount()
 	return Neurons.size();
 }
 
+//TODO(aria): error codes here
 //adds a neuron to the network
 /*void SpikingNetwork::AddNeuron(unsigned int NeuronIndex, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose)
 {
@@ -165,6 +169,7 @@ unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int Index, int* E
 
 }/**/
 
+//TODO(aria): error codes here
 //sets the input values
 /*void SpikingNetwork::SetInputs(std::vector<float> inputs, int* ErrCode, bool verbose)
 {
@@ -181,13 +186,71 @@ void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose)
 
 }/**/
 
+//TODO(aria): error codes here
 //returns a pointer to a neuron from an id and type
-/*Neuron* SpikingNetwork::GetNeuronPtr(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose)
+Neuron* SpikingNetwork::GetNeuronPtr(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose)
 {
+	//TODO(aria): this shit is fucking stupid and i need to change it later
 
+	//are we dealing with an input neuron?
+	if(Type == 0)
+	{
+		//yes. check if ID is a valid input index
+		if(InputNeurons.size() > ID)
+		{
+			//TODO(aria): error codes here
+			//valid. return a pointer
+			return &(InputNeurons[ID]);
+		}
+		else 
+		{
+			//TODO(aria): error codes here
+			//invalid. return a null pointer
+			return (Neuron*)nullptr;
+		}
+	}
+	//are we dealing with an internal neuron
+	else if(Type == 1)
+	{
+		//yes. check if ID is a valid internal id
+		if(Neurons.find(ID) != Neurons.end())
+		{
+			//TODO(aria): error codes here
+			//valid. return a pointer
+			return Neurons[ID];
+		}
+		else 
+		{
+			//TODO(aria): error codes here
+			//invalid. return a null pointer
+			return (Neuron*)nullptr;
+		}
+	}
+	else if(Type == 2)
+	{
+		//yes. check if ID is a valid output index
+		if(OutputNeurons.size() > ID)
+		{
+			//TODO(aria): error codes here
+			//valid. return a pointer
+			return &(OutputNeurons[ID]);
+		}
+		else
+		{
+			//TODO(aria): error codes here
+			//invalid. return a null pointer
+			return (Neuron*)nullptr;
+		}
+	}
+	else
+	{
+		//TODO(aria): error codes here
+		//invalid. return a null pointer
+		return (Neuron*)nullptr;
+	}
 }
 //returns the neuron's id(or index if input/output)
-unsigned int SpikingNetwork::GetNeuronID(unsigned int Index, unsigned int Type, int* ErrCode, bool verbose) 
+/*unsigned int SpikingNetwork::GetNeuronID(unsigned int Index, unsigned int Type, int* ErrCode, bool verbose)
 {
 
 }/**/
