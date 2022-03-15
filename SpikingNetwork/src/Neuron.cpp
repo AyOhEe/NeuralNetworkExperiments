@@ -37,10 +37,11 @@ std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwor
     return std::make_pair(NewValue, NewTimeSinceLastFire);
 }
 
-//sets the value of the neuron
-void Neuron::SetValue(float NewValue) 
+//sets the state of the neuron
+void Neuron::SetState(std::pair<float, unsigned long long int> ValuePair)
 {
-	Value = NewValue;
+	Value = ValuePair.first;
+    TimeSinceLastFire = ValuePair.second;
 }
 
 //returns the value of the neuron

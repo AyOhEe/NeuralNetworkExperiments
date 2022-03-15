@@ -30,7 +30,7 @@ public:
 	//calculates and returns(but does not store!) the new value of the neuron
 	std::pair<float, unsigned long long int> CalculateNewValue(SpikingNetwork* Network, bool verbose = false);
 	//sets the value of the neuron
-	void SetValue(float NewValue);
+	void SetState(std::pair<float, unsigned long long int> ValuePair);
     //returns the value of the neuron
     float GetValue();
 
