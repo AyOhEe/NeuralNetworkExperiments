@@ -98,6 +98,8 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	}
 	delete[] Bytes;
 
+	//TODO(aria): inputs and outputs here
+
 	//read the connection chromosome
 	Bytes = new unsigned char[13];
 	while (!ConnectionChromosome.eof()) 
