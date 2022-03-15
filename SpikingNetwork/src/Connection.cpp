@@ -12,7 +12,9 @@ Connection::Connection(unsigned char* bytes, SpikingNetwork* Net)
     Weight = *(float*)(&IntWeight);
     
     //get our source neuron
-    SourceNeuron = Net->GetNeuronID(SourceIndex, SourceType ? 1 : 0);
+    //TODO(aria): handle error codes here
+    int ErrCode = 0;
+    SourceNeuron = Net->GetNeuronID(SourceIndex, SourceType ? 1 : 0, &ErrCode);
     SourceNeuronType = SourceType;
 }
 
@@ -27,7 +29,9 @@ void Connection::CreateConnection(unsigned char* bytes, SpikingNetwork* Net)
     Connection NewConnection = Connection(bytes, Net);
 
     //add the connection to the correct node
-    Net->GetNeuronPtr(TargetIndex, TargetType ? 2 : 1)->SourceConnections.push_back(NewConnection);
+    //TODO(aria): handle error code here
+    int ErrCode = 0;
+    Net->GetNeuronPtr(TargetIndex, TargetType ? 2 : 1, &ErrCode)->SourceConnections.push_back(NewConnection);
 }
 
 //attempts to add the value of this connection to OutVal. returns false if the source doesn't exist
@@ -37,7 +41,9 @@ bool Connection::TryAddValue(SpikingNetwork* Network, float* OutVal)
     {
         //increase outval by the weighted value of out source node
         //TODO(aria): Need to take target type into account here
-        *OutVal += Weight * (Network->GetNeuronPtr(SourceNeuron, SourceNeuronType ? 1 : 0)->GetValue());
+        //TODO(aria): handle error codes here
+        int ErrCode = 0;
+        *OutVal += Weight * (Network->GetNeuronPtr(SourceNeuron, SourceNeuronType ? 1 : 0, &ErrCode)->GetValue());
         
         //if we reached this point, the connection was valid. return true
         return true;
