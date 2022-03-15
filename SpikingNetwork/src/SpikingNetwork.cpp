@@ -181,12 +181,28 @@ unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int Index, int* E
 //sets the input values
 void SpikingNetwork::SetInputs(std::vector<float> inputs, int* ErrCode, bool verbose)
 {
-
+	//iterate through the input neurons and input vector. end when we hit the end of either
+	std::vector<float>::iterator  InputIter  = inputs.begin();
+	std::vector<Neuron>::iterator NeuronIter = InputNeurons.begin();
+	for (; NeuronIter != InputNeurons.end() || InputIter != inputs.end(); NeuronIter++, InputIter++) 
+	{
+		NeuronIter->SetValue(*InputIter);
+	}
 }
 //gets the output values
 std::vector<float> SpikingNetwork::GetOutputs(int* ErrCode, bool verbose) 
 {
-
+	//iterate through the output neurons and store their values in a vector
+	std::vector<float> Values;
+	for(std::vector<Neuron>::iterator NeuronIter = OutputNeurons.begin(); 
+		NeuronIter != OutputNeurons.end();
+		NeuronIter++)
+	{
+		Values.push_back(NeuronIter->GetValue());
+	}
+	
+	//return the value vector
+	return Values;
 }
 //performs an update on the network
 void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose) 
