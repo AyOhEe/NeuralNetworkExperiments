@@ -4,6 +4,10 @@
 //creates a spiking network based on the genome at genomepath
 SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, int* ErrCode, bool verbose)
 {
+	//initialise unique counters
+	UniqueNeuronIndex = 0;
+	UniqueLobeIndex = 0;
+
 	//try to open the files
 	//TODO(aria): replace "/" with system path separator
 	std::ifstream NeuronChromosome = std::ifstream(
