@@ -143,13 +143,13 @@
     <ClCompile Include="src\Connection.cpp" />
     <ClCompile Include="src\Lobe.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Network.cpp" />
+    <ClCompile Include="src\SpikingNetwork.cpp" />
     <ClCompile Include="src\Neuron.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Connection.h" />
     <ClInclude Include="Include\Lobe.h" />
-    <ClInclude Include="Include\Network.h" />
+    <ClInclude Include="Include\SpikingNetwork.h" />
     <ClInclude Include="Include\Neuron.h" />
   </ItemGroup>
   <ItemGroup>
