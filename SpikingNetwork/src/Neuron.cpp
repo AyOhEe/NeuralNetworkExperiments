@@ -44,6 +44,12 @@ void Neuron::SetState(std::pair<float, unsigned long long int> ValuePair)
     TimeSinceLastFire = ValuePair.second;
 }
 
+//sets the value of the neuron
+void Neuron::SetValue(float value)
+{
+    Value = value;
+}
+
 //returns the value of the neuron
 float Neuron::GetValue()
 {
