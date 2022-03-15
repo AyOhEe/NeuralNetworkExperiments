@@ -119,7 +119,9 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 SpikingNetwork::~SpikingNetwork()
 {
 	//destroy every neuron that we own
-	for(std::map<unsigned int, Neuron*>::iterator NeuronIter; NeuronIter != Neurons.end(); NeuronIter++)
+	for(std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin(); 
+		NeuronIter != Neurons.end(); 
+		NeuronIter++)
 	{
 		delete NeuronIter->second;
 	}
@@ -177,7 +179,7 @@ unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int Index, int* E
 
 //TODO(aria): error codes here
 //sets the input values
-/*void SpikingNetwork::SetInputs(std::vector<float> inputs, int* ErrCode, bool verbose)
+void SpikingNetwork::SetInputs(std::vector<float> inputs, int* ErrCode, bool verbose)
 {
 
 }
@@ -189,8 +191,43 @@ std::vector<float> SpikingNetwork::GetOutputs(int* ErrCode, bool verbose)
 //performs an update on the network
 void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose) 
 {
+	//iterate through the neurons and store their recalculated values
+	std::stack<std::pair<float, unsigned long long int>> NeuronValues;
+	for(std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin(); 
+		NeuronIter != Neurons.end(); 
+		NeuronIter++)
+	{
+		NeuronValues.push(NeuronIter->second->CalculateNewValue(this));
+	}
+	//and do the same for the output values
+	for(std::vector<Neuron>::iterator NeuronIter = OutputNeurons.begin(); 
+		NeuronIter != OutputNeurons.end(); 
+		NeuronIter++)
+	{
+		NeuronValues.push(NeuronIter->CalculateNewValue(this));
+	}
 
-}/**/
+	//set the values of the output neurons
+	for(std::vector<Neuron>::iterator NeuronIter = OutputNeurons.end();
+		NeuronIter != OutputNeurons.end();
+		NeuronIter--)
+	{
+		//set the value
+		NeuronIter->SetState(NeuronValues.top());
+		//remove it from the stack
+		NeuronValues.pop();
+	}
+	//and do the same for the rest of the neurons
+	for (std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
+		NeuronIter != Neurons.end();
+		NeuronIter--)
+	{
+		//set the value
+		NeuronIter->second->SetState(NeuronValues.top());
+		//remove it from the stack
+		NeuronValues.pop();
+	}
+}
 
 //TODO(aria): error codes here
 //returns a pointer to a neuron from an id and type

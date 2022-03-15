@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <stack>
 
 #include "Neuron.h"
 #include "Lobe.h"
