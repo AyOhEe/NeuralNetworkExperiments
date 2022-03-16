@@ -13,3 +13,17 @@ void Lobe::RemoveNeuron(Neuron* OldNeuron)
     //remove the neuron from the lobe if it exists
     std::remove(Neurons.begin(), Neurons.end(), OldNeuron);
 }
+
+//writes the lobe to File
+void Lobe::WriteLobeToChromosome(std::ofstream& File) 
+{
+    //convert the lobe size into bytes and write it to the file
+    unsigned int LobeSize = Neurons.size();
+    char LobeSizeBytes[4] = {
+        (LobeSize >> 24) & 0xff,
+        (LobeSize >> 16) & 0xff,
+        (LobeSize >> 8) & 0xff,
+         LobeSize & 0xff,
+    };
+    File.write(LobeSizeBytes, 4);
+}
