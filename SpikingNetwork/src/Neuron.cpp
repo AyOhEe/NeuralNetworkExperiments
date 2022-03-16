@@ -82,6 +82,29 @@ void Neuron::WriteStateToFile(std::ofstream &File)
     File.write(NeuronStateBytes, 12);
 }
 
+//loads a state into the neuron from a byte sequence
+void Neuron::LoadStateFromBytes(char* StateBytes) 
+{
+    //load in the value
+    unsigned int ValueInt = 
+         (StateBytes[0] << 24) 
+        +(StateBytes[1] << 16) 
+        +(StateBytes[2] << 8) 
+        + StateBytes[3];
+    Value = *(float*)&ValueInt;
+
+    //load in the time since last fire
+    TimeSinceLastFire =
+         (StateBytes[4] << 56)
+        +(StateBytes[5] << 48)
+        +(StateBytes[6] << 40)
+        +(StateBytes[7] << 32)
+        +(StateBytes[8] << 24)
+        +(StateBytes[9] << 16)
+        +(StateBytes[10] << 8)
+        + StateBytes[11];
+}
+
 //creates a neuron from a byte sequence
 Neuron::Neuron(unsigned char* bytes) 
 {

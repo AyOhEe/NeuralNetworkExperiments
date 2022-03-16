@@ -42,6 +42,8 @@ public:
 
 	//write the state of the neuron to File
 	void WriteStateToFile(std::ofstream &File);
+	//loads a state into the neuron from a byte sequence
+	void LoadStateFromBytes(char* StateBytes);
 
 	//creates a neuron from a byte sequence
 	Neuron(unsigned char* bytes);
