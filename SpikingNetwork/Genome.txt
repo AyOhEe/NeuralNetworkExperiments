@@ -33,7 +33,7 @@ Each chromosome contains a different type of gene, detailed below:
 		- Section 6: Four Bytes, controlling the weight 
 					 final weight ranges from 0.0 to 4.0. negative weights are expressed by the source neuron being depressive
 	- Mental Gene [4Bf][8Bi]
-		- Section 1: Two Bytes, controling the value to initialise the neuron with
+		- Section 1: Four Bytes, controling the value to initialise the neuron with
 		- Section 2: Eight Bytes, The time, in hundredths of milliseconds(s^-5) since the neuron last spiked
 		
 in addition, the neuron chromosome contains some additional data at the start not fitting a gene

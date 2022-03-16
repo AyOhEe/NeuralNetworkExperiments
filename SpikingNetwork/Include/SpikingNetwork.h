@@ -7,6 +7,8 @@
 #include <fstream>
 #include <iostream>
 #include <stack>
+#include <algorithm>
+#include <iterator>
 
 #include "Neuron.h"
 #include "Lobe.h"

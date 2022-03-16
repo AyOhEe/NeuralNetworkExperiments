@@ -132,12 +132,41 @@ SpikingNetwork::~SpikingNetwork()
 /*void SpikingNetwork::LoadMentalState(std::string StatePath, int* ErrCode, bool verbose)
 {
 
-}
+}/**/
 //stores a mental state to a file
 void SpikingNetwork::StoreMentalState(std::string StatePath, int* ErrCode, bool verbose) 
 {
+	//try to open the file
+	std::ofstream StateFile(
+		StatePath + "/" + "MentalState.chr2", 
+		std::ios::binary | std::ios::out
+	);
+	//make sure that the file is open
+	if(!StateFile)
+	{
+		//TODO(aria): error codes
+		return;
+	}
 
-}/**/
+	//iterate through all of the internal neurons and write their states to the file
+	char NeuronStateBytes[12];
+	for (std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
+		NeuronIter != Neurons.end();
+		NeuronIter++) 
+	{
+		NeuronIter->second->WriteStateToFile(StateFile);
+	}
+	//and do the same for the output neurons
+	for(std::vector<Neuron>::iterator NeuronIter = OutputNeurons.begin();
+		NeuronIter != OutputNeurons.end();
+		NeuronIter++)
+	{
+		NeuronIter->WriteStateToFile(StateFile);
+	}
+
+	//close the file
+	StateFile.close();
+}
 
 //TODO(aria): error codes here
 //saves the network to the genome at genomepath
