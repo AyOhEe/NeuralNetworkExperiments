@@ -50,6 +50,9 @@ public:
 	//writes the neuron's connections to File
 	void WriteConnectionsToFile(std::ofstream &File);
 
+	//returns the number of source connections the neuron has
+	unsigned int GetConnectionCount();
+
 	//creates a neuron from a byte sequence
 	Neuron(unsigned char* bytes);
 };

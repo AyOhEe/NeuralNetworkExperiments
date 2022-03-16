@@ -61,7 +61,7 @@ public:
 	//removes the nth neuron
 	void RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose = false);
 	//get the number of connections in a neuron
-	unsigned int GetNeuronConnectionCount(unsigned int Index, int* ErrCode, bool verbose = false);
+	unsigned int GetNeuronConnectionCount(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose = false);
 
 	//sets the input values
 	void SetInputs(std::vector<float> inputs, int* ErrCode, bool verbose = false);

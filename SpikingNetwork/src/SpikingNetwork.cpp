@@ -293,12 +293,33 @@ int SpikingNetwork::NeuronCount()
 void SpikingNetwork::RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose) 
 {
 
-}
-//get the number of connections in a neuron
-unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int Index, int* ErrCode, bool verbose) 
-{
-
 }/**/
+//get the number of connections in a neuron
+unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose) 
+{
+	//is this an internal neuron?
+	if(Type == 1)
+	{
+		//TODO(aria): error checks here
+		//TODO(aria): error codes here
+		//return the connection count for neuron at ID
+		return Neurons[ID]->GetConnectionCount();
+	}
+	//is this an output neuron?
+	else if (Type == 2) 
+	{
+		//TODO(aria): error checks here
+		//TODO(aria): error codes here
+		//return the connection count for the output neuron at index ID mod Output Count
+		return OutputNeurons[ID % OutputNeurons.size()].GetConnectionCount();
+	}
+	else
+	{
+		//TODO(aria): error codes here
+		//invalid type. return -1
+		return (unsigned int)-1;
+	}
+}
 
 //TODO(aria): error codes here
 //sets the input values
