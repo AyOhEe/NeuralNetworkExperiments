@@ -56,6 +56,32 @@ float Neuron::GetValue()
     return Value;
 }
 
+//write the state of the neuron to File
+void Neuron::WriteStateToFile(std::ofstream &File) 
+{
+    //the bytes to write to the file at the end
+    char NeuronStateBytes[12];
+
+    //store the value of the neuron
+    NeuronStateBytes[3] = (*(unsigned int*)&Value) & 0xff;
+    NeuronStateBytes[2] = (*(unsigned int*)&Value >> 8) & 0xff;
+    NeuronStateBytes[1] = (*(unsigned int*)&Value >> 16) & 0xff;
+    NeuronStateBytes[0] = (*(unsigned int*)&Value >> 24) & 0xff;
+
+    //store the time since the neuron last spiked
+    NeuronStateBytes[11] = (TimeSinceLastFire) & 0xff;
+    NeuronStateBytes[10] = (TimeSinceLastFire >> 8) & 0xff;
+    NeuronStateBytes[9] = (TimeSinceLastFire >> 16) & 0xff;
+    NeuronStateBytes[8] = (TimeSinceLastFire >> 24) & 0xff;
+    NeuronStateBytes[7] = (TimeSinceLastFire >> 32) & 0xff;
+    NeuronStateBytes[6] = (TimeSinceLastFire >> 40) & 0xff;
+    NeuronStateBytes[5] = (TimeSinceLastFire >> 48) & 0xff;
+    NeuronStateBytes[4] = (TimeSinceLastFire >> 56) & 0xff;
+
+    //write the bytes to the file
+    File.write(NeuronStateBytes, 12);
+}
+
 //creates a neuron from a byte sequence
 Neuron::Neuron(unsigned char* bytes) 
 {

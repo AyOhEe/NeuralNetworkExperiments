@@ -2,6 +2,7 @@
 #define NEURON_H
 
 #include <vector>
+#include <filestream>
 
 #include "Connection.h"
 #include "SpikingNetwork.h"
@@ -14,6 +15,8 @@ class Neuron
 {
 	//connections need special access to neurons
 	friend Connection;
+	//as do spikingnetworks
+	friend SpikingNetwork;
 
 	bool NeuronType; //the type of the neuron. false == spiking, true == capacitor
 	bool OutputType; //the output type of the neuron. false == depressive, true == potentiating
@@ -29,12 +32,16 @@ public:
 
 	//calculates and returns(but does not store!) the new value of the neuron
 	std::pair<float, unsigned long long int> CalculateNewValue(SpikingNetwork* Network, bool verbose = false);
+	
 	//sets the value of the neuron
 	void SetState(std::pair<float, unsigned long long int> ValuePair);
 	//sets the value of the neuron
 	void SetValue(float value);
     //returns the value of the neuron
     float GetValue();
+
+	//write the state of the neuron to File
+	void WriteStateToFile(std::ofstream &File);
 
 	//creates a neuron from a byte sequence
 	Neuron(unsigned char* bytes);
