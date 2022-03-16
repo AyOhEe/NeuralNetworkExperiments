@@ -21,10 +21,12 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	);
 	if(!NeuronChromosome)
 	{
+		//TODO(aria): error codes here
 		throw std::invalid_argument("Failed to open Neuron Chromosome at path: " + GenomePath);
 	}
 	if (!ConnectionChromosome)
 	{
+		//TODO(aria): error codes here
 		throw std::invalid_argument("Failed to open Connection Chromosome at path: " + GenomePath);
 	}
 
@@ -132,6 +134,7 @@ SpikingNetwork::~SpikingNetwork()
 void SpikingNetwork::LoadMentalState(std::string StatePath, int* ErrCode, bool verbose)
 {
 	//try to open the file
+	//TODO(aria): replace "/" with system path separator
 	std::ifstream StateFile(
 		StatePath + "/" + "MentalState.chr2",
 		std::ios::binary | std::ios::in
@@ -169,6 +172,7 @@ void SpikingNetwork::LoadMentalState(std::string StatePath, int* ErrCode, bool v
 void SpikingNetwork::StoreMentalState(std::string StatePath, int* ErrCode, bool verbose) 
 {
 	//try to open the file
+	//TODO(aria): replace "/" with system path separator
 	std::ofstream StateFile(
 		StatePath + "/" + "MentalState.chr2", 
 		std::ios::binary | std::ios::out
@@ -202,10 +206,68 @@ void SpikingNetwork::StoreMentalState(std::string StatePath, int* ErrCode, bool 
 
 //TODO(aria): error codes here
 //saves the network to the genome at genomepath
-/*void SpikingNetwork::SaveNetwork(std::string GenomePath, int* ErrCode, bool verbose)
+void SpikingNetwork::SaveNetwork(std::string GenomePath, int* ErrCode, bool verbose)
 {
+	//try to open the files
+	//TODO(aria): replace "/" with system path separator
+	std::ofstream NeuronChromosome(
+		GenomePath + "/" + "Neurons.chr2",
+		std::ios::binary | std::ios::out
+	);
+	//TODO(aria): replace "/" with system path separator
+	std::ofstream ConnectionChromosome(
+		GenomePath + "/" + "Connections.chr2",
+		std::ios::binary | std::ios::out
+	);
+	if (!NeuronChromosome)
+	{
+		//TODO(aria): error codes here
+		throw std::invalid_argument("Failed to open Neuron Chromosome at path: " + GenomePath);
+	}
+	if (!ConnectionChromosome)
+	{
+		//TODO(aria): error codes here
+		throw std::invalid_argument("Failed to open Connection Chromosome at path: " + GenomePath);
+	}
 
-}/**/
+	//write the lobe count and sizes to the neuron chromosome
+	unsigned int LobeCount = Lobes.size();
+	char LobeCountBytes[4] = { 
+		(LobeCount >> 24) & 0xff,
+		(LobeCount >> 16) & 0xff,
+		(LobeCount >> 8)  & 0xff,
+		LobeCount & 0xff 
+	};
+	NeuronChromosome.write(LobeCountBytes, 4);
+	delete[] LobeCountBytes;
+	for(std::map<unsigned int, Lobe>::iterator LobeIter = Lobes.begin(); 
+		LobeIter != Lobes.end(); 
+		LobeIter++)
+	{
+		LobeIter->second.WriteLobeToChromosome(NeuronChromosome);
+	}
+
+	//write the internal neurons and their connections to the respective chromosomes
+	for(std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
+		NeuronIter != Neurons.end();
+		NeuronIter++)
+	{
+		NeuronIter->second->WriteNeuronToFile(NeuronChromosome);
+		NeuronIter->second->WriteConnectionsToFile(ConnectionChromosome);
+	}
+	//close the neuron chromosome
+	NeuronChromosome.close();
+
+	//write the output neurons connections to the connection chromosome
+	for(std::vector<Neuron>::iterator NeuronIter = OutputNeurons.begin();
+		NeuronIter != OutputNeurons.end();
+		NeuronIter++)
+	{
+		NeuronIter->WriteConnectionsToFile(ConnectionChromosome);
+	}
+	//close the connection chromosome
+	ConnectionChromosome.close();
+}
 
 //the number of inputs, outputs and neurons in the network
 int SpikingNetwork::InputCount()

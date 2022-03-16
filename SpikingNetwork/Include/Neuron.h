@@ -2,7 +2,7 @@
 #define NEURON_H
 
 #include <vector>
-#include <filestream>
+#include <fstream>
 
 #include "Connection.h"
 #include "SpikingNetwork.h"
@@ -44,6 +44,11 @@ public:
 	void WriteStateToFile(std::ofstream &File);
 	//loads a state into the neuron from a byte sequence
 	void LoadStateFromBytes(char* StateBytes);
+
+	//writes the neuron to File
+	void WriteNeuronToFile(std::ofstream &File);
+	//writes the neuron's connections to File
+	void WriteConnectionsToFile(std::ofstream &File);
 
 	//creates a neuron from a byte sequence
 	Neuron(unsigned char* bytes);
