@@ -25,6 +25,9 @@ public:
 
 	//attempts to add the value of this connection to OutVal. returns false if the source doesn't exist
 	bool TryAddValue(SpikingNetwork* Network, float* OutVal);
+
+	//writes the connection to a file
+	void WriteConnectionToFile(unsigned int TargetIndex, unsigned int TargetType, SpikingNetwork* Net, std::ofstream &File);
 };
 
 #endif

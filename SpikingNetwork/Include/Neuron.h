@@ -48,7 +48,7 @@ public:
 	//writes the neuron to File
 	void WriteNeuronToFile(std::ofstream &File);
 	//writes the neuron's connections to File
-	void WriteConnectionsToFile(std::ofstream &File);
+	void WriteConnectionsToFile(unsigned int Index, unsigned int Type, SpikingNetwork* Net, std::ofstream& File);
 
 	//returns the number of source connections the neuron has
 	unsigned int GetConnectionCount();

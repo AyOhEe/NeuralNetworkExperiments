@@ -105,6 +105,18 @@ void Neuron::LoadStateFromBytes(char* StateBytes)
         + StateBytes[11];
 }
 
+//writes the neuron's connections to File
+void Neuron::WriteConnectionsToFile(unsigned int Index, unsigned int Type, SpikingNetwork* Net, std::ofstream& File) 
+{
+    //iterate through our connections
+    for(std::vector<Connection>::iterator ConnIter = SourceConnections.begin();
+        ConnIter != SourceConnections.end();
+        ConnIter++)
+    {
+        //write each connection to the file
+        ConnIter->WriteConnectionToFile(Index, Type, Net, File);
+    }
+}
 //creates a neuron from a byte sequence
 Neuron::Neuron(unsigned char* bytes) 
 {
