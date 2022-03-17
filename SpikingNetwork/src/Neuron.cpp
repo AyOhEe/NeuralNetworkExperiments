@@ -105,6 +105,32 @@ void Neuron::LoadStateFromBytes(char* StateBytes)
         + StateBytes[11];
 }
 
+//writes the neuron to File
+void Neuron::WriteNeuronToFile(std::ofstream& File) 
+{
+    //byte array to write to the file at the end
+    char Bytes[9];
+
+    //convert the membrane resistance and the threshold offset to integers(for binary access)
+    unsigned int UIntMembraneResistance = *(unsigned int*)&MembraneResistance;
+    unsigned int UIntThresholdOffset = *(unsigned int*)&ThresholdOffset;
+
+    //store our data into the byte array
+    Bytes[0] = (NeuronType ? 0b10000000 : 0) + (OutputType ? 0b01000000 : 0);
+
+    Bytes[1] = (UIntMembraneResistance >> 24) & 0xff;
+    Bytes[2] = (UIntMembraneResistance >> 16) & 0xff;
+    Bytes[3] = (UIntMembraneResistance >> 8) & 0xff;
+    Bytes[4] = (UIntMembraneResistance) & 0xff;
+
+    Bytes[5] = (UIntThresholdOffset >> 24) & 0xff;
+    Bytes[6] = (UIntThresholdOffset >> 16) & 0xff;
+    Bytes[7] = (UIntThresholdOffset >> 8) & 0xff;
+    Bytes[8] = (UIntThresholdOffset ) & 0xff;
+
+    //write the bytes to the file
+    File.write(Bytes, 9);
+}
 //writes the neuron's connections to File
 void Neuron::WriteConnectionsToFile(unsigned int Index, unsigned int Type, SpikingNetwork* Net, std::ofstream& File) 
 {
