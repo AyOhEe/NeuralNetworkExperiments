@@ -66,3 +66,38 @@ bool Connection::TryAddValue(SpikingNetwork* Network, float* OutVal)
     //this should be impossible to reach, but just in case, return false
     return false;
 }
+
+//writes the connection to a file
+void Connection::WriteConnectionToFile(unsigned int TargetIndex, unsigned int TargetType, SpikingNetwork* Net, std::ofstream& File) 
+{
+    //the bytes to write to the file
+    char Bytes[9];
+    
+    //convert the weight to an integer(binary access)
+    unsigned int UIntWeight = *(unsigned int*)&Weight;
+    //get the source neuron index
+    //TODO(aria): error codes here
+    int ErrCode = 0;
+    unsigned int SourceNeuronIndex = Net->GetNeuronIndex(SourceNeuron, SourceNeuronType, &ErrCode);
+
+    //store our data
+    Bytes[0] = (SourceNeuronType ? 0b10000000 : 0) + (TargetType ? 0b01000000 : 0);
+
+    Bytes[1] = (SourceNeuronIndex >> 24) & 0xff;
+    Bytes[2] = (SourceNeuronIndex >> 16) & 0xff;
+    Bytes[3] = (SourceNeuronIndex >> 8) & 0xff;
+    Bytes[4] = (SourceNeuronIndex) & 0xff;
+
+    Bytes[5] = (TargetIndex >> 24) & 0xff;
+    Bytes[6] = (TargetIndex >> 16) & 0xff;
+    Bytes[7] = (TargetIndex >> 8) & 0xff;
+    Bytes[8] = (TargetIndex) & 0xff;
+
+    Bytes[9] = (UIntWeight >> 24) & 0xff;
+    Bytes[10] = (UIntWeight >> 16) & 0xff;
+    Bytes[11] = (UIntWeight >> 8) & 0xff;
+    Bytes[12] = (UIntWeight) & 0xff;
+
+    //write the data
+    File.write(Bytes, 13);
+}

@@ -75,6 +75,8 @@ public:
 	Neuron* GetNeuronPtr(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose = false);
 	//returns the neuron's id(or index if input/output)
 	unsigned int GetNeuronID(unsigned int Index, unsigned int Type, int* ErrCode, bool verbose = false);
+	//returns the neuron's index
+	unsigned int GetNeuronIndex(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose = false);
 };
 
 #endif
