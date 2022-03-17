@@ -117,6 +117,13 @@ void Neuron::WriteConnectionsToFile(unsigned int Index, unsigned int Type, Spiki
         ConnIter->WriteConnectionToFile(Index, Type, Net, File);
     }
 }
+
+//returns the number of source connections the neuron has
+unsigned int Neuron::GetConnectionCount() 
+{
+    return SourceConnections.size();
+}
+
 //creates a neuron from a byte sequence
 Neuron::Neuron(unsigned char* bytes) 
 {
