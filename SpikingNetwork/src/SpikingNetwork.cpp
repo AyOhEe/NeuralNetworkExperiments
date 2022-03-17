@@ -507,3 +507,43 @@ unsigned int SpikingNetwork::GetNeuronID(unsigned int Index, unsigned int Type, 
 		return (unsigned int)-1;
 	}
 }
+//returns the neuron's index
+unsigned int SpikingNetwork::GetNeuronIndex(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose) 
+{
+	//is it an input neuron?
+	if(Type == 0)
+	{
+		//yes. return id mod input count
+		return ID % InputCount();
+	}
+	//is it an internal neuron?
+	else if(Type == 1)
+	{
+		//yes. iterate through the neuron map until we find the neuron
+		std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
+		Neuron* Match = GetNeuronPtr(ID, Type, ErrCode, verbose);
+		unsigned int i = 0;
+		while(NeuronIter != Neurons.end())
+		{
+			//if we found it, return i
+			if (NeuronIter->second == Match)
+				return i;
+
+			//we didn't. move to the next neuron in the map
+			i++;
+			NeuronIter++;
+		}
+	}
+	//is it an output neuron?
+	else if(Type == 2)
+	{
+		//yes. return id mod output count
+		return ID % OutputCount();
+	}
+	else
+	{
+		//TODO(aria): error codes here
+		//invalid type. return -1
+		return (unsigned int)-1;
+	}
+}
