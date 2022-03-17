@@ -248,22 +248,24 @@ void SpikingNetwork::SaveNetwork(std::string GenomePath, int* ErrCode, bool verb
 	}
 
 	//write the internal neurons and their connections to the respective chromosomes
+	int NeuronIndex = 0;
 	for(std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
 		NeuronIter != Neurons.end();
 		NeuronIter++)
 	{
 		NeuronIter->second->WriteNeuronToFile(NeuronChromosome);
-		NeuronIter->second->WriteConnectionsToFile(ConnectionChromosome);
+		NeuronIter->second->WriteConnectionsToFile(NeuronIndex++, 1, this, ConnectionChromosome);
 	}
 	//close the neuron chromosome
 	NeuronChromosome.close();
 
 	//write the output neurons connections to the connection chromosome
+	NeuronIndex = 0;
 	for(std::vector<Neuron>::iterator NeuronIter = OutputNeurons.begin();
 		NeuronIter != OutputNeurons.end();
 		NeuronIter++)
 	{
-		NeuronIter->WriteConnectionsToFile(ConnectionChromosome);
+		NeuronIter->WriteConnectionsToFile(NeuronIndex++, 2, this, ConnectionChromosome);
 	}
 	//close the connection chromosome
 	ConnectionChromosome.close();
