@@ -11,6 +11,9 @@ class SpikingNetwork;
 
 class Connection
 {
+	//networks need special access to connections
+	friend SpikingNetwork;
+
 	float Weight; //the weight of the connection
 	unsigned int SourceNeuron; //the id of the source neuron in the neuron map
 	bool SourceNeuronType; //the type of the source neuron(false == input, true == internal)
@@ -19,6 +22,8 @@ public:
 
 	//creates a connection in Network from bytes
 	Connection(unsigned char* bytes, SpikingNetwork* Net);
+	//creates a connection with source id ID and type Type and weight Weight
+	Connection(unsigned int ID, bool Type, float NewWeight);
 
 	//creates a connection
 	static void CreateConnection(unsigned char* bytes, SpikingNetwork* Net);

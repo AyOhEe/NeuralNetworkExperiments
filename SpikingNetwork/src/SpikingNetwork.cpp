@@ -271,31 +271,53 @@ void SpikingNetwork::SaveNetwork(std::string GenomePath, int* ErrCode, bool verb
 	ConnectionChromosome.close();
 }
 
-//the number of inputs, outputs and neurons in the network
-int SpikingNetwork::InputCount()
+//the number of inputs, outputs, neurons and lobes in the network
+unsigned int SpikingNetwork::InputCount()
 {
 	return InputNeurons.size();
 }
-int SpikingNetwork::OutputCount() 
+unsigned int SpikingNetwork::OutputCount()
 {
 	return OutputNeurons.size();
 }
-int SpikingNetwork::NeuronCount()
+unsigned int SpikingNetwork::NeuronCount()
 {
 	return Neurons.size();
+}
+unsigned int SpikingNetwork::LobeCount() 
+{
+	return Lobes.size();
 }
 
 //TODO(aria): error codes here
 //adds a neuron to the network
-/*void SpikingNetwork::AddNeuron(unsigned int NeuronIndex, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose)
+void SpikingNetwork::AddNeuron(unsigned int NeuronIndex, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose)
 {
+	//get the neuron and connection to add the new neuron into
+	Neuron* NeuronPtr = GetNeuronPtr(NeuronIndex, Type, ErrCode, verbose);
+	Connection* ConnPtr = &(NeuronPtr->SourceConnections[ConnectionIndex % NeuronPtr->GetConnectionCount()]);
 
+	//add the neuron to the neuron's lobe and the neuron map
+	Neurons.emplace(UniqueNeuronIndex, NewNeuron);
+	NeuronPtr->ParentLobe->AddNeuron(Neurons[UniqueNeuronIndex]);
+
+	//give the new neuron a connection to the original source neuron
+	Neurons[UniqueNeuronIndex]->SourceConnections.push_back(Connection(ConnPtr->SourceNeuron, ConnPtr->SourceNeuronType, 1));
+	//change the original neuron's source connection
+	ConnPtr->SourceNeuron = UniqueNeuronIndex++;
 }
 //removes the nth neuron
-void SpikingNetwork::RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose) 
+void SpikingNetwork::RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose = false) 
 {
+	//get the neuron to remove
+	std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
+	std::advance(NeuronIter, Index % NeuronCount());
 
-}/**/
+	//remove it from it's lobe and from the neuron map
+	NeuronIter->second->ParentLobe->RemoveNeuron(NeuronIter->second);
+	Neurons.erase(NeuronIter);
+}
+
 //get the number of connections in a neuron
 unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose) 
 {

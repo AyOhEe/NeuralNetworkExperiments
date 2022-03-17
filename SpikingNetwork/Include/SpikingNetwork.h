@@ -51,13 +51,14 @@ public:
 	//saves the network to the genome at genomepath
 	void SaveNetwork(std::string GenomePath, int* ErrCode, bool verbose = false);
 
-	//the number of inputs, outputs and neurons in the network
-	int InputCount();
-	int OutputCount();
-	int NeuronCount();
+	//the number of inputs, outputs, neurons and lobes in the network
+	unsigned int InputCount();
+	unsigned int OutputCount();
+	unsigned int NeuronCount();
+	unsigned int LobeCount();
 
 	//adds a neuron to the network
-	void AddNeuron(unsigned int NeuronIndex, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose = false);
+	void AddNeuron(unsigned int NeuronIndex, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose = false);
 	//removes the nth neuron
 	void RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose = false);
 	//get the number of connections in a neuron

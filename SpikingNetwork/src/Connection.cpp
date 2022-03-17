@@ -18,6 +18,15 @@ Connection::Connection(unsigned char* bytes, SpikingNetwork* Net)
     SourceNeuronType = SourceType;
 }
 
+//creates a connection with source id ID and type Type and weight Weight
+Connection::Connection(unsigned int ID, bool Type, float NewWeight) 
+{
+    //store our values
+    SourceNeuron = ID;
+    SourceNeuronType = Type;
+    Weight = NewWeight;
+}
+
 //creates a connection
 void Connection::CreateConnection(unsigned char* bytes, SpikingNetwork* Net) 
 {

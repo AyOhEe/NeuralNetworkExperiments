@@ -6,10 +6,12 @@
 
 #include "Connection.h"
 #include "SpikingNetwork.h"
+#include "Lobe.h"
 
 //forward definitions
 class Connection;
 class SpikingNetwork;
+class Lobe;
 
 class Neuron 
 {
@@ -17,6 +19,8 @@ class Neuron
 	friend Connection;
 	//as do spikingnetworks
 	friend SpikingNetwork;
+	//as do lobes
+	friend Lobe;
 
 	bool NeuronType; //the type of the neuron. false == spiking, true == capacitor
 	bool OutputType; //the output type of the neuron. false == depressive, true == potentiating
@@ -24,6 +28,7 @@ class Neuron
 	unsigned long long int TimeSinceLastFire; //the time sicne the neuron last fired(s^-5)
 	float MembraneResistance; //the neuron's membrane resistance
 	float ThresholdOffset; //the neuron's spike potential threshold offset
+	Lobe* ParentLobe; //the lobe that the neuron belongs to
 
 	//the connections to the neuron's sources and targets
 	std::vector<Connection> SourceConnections;
