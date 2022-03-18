@@ -27,10 +27,10 @@ void Lobe::WriteLobeToChromosome(std::ofstream& File)
     //convert the lobe size into bytes and write it to the file
     unsigned int LobeSize = Neurons.size();
     char LobeSizeBytes[4] = {
-        (LobeSize >> 24) & 0xff,
-        (LobeSize >> 16) & 0xff,
-        (LobeSize >> 8) & 0xff,
-         LobeSize & 0xff,
+        (char)(LobeSize >> 24),
+        (char)(LobeSize >> 16),
+        (char)(LobeSize >> 8),
+         (char)LobeSize,
     };
     File.write(LobeSizeBytes, 4);
 }

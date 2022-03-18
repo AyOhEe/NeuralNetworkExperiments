@@ -95,14 +95,14 @@ void Neuron::LoadStateFromBytes(char* StateBytes)
 
     //load in the time since last fire
     TimeSinceLastFire =
-         (StateBytes[4] << 56)
-        +(StateBytes[5] << 48)
-        +(StateBytes[6] << 40)
-        +(StateBytes[7] << 32)
-        +(StateBytes[8] << 24)
-        +(StateBytes[9] << 16)
-        +(StateBytes[10] << 8)
-        + StateBytes[11];
+         ((long long)StateBytes[4] << 56)
+        +((long long)StateBytes[5] << 48)
+        +((long long)StateBytes[6] << 40)
+        +((long long)StateBytes[7] << 32)
+        +((long long)StateBytes[8] << 24)
+        +((long long)StateBytes[9] << 16)
+        +((long long)StateBytes[10] << 8)
+        + (long long)StateBytes[11];
 }
 
 //writes the neuron to File

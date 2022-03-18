@@ -87,7 +87,8 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 			}
 
 			//create the neuron and store it's pointer
-			Neurons.insert(std::make_pair(UniqueNeuronIndex, new Neuron(Bytes)));
+			Neuron* NewNeuron = new Neuron(Bytes);
+			Neurons.insert(std::make_pair(UniqueNeuronIndex, NewNeuron));
 			//register it with the lobe
 			CurrentLobe->AddNeuron(Neurons[UniqueNeuronIndex++]);
 		}
@@ -185,7 +186,6 @@ void SpikingNetwork::StoreMentalState(std::string StatePath, int* ErrCode, bool 
 	}
 
 	//iterate through all of the internal neurons and write their states to the file
-	char NeuronStateBytes[12];
 	for (std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
 		NeuronIter != Neurons.end();
 		NeuronIter++) 
@@ -233,13 +233,13 @@ void SpikingNetwork::SaveNetwork(std::string GenomePath, int* ErrCode, bool verb
 	//write the lobe count and sizes to the neuron chromosome
 	unsigned int LobeCount = Lobes.size();
 	char LobeCountBytes[4] = { 
-		(LobeCount >> 24) & 0xff,
-		(LobeCount >> 16) & 0xff,
-		(LobeCount >> 8)  & 0xff,
-		LobeCount & 0xff 
+		(char)(LobeCount >> 24),
+		(char)(LobeCount >> 16),
+		(char)(LobeCount >> 8),
+		(char)LobeCount
 	};
 	NeuronChromosome.write(LobeCountBytes, 4);
-	delete[] LobeCountBytes;
+	delete[] &LobeCountBytes;
 	for(std::map<unsigned int, Lobe>::iterator LobeIter = Lobes.begin(); 
 		LobeIter != Lobes.end(); 
 		LobeIter++)
@@ -298,7 +298,8 @@ void SpikingNetwork::AddNeuron(unsigned int NeuronIndex, unsigned int Type, unsi
 	Connection* ConnPtr = &(NeuronPtr->SourceConnections[ConnectionIndex % NeuronPtr->GetConnectionCount()]);
 
 	//add the neuron to the neuron's lobe and the neuron map
-	Neurons.emplace(UniqueNeuronIndex, NewNeuron);
+	Neuron* NewNeuronPtr = new Neuron(NewNeuron);
+	Neurons.emplace(UniqueNeuronIndex, NewNeuronPtr);
 	NeuronPtr->ParentLobe->AddNeuron(Neurons[UniqueNeuronIndex]);
 
 	//give the new neuron a connection to the original source neuron
@@ -307,7 +308,7 @@ void SpikingNetwork::AddNeuron(unsigned int NeuronIndex, unsigned int Type, unsi
 	ConnPtr->SourceNeuron = UniqueNeuronIndex++;
 }
 //removes the nth neuron
-void SpikingNetwork::RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose = false) 
+void SpikingNetwork::RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose) 
 {
 	//get the neuron to remove
 	std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();

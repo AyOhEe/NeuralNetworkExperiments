@@ -16,6 +16,7 @@
 //forward definitions
 class Neuron;
 class Connection;
+class Lobe;
 
 //network class that uses spiking neurons and STDP
 class SpikingNetwork 
