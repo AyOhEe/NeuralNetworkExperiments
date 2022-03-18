@@ -1,4 +1,4 @@
-#include "../Include/Neuron.h"
+#include <Neuron.h>
 
 //calculates and returns(but does not store!) the new value of the neuron
 std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwork* Network, bool verbose)

@@ -1,4 +1,4 @@
-#include "../Include/SpikingNetwork.h"
+#include <SpikingNetwork.h>
 
 //TODO(aria): error codes here
 //creates a spiking network based on the genome at genomepath

@@ -1,4 +1,4 @@
-#include "../Include/Connection.h"
+#include <Connection.h>
 
 //creates a connection in Network from bytes
 Connection::Connection(unsigned char* bytes, SpikingNetwork* Net) 

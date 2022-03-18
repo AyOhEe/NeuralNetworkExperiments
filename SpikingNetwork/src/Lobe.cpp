@@ -1,4 +1,4 @@
-#include "../Include/Lobe.h"
+#include <Lobe.h>
 
 //add a neuron to the lobe
 void Lobe::AddNeuron(Neuron* NewNeuron)
