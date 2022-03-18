@@ -1,7 +1,15 @@
-#include <Network.h>
+#include "STDPHandler.h"
+
+#include <iostream>
 
 int main()
 {
-	int ErrCode = 0;
-	SpikingNetwork net = SpikingNetwork("Genomes/test_genome", 2, 2, &ErrCode, true);
+	//output get_i
+	std::cout << STDPHandler::Get_i() << std::endl;
+
+	//create a new handler instance
+	STDPHandler Handler = STDPHandler();
+
+	//output get_i
+	std::cout << STDPHandler::Get_i() << std::endl;
 }
