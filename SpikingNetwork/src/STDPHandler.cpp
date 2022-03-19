@@ -51,6 +51,9 @@ std::vector<float> __STDPHandler::DoSTDP(
 	//make sure the source and target times and weights all have the same length
 	if (!(SourceTimes.size() == TargetTimes.size() && SourceTimes.size() == Weights.size()))
 		throw std::invalid_argument("STDPHandler::DoSTDP: SourceTimes, TargetTimes and Weights must match in size!");
+		
+	//vector to store the new weights in
+	std::vector<float> NewWeights = std::vector<float>(Weights.size());
 
 	//create the buffers
 	cl::Buffer SourceTimeBuffer(
@@ -67,24 +70,30 @@ std::vector<float> __STDPHandler::DoSTDP(
 	);
 	cl::Buffer WeightsBuffer(
 		CLContext,
-		CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+		CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY | CL_MEM_COPY_HOST_PTR,
 		sizeof(float) * Weights.size(),
 		Weights.data()
+	);
+	cl::Buffer NewWeightsBuffer(
+		CLContext,
+		CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+		sizeof(float) * NewWeights.size(),
+		NewWeights.data()
 	);
 
 	//set kernel args
 	STDPKernel.setArg(0, SourceTimeBuffer);
 	STDPKernel.setArg(1, TargetTimeBuffer);
 	STDPKernel.setArg(2, WeightsBuffer);
+	STDPKernel.setArg(3, NewWeightsBuffer);
 
 	//run the kernel
 	CLCommandQueue.enqueueNDRangeKernel(STDPKernel, cl::NullRange, cl::NDRange(SourceTimes.size()));
-	//wait for it to finish
 	CLCommandQueue.finish();
 	//read back the results
-	std::vector<float> NewWeights(Weights.size());
-	CLCommandQueue.enqueueReadBuffer(WeightsBuffer, CL_TRUE, 0, sizeof(float) * NewWeights.size(), NewWeights.data());
-	
+	CLCommandQueue.enqueueReadBuffer(NewWeightsBuffer, CL_FALSE, 0, sizeof(float) * NewWeights.size(), NewWeights.data());
+	CLCommandQueue.finish();
+
 	//return the new weights
 	return NewWeights;
 }

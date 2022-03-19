@@ -11,7 +11,7 @@ int main()
 	//dummy data
 	std::vector<unsigned long long> TargetTimes = {0, 11, 50, 0, 5};
 	std::vector<unsigned long long> SourceTimes = {5, 0, 25, 11, 0};
-	std::vector<float> Weights = {2, 1.5, 3, 1.25, 1.75};
+	std::vector<float> Weights = {2, -1.5, 3, 1.25, -1.75};
 
 	//run stdp
 	std::vector<float> NewWeights = Handler.DoSTDP(SourceTimes, TargetTimes, Weights);
