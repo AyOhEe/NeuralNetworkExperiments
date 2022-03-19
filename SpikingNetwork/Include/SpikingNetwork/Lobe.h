@@ -5,9 +5,12 @@
 #include <fstream>
 
 #include "Neuron.h"
+#include "STDPHandler.h"
 
 //forward definitions
 class Neuron;
+class Connection;
+class SpikingNetwork;
 
 class Lobe
 {
@@ -22,6 +25,9 @@ public:
 
 	//writes the lobe to File
 	void WriteLobeToChromosome(std::ofstream &File);
+
+	//does STDP to all neurons in this lobe
+	void DoSTDP(SpikingNetwork* Net, int* ErrCode, bool verbose);
 
 	//TODO(aria): add "fire together wire together" method to lobe class
 };

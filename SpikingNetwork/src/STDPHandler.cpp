@@ -32,13 +32,12 @@ __STDPHandler::__STDPHandler()
 	//build the program and store the error code
 	errCheck(program.build("-cl-std=CL1.2"), __LINE__);
 
-	//get device
-	std::vector<cl::Device> devices = program.getInfo<CL_PROGRAM_DEVICES>();
+	//get device to use
 	cl::Device device = devices.front();
 
 
 	//create the kernel
-	STDPKernel = cl::Kernel(program, "CLExample");
+	STDPKernel = cl::Kernel(program, "Main");
 	//create the command queue
 	CLCommandQueue = cl::CommandQueue(CLContext, device);
 }

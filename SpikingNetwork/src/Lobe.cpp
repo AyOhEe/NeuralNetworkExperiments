@@ -34,3 +34,53 @@ void Lobe::WriteLobeToChromosome(std::ofstream& File)
     };
     File.write(LobeSizeBytes, 4);
 }
+
+
+//TODO(aria): Error codes here
+//does STDP to all neurons in this lobe
+void Lobe::DoSTDP(SpikingNetwork* Net, int* ErrCode, bool verbose) 
+{
+    //get an stdp handler
+    STDPHandler Handler = STDPHandler();
+
+    //store all of the necessary data
+    std::vector<unsigned long long> TargetTimes;
+    std::vector<unsigned long long> SourceTimes;
+    std::vector<float> Weights;
+    //iterate through all neurons in the lobe
+    for(std::vector<Neuron*>::iterator NeuronIter = Neurons.begin();
+        NeuronIter != Neurons.end();
+        NeuronIter++)
+    {
+        //iterate through it's connections
+        for(std::vector<Connection>::iterator ConnIter = (*NeuronIter)->SourceConnections.begin();
+            ConnIter != (*NeuronIter)->SourceConnections.begin();
+            ConnIter++)
+        { 
+            //store the target time, source time and connection weight
+            TargetTimes.push_back((*NeuronIter)->TimeSinceLastFire);
+            SourceTimes.push_back(
+                Net->GetNeuronPtr(ConnIter->SourceNeuron, ConnIter->SourceNeuronType, ErrCode, verbose)->TimeSinceLastFire
+            );
+            Weights.push_back(ConnIter->Weight);
+        }
+    }
+
+    //hand it to the STDPHandler
+    Weights = Handler.DoSTDP(SourceTimes, TargetTimes, Weights);
+
+    //replace the weights
+    std::vector<float>::iterator WeightIter = Weights.begin(); 
+    std::vector<Neuron*>::iterator NeuronIter = Neurons.begin();
+    while(WeightIter != Weights.end() && NeuronIter != Neurons.end())
+    {
+        //iterate through the connections in the current neuron
+        for(std::vector<Connection>::iterator ConnIter = (*NeuronIter)->SourceConnections.begin();
+            ConnIter != (*NeuronIter)->SourceConnections.begin();
+            ConnIter++)
+        {
+            ConnIter->Weight = *WeightIter++;
+        }
+        NeuronIter++;
+    }
+}

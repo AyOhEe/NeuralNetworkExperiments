@@ -8,11 +8,14 @@
 
 //forward definitions
 class SpikingNetwork;
+class Lobe;
 
 class Connection
 {
 	//networks need special access to connections
 	friend SpikingNetwork;
+	//as do lobes
+	friend Lobe;
 
 	float Weight; //the weight of the connection
 	unsigned int SourceNeuron; //the id of the source neuron in the neuron map
