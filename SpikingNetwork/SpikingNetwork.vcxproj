@@ -130,13 +130,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include\SpikingNetwork;$(ProjectDir)Include\OpenCL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)Libs\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -148,11 +150,11 @@
     <ClCompile Include="src\STDPHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Connection.h" />
-    <ClInclude Include="Include\Lobe.h" />
-    <ClInclude Include="Include\SpikingNetwork.h" />
-    <ClInclude Include="Include\Neuron.h" />
-    <ClInclude Include="Include\STDPHandler.h" />
+    <ClInclude Include="Include\SpikingNetwork\Connection.h" />
+    <ClInclude Include="Include\SpikingNetwork\Lobe.h" />
+    <ClInclude Include="Include\SpikingNetwork\Neuron.h" />
+    <ClInclude Include="Include\SpikingNetwork\SpikingNetwork.h" />
+    <ClInclude Include="Include\SpikingNetwork\STDPHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Genome.txt" />

@@ -35,19 +35,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Neuron.h">
+    <ClInclude Include="Include\SpikingNetwork\STDPHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Connection.h">
+    <ClInclude Include="Include\SpikingNetwork\Lobe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Lobe.h">
+    <ClInclude Include="Include\SpikingNetwork\Neuron.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SpikingNetwork.h">
+    <ClInclude Include="Include\SpikingNetwork\SpikingNetwork.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\STDPHandler.h">
+    <ClInclude Include="Include\SpikingNetwork\Connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
