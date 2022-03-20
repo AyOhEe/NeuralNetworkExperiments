@@ -79,7 +79,7 @@ void Lobe::DoSTDP(SpikingNetwork* Net, int* ErrCode, bool verbose)
             ConnIter != (*NeuronIter)->SourceConnections.begin();
             ConnIter++)
         {
-            ConnIter->Weight = *WeightIter++;
+            ConnIter->Weight = *(WeightIter++);
         }
         NeuronIter++;
     }

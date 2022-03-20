@@ -71,7 +71,7 @@ bool Connection::TryAddValue(SpikingNetwork* Network, float* OutVal)
 void Connection::WriteConnectionToFile(unsigned int TargetIndex, unsigned int TargetType, SpikingNetwork* Net, std::ofstream& File) 
 {
     //the bytes to write to the file
-    char Bytes[9];
+    char Bytes[13];
     
     //convert the weight to an integer(binary access)
     unsigned int UIntWeight = *(unsigned int*)&Weight;
