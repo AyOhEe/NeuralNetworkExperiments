@@ -313,6 +313,20 @@ unsigned int SpikingNetwork::GetLobeNeuronCount(unsigned int Index)
 	return LobeIter->second.GetNeuronCount();
 }
 
+//adds a neuron to a lobe in the network and to the network
+void SpikingNetwork::AddNeuronToLobe(unsigned int LobeID, Neuron NewNeuron, int* ErrCode, bool verbose) 
+{
+	//add the neuron to the network
+	Neuron* NewNeuronPtr = new Neuron(NewNeuron);
+	Neurons.emplace(UniqueNeuronIndex, NewNeuronPtr);
+
+	//get the lobe at LobeID
+	std::map<unsigned int, Lobe>::iterator LobeIter = Lobes.begin();
+	std::advance(LobeIter, LobeID % Lobes.size());
+
+	//add the neuron to the lobe
+	LobeIter->second.AddNeuron(NewNeuronPtr);
+}
 
 //TODO(aria): error codes here
 //adds a neuron to the network

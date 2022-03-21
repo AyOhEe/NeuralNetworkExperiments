@@ -67,7 +67,8 @@ public:
 	//gets the number of neurons in a lobe
 	unsigned int GetLobeNeuronCount(unsigned int Index);
 
-	//TODO(aria): add methods for managing neurons in lobes
+	//adds a neuron to a lobe in the network and to the network
+	void AddNeuronToLobe(unsigned int LobeID, Neuron NewNeuron, int* ErrCode, bool verbose = false);
 
 	//adds a neuron to the network
 	void AddNeuron(unsigned int ID, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose = false);
