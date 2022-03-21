@@ -10,20 +10,20 @@ void Neuron::SetParams(NeuronParams Params)
 }
 
 //returns the parameters of this neuron
-Neuron::NeuronParams Neuron::GetParams()
+NeuronParams Neuron::GetParams()
 {
     //return our parameters
     return NeuronParams { OutputType, MembraneResistance, ThresholdOffset };
 }
 
 //sets the parameters of connection at index
-void Neuron::SetConnectionParams(unsigned int Index, SpikingNetwork* Net, Connection::ConnectionParams Params, int* ErrCode, bool verbose)
+void Neuron::SetConnectionParams(unsigned int Index, SpikingNetwork* Net, ConnectionParams Params, int* ErrCode, bool verbose)
 {
     //set the connection's parameters
     SourceConnections[Index % SourceConnections.size()].SetParams(Params, Net, ErrCode, verbose);
 }
 //gets the parameters of connection at index
-Connection::ConnectionParams Neuron::GetConnectionParams(unsigned int Index, SpikingNetwork* Net, int *ErrCode, bool verbose) 
+ConnectionParams Neuron::GetConnectionParams(unsigned int Index, SpikingNetwork* Net, int *ErrCode, bool verbose) 
 {
     //return the connection's parameters
     return SourceConnections[Index % SourceConnections.size()].GetParams(Net, ErrCode, verbose);
@@ -200,4 +200,20 @@ Neuron::Neuron(unsigned char* bytes)
 	OutputType = (bytes[0] & 0b01000000) == 0b01000000;
 	MembraneResistance = *((float*)&IntMembraneResistance);
 	ThresholdOffset = *((float*)&IntThresholdOffset);
+}
+
+//adds a connection to the neuron
+void Neuron::AddConnection(Connection NewConn) 
+{
+    //add the connection
+    SourceConnections.push_back(NewConn);
+}
+//removes a connection from the neuron
+void Neuron::RemoveConnection(unsigned int Index) 
+{
+    //get the connection at index mod ConnectionCount
+    std::vector<Connection>::iterator ConnIter = SourceConnections.begin();
+    std::advance(ConnIter, Index % SourceConnections.size());
+    //remove the connection
+    SourceConnections.erase(ConnIter);
 }

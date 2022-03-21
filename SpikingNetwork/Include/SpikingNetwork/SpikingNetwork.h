@@ -15,7 +15,9 @@
 
 //forward definitions
 class Neuron;
+struct NeuronParams;
 class Connection;
+struct ConnectionParams;
 class Lobe;
 
 //network class that uses spiking neurons and STDP
@@ -71,6 +73,10 @@ public:
 	void AddNeuron(unsigned int ID, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose = false);
 	//removes the nth neuron
 	void RemoveNeuron(unsigned int ID, int* ErrCode, bool verbose = false);
+	//adds a connection to the neuron
+	void AddConnection(unsigned int ID, unsigned int Type, Connection NewConn, int* ErrCode, bool verbose = false);
+	//removes a connection from the neuron
+	void RemoveConnection(unsigned int ID, unsigned int Type, unsigned int Index, int* ErrCode, bool verbose = false);
 	//get the number of connections in a neuron
 	unsigned int GetNeuronConnectionCount(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose = false);
 
@@ -89,14 +95,14 @@ public:
 	unsigned int GetNeuronIndex(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose = false);
 
 	//sets the parameters of the internal neuron to those in Params
-	void SetNeuronParams(unsigned int ID, Neuron::NeuronParams Params, int* ErrCode, bool verbose);
+	void SetNeuronParams(unsigned int ID, NeuronParams Params, int* ErrCode, bool verbose);
 	//gets the parameters of the internal neuron
-	Neuron::NeuronParams GetNeuronParams(unsigned int ID, int* ErrCode, bool verbose);
+	NeuronParams GetNeuronParams(unsigned int ID, int* ErrCode, bool verbose);
 
 	//sets the parameters of a connection in a neuron
-	void SetConnectionParams(unsigned int ID, unsigned int Type, unsigned int index, Connection::ConnectionParams Params, int* ErrCode, bool verbose);
+	void SetConnectionParams(unsigned int ID, unsigned int Type, unsigned int index, ConnectionParams Params, int* ErrCode, bool verbose = false);
 	//gets the parameters of a connection in a neuron
-	Connection::ConnectionParams GetConnectionParams(unsigned int ID, unsigned int Type, unsigned int index, int* ErrCode, bool verbose);
+	ConnectionParams GetConnectionParams(unsigned int ID, unsigned int Type, unsigned int index, int* ErrCode, bool verbose = false);
 };
 
 #endif

@@ -10,8 +10,17 @@
 
 //forward definitions
 class Connection;
+struct ConnectionParams;
 class SpikingNetwork;
 class Lobe;
+
+//the parameters that define a neuron
+struct NeuronParams
+{
+	bool OutputType; //the output type of the neuron. false == depressive, true == potentiating
+	float MembraneResistance; //the neuron's membrane resistance
+	float ThresholdOffset; //the neuron's spike potential threshold offset
+};
 
 class Neuron 
 {
@@ -34,22 +43,15 @@ class Neuron
 
 public:
 
-	//the parameters that define a neuron
-	struct NeuronParams 
-	{
-		bool OutputType; //the output type of the neuron. false == depressive, true == potentiating
-		float MembraneResistance; //the neuron's membrane resistance
-		float ThresholdOffset; //the neuron's spike potential threshold offset
-	};
 	//sets the parameters of this neuron
 	void SetParams(NeuronParams Params);
 	//returns the parameters of this neuron
 	NeuronParams GetParams();
 
 	//sets the parameters of connection at index
-	void SetConnectionParams(unsigned int Index, SpikingNetwork* Net, Connection::ConnectionParams Params, int* ErrCode, bool verbose = false);
+	void SetConnectionParams(unsigned int Index, SpikingNetwork* Net, ConnectionParams Params, int* ErrCode, bool verbose = false);
 	//gets the parameters of connection at index
-	Connection::ConnectionParams GetConnectionParams(unsigned int Index, SpikingNetwork* Net, int* ErrCode, bool verbose = false);
+	ConnectionParams GetConnectionParams(unsigned int Index, SpikingNetwork* Net, int* ErrCode, bool verbose = false);
 
 	//calculates and returns(but does not store!) the new value of the neuron
 	std::pair<float, unsigned long long int> CalculateNewValue(SpikingNetwork* Network, bool verbose = false);
@@ -78,6 +80,11 @@ public:
 
 	//creates a neuron from a byte sequence
 	Neuron(unsigned char* bytes);
+
+	//adds a connection to the neuron
+	void AddConnection(Connection NewConn);
+	//removes a connection from the neuron
+	void RemoveConnection(unsigned int Index);
 };
 
 #endif

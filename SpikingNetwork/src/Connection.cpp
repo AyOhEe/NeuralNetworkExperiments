@@ -9,10 +9,10 @@ void Connection::SetParams(ConnectionParams Params, SpikingNetwork* Net, int* Er
     SourceNeuronType = Params.SourceNeuronType;
 }
 //gets the parameters of the connection
-Connection::ConnectionParams Connection::GetParams(SpikingNetwork* Net, int* ErrCode, bool verbose) 
+ConnectionParams Connection::GetParams(SpikingNetwork* Net, int* ErrCode, bool verbose) 
 {
     //return our parameters
-    return Connection::ConnectionParams { 
+    return ConnectionParams { 
         Weight, 
         Net->GetNeuronIndex(SourceNeuron, SourceNeuronType, ErrCode, verbose), 
         SourceNeuronType

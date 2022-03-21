@@ -10,6 +10,13 @@
 class SpikingNetwork;
 class Lobe;
 
+struct ConnectionParams
+{
+	float Weight; //the weight of the connection
+	unsigned int SourceNeuronIndex; //the index of the source neuron
+	bool SourceNeuronType; //the type of the source neuron
+};
+
 class Connection
 {
 	//networks need special access to connections
@@ -23,12 +30,6 @@ class Connection
 
 public:
 
-	struct ConnectionParams 
-	{
-		float Weight; //the weight of the connection
-		unsigned int SourceNeuronIndex; //the index of the source neuron
-		bool SourceNeuronType; //the type of the source neuron
-	};
 	//sets the parameters of the connection
 	void SetParams(ConnectionParams Params, SpikingNetwork* Net, int* ErrCode, bool verbose = false);
 	//gets the parameters of the connection

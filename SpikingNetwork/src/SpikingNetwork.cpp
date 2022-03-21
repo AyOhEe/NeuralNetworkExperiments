@@ -343,6 +343,17 @@ void SpikingNetwork::RemoveNeuron(unsigned int ID, int* ErrCode, bool verbose)
 	NeuronIter->second->ParentLobe->RemoveNeuron(NeuronIter->second);
 	Neurons.erase(NeuronIter);
 }
+//adds a connection to the neuron
+void SpikingNetwork::AddConnection(unsigned int ID, unsigned int Type, Connection NewConn, int* ErrCode, bool verbose) 
+{
+	//get the neuron and add the connection
+	GetNeuronPtr(ID, Type, ErrCode, verbose)->AddConnection(NewConn);
+}
+//removes a connection from the neuron
+void SpikingNetwork::RemoveConnection(unsigned int ID, unsigned int Type, unsigned int Index, int* ErrCode, bool verbose) 
+{
+	GetNeuronPtr(ID, Type, ErrCode, verbose)->RemoveConnection(Index);
+}
 
 //get the number of connections in a neuron
 unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose) 
@@ -576,7 +587,7 @@ unsigned int SpikingNetwork::GetNeuronIndex(unsigned int ID, unsigned int Type, 
 
 //TODO(aria): error codes here
 //sets the parameters of the internal neuron to those in Params
-void SpikingNetwork::SetNeuronParams(unsigned int ID, Neuron::NeuronParams Params, int* ErrCode, bool verbose)
+void SpikingNetwork::SetNeuronParams(unsigned int ID, NeuronParams Params, int* ErrCode, bool verbose)
 {
 	//TODO(aria): error codes here
 	//set the neuron's params
@@ -584,7 +595,7 @@ void SpikingNetwork::SetNeuronParams(unsigned int ID, Neuron::NeuronParams Param
 }
 //TODO(aria): error codes here
 //gets the parameters of the internal neuron
-Neuron::NeuronParams SpikingNetwork::GetNeuronParams(unsigned int ID, int* ErrCode, bool verbose)
+NeuronParams SpikingNetwork::GetNeuronParams(unsigned int ID, int* ErrCode, bool verbose)
 {
 	//TODO(aria): error codes here
 	return GetNeuronPtr(ID, 1, ErrCode, verbose)->GetParams();
@@ -595,7 +606,7 @@ void SpikingNetwork::SetConnectionParams(
 	unsigned int ID,
 	unsigned int Type,
 	unsigned int index,
-	Connection::ConnectionParams Params,
+	ConnectionParams Params,
 	int* ErrCode,
 	bool verbose) 
 {
@@ -603,7 +614,7 @@ void SpikingNetwork::SetConnectionParams(
 	GetNeuronPtr(ID, Type, ErrCode, verbose)->SetConnectionParams(index, this, Params, ErrCode, verbose);
 }
 //gets the parameters of a connection in a neuron
-Connection::ConnectionParams SpikingNetwork::GetConnectionParams(
+ConnectionParams SpikingNetwork::GetConnectionParams(
 	unsigned int ID,
 	unsigned int Type,
 	unsigned int index,
