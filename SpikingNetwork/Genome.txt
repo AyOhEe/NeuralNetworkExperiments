@@ -18,8 +18,8 @@ this document uses some shorthand documented below:
 
 Chromosomes contain genes of fixed size, for the entire length of the chromosome
 Each chromosome contains a different type of gene, detailed below:
-	- Neuron Gene [1bb][1bb][6b0][4Bf][4Bf]
-		- Section 1: Neuron type bit. 0 = Spiking, 1 = Capacitor
+	- Neuron Gene [1b0][1bb][6b0][4Bf][4Bf]
+		- Section 1: One empty bits. if you need an extra flag, put it here
 		- Section 2: Neuron output type bit. 0 = depressive, 1 = potentiating
 		- Section 3: Six empty bits. if you need more bit flags, put them here
 		- Section 4: Four bytes, Controlling the membrane resistance

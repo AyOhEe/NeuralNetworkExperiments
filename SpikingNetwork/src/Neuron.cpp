@@ -116,7 +116,7 @@ void Neuron::WriteNeuronToFile(std::ofstream& File)
     unsigned int UIntThresholdOffset = *(unsigned int*)&ThresholdOffset;
 
     //store our data into the byte array
-    Bytes[0] = (NeuronType ? 0b10000000 : 0) + (OutputType ? 0b01000000 : 0);
+    Bytes[0] = (OutputType ? 0b01000000 : 0);
 
     Bytes[1] = (UIntMembraneResistance >> 24) & 0xff;
     Bytes[2] = (UIntMembraneResistance >> 16) & 0xff;
@@ -158,7 +158,6 @@ Neuron::Neuron(unsigned char* bytes)
 	unsigned int IntThresholdOffset = (bytes[5] << 24) + (bytes[6] << 16) + (bytes[7] << 8) + bytes[8];
 
 	//get our values
-	NeuronType = (bytes[0] & 0b10000000) == 0b10000000;
 	OutputType = (bytes[0] & 0b01000000) == 0b01000000;
 	MembraneResistance = *((float*)&IntMembraneResistance);
 	ThresholdOffset = *((float*)&IntThresholdOffset);
