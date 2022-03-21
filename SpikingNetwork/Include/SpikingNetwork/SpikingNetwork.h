@@ -59,9 +59,9 @@ public:
 	unsigned int LobeCount();
 
 	//adds a neuron to the network
-	void AddNeuron(unsigned int NeuronIndex, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose = false);
+	void AddNeuron(unsigned int ID, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose = false);
 	//removes the nth neuron
-	void RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose = false);
+	void RemoveNeuron(unsigned int ID, int* ErrCode, bool verbose = false);
 	//get the number of connections in a neuron
 	unsigned int GetNeuronConnectionCount(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose = false);
 

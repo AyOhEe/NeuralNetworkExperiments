@@ -291,10 +291,10 @@ unsigned int SpikingNetwork::LobeCount()
 
 //TODO(aria): error codes here
 //adds a neuron to the network
-void SpikingNetwork::AddNeuron(unsigned int NeuronIndex, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose)
+void SpikingNetwork::AddNeuron(unsigned int ID, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose)
 {
 	//get the neuron and connection to add the new neuron into
-	Neuron* NeuronPtr = GetNeuronPtr(NeuronIndex, Type, ErrCode, verbose);
+	Neuron* NeuronPtr = GetNeuronPtr(ID, Type, ErrCode, verbose);
 	Connection* ConnPtr = &(NeuronPtr->SourceConnections[ConnectionIndex % NeuronPtr->GetConnectionCount()]);
 
 	//add the neuron to the neuron's lobe and the neuron map
@@ -308,11 +308,11 @@ void SpikingNetwork::AddNeuron(unsigned int NeuronIndex, unsigned int Type, unsi
 	ConnPtr->SourceNeuron = UniqueNeuronIndex++;
 }
 //removes the nth neuron
-void SpikingNetwork::RemoveNeuron(unsigned int Index, int* ErrCode, bool verbose) 
+void SpikingNetwork::RemoveNeuron(unsigned int ID, int* ErrCode, bool verbose) 
 {
 	//get the neuron to remove
 	std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
-	std::advance(NeuronIter, Index % NeuronCount());
+	std::advance(NeuronIter, ID % NeuronCount());
 
 	//remove it from it's lobe and from the neuron map
 	NeuronIter->second->ParentLobe->RemoveNeuron(NeuronIter->second);

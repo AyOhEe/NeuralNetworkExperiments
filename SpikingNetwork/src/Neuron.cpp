@@ -48,7 +48,7 @@ std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwor
         ConnIter++)
     {
         //attempt to add the connection's value to our value
-        if(ConnIter->TryAddValue(Network, &NewValue))
+        if(!ConnIter->TryAddValue(Network, &NewValue))
         {
             //invalid connection, remove it
             SourceConnections.erase(ConnIter);

@@ -1,4 +1,4 @@
-#include "STDPHandler.h"
+#include "SpikingNetwork.h"
 
 #include <iostream>
 #include <vector>
@@ -6,7 +6,7 @@
 
 int main()
 {
-	//create a new handler instance
+	/*//create a new handler instance
 	STDPHandler Handler = STDPHandler();
 
 	//dummy data
@@ -20,5 +20,7 @@ int main()
 	for(int i = 0; i < 5; i++)
 	{
 		std::cout << "Old Weight: " << Weights[i] << " \n\tNew Weight: " << NewWeights[i] << "\n" << std::endl;
-	}
+	}/**/
+
+	//TODO(aria): Write SpikingNetwork tests
 }
