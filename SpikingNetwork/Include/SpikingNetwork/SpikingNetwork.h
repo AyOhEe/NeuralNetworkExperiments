@@ -58,6 +58,15 @@ public:
 	unsigned int NeuronCount();
 	unsigned int LobeCount();
 
+	//adds a lobe to the network
+	void AddLobe();
+	//removes a lobe from the network
+	void RemoveLobe(unsigned int Index);
+	//gets the number of neurons in a lobe
+	unsigned int GetLobeNeuronCount(unsigned int Index);
+
+	//TODO(aria): add methods for adding neurons to specific lobes
+
 	//adds a neuron to the network
 	void AddNeuron(unsigned int ID, unsigned int Type, unsigned int ConnectionIndex, Neuron NewNeuron, int* ErrCode, bool verbose = false);
 	//removes the nth neuron

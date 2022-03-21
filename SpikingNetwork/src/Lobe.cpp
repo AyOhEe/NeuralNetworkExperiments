@@ -21,6 +21,12 @@ void Lobe::RemoveNeuron(Neuron* OldNeuron)
     }
 }
 
+//returns the number of neurons in the lobe
+unsigned int Lobe::GetNeuronCount() 
+{
+    return Neurons.size();
+}
+
 //writes the lobe to File
 void Lobe::WriteLobeToChromosome(std::ofstream& File) 
 {

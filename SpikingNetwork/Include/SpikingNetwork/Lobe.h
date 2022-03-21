@@ -22,6 +22,8 @@ public:
 	void AddNeuron(Neuron* NewNeuron);
 	//remove a neuron from the lobe if it is in the lobe
 	void RemoveNeuron(Neuron* OldNeuron);
+	//returns the number of neurons in the lobe
+	unsigned int GetNeuronCount();
 
 	//writes the lobe to File
 	void WriteLobeToChromosome(std::ofstream &File);
