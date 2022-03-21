@@ -46,6 +46,11 @@ public:
 	//returns the parameters of this neuron
 	NeuronParams GetParams();
 
+	//sets the parameters of connection at index
+	void SetConnectionParams(unsigned int Index, SpikingNetwork* Net, Connection::ConnectionParams Params, int* ErrCode, bool verbose = false);
+	//gets the parameters of connection at index
+	Connection::ConnectionParams GetConnectionParams(unsigned int Index, SpikingNetwork* Net, int* ErrCode, bool verbose = false);
+
 	//calculates and returns(but does not store!) the new value of the neuron
 	std::pair<float, unsigned long long int> CalculateNewValue(SpikingNetwork* Network, bool verbose = false);
 	

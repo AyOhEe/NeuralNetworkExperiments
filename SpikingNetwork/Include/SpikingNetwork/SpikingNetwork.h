@@ -83,6 +83,11 @@ public:
 	void SetNeuronParams(unsigned int ID, Neuron::NeuronParams Params, int* ErrCode, bool verbose);
 	//gets the parameters of the internal neuron
 	Neuron::NeuronParams GetNeuronParams(unsigned int ID, int* ErrCode, bool verbose);
+
+	//sets the parameters of a connection in a neuron
+	void SetConnectionParams(unsigned int ID, unsigned int Type, unsigned int index, Connection::ConnectionParams Params, int* ErrCode, bool verbose);
+	//gets the parameters of a connection in a neuron
+	Connection::ConnectionParams GetConnectionParams(unsigned int ID, unsigned int Type, unsigned int index, int* ErrCode, bool verbose);
 };
 
 #endif

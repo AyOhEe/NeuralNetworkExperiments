@@ -23,6 +23,17 @@ class Connection
 
 public:
 
+	struct ConnectionParams 
+	{
+		float Weight; //the weight of the connection
+		unsigned int SourceNeuronIndex; //the index of the source neuron
+		bool SourceNeuronType; //the type of the source neuron
+	};
+	//sets the parameters of the connection
+	void SetParams(ConnectionParams Params, SpikingNetwork* Net, int* ErrCode, bool verbose = false);
+	//gets the parameters of the connection
+	ConnectionParams GetParams(SpikingNetwork* Net, int* ErrCode, bool verbose = false);
+
 	//creates a connection in Network from bytes
 	Connection(unsigned char* bytes, SpikingNetwork* Net);
 	//creates a connection with source id ID and type Type and weight Weight
@@ -36,6 +47,7 @@ public:
 
 	//writes the connection to a file
 	void WriteConnectionToFile(unsigned int TargetIndex, unsigned int TargetType, SpikingNetwork* Net, std::ofstream &File);
+
 };
 
 #endif

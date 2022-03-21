@@ -1,5 +1,24 @@
 #include <Connection.h>
 
+//sets the parameters of the connection
+void Connection::SetParams(ConnectionParams Params, SpikingNetwork* Net, int* ErrCode, bool verbose) 
+{
+    //set our parameters
+    Weight = Params.Weight;
+    SourceNeuron = Net->GetNeuronID(Params.SourceNeuronIndex, Params.SourceNeuronType, ErrCode, verbose);
+    SourceNeuronType = Params.SourceNeuronType;
+}
+//gets the parameters of the connection
+Connection::ConnectionParams Connection::GetParams(SpikingNetwork* Net, int* ErrCode, bool verbose) 
+{
+    //return our parameters
+    return Connection::ConnectionParams { 
+        Weight, 
+        Net->GetNeuronIndex(SourceNeuron, SourceNeuronType, ErrCode, verbose), 
+        SourceNeuronType
+    };
+}
+
 //creates a connection in Network from bytes
 Connection::Connection(unsigned char* bytes, SpikingNetwork* Net) 
 {

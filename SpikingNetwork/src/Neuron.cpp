@@ -3,6 +3,7 @@
 //sets the parameters of this neuron
 void Neuron::SetParams(NeuronParams Params) 
 {
+    //set our parameters
     OutputType = Params.OutputType;
     MembraneResistance = Params.MembraneResistance;
     ThresholdOffset = Params.ThresholdOffset;
@@ -13,6 +14,19 @@ Neuron::NeuronParams Neuron::GetParams()
 {
     //return our parameters
     return NeuronParams { OutputType, MembraneResistance, ThresholdOffset };
+}
+
+//sets the parameters of connection at index
+void Neuron::SetConnectionParams(unsigned int Index, SpikingNetwork* Net, Connection::ConnectionParams Params, int* ErrCode, bool verbose)
+{
+    //set the connection's parameters
+    SourceConnections[Index % SourceConnections.size()].SetParams(Params, Net, ErrCode, verbose);
+}
+//gets the parameters of connection at index
+Connection::ConnectionParams Neuron::GetConnectionParams(unsigned int Index, SpikingNetwork* Net, int *ErrCode, bool verbose) 
+{
+    //return the connection's parameters
+    return SourceConnections[Index % SourceConnections.size()].GetParams(Net, ErrCode, verbose);
 }
 
 //calculates and returns(but does not store!) the new value of the neuron

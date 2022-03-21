@@ -564,3 +564,27 @@ Neuron::NeuronParams SpikingNetwork::GetNeuronParams(unsigned int ID, int* ErrCo
 	//TODO(aria): error codes here
 	return GetNeuronPtr(ID, 1, ErrCode, verbose)->GetParams();
 }
+
+//sets the parameters of a connection in a neuron
+void SpikingNetwork::SetConnectionParams(
+	unsigned int ID,
+	unsigned int Type,
+	unsigned int index,
+	Connection::ConnectionParams Params,
+	int* ErrCode,
+	bool verbose) 
+{
+	//set the parameters
+	GetNeuronPtr(ID, Type, ErrCode, verbose)->SetConnectionParams(index, this, Params, ErrCode, verbose);
+}
+//gets the parameters of a connection in a neuron
+Connection::ConnectionParams SpikingNetwork::GetConnectionParams(
+	unsigned int ID,
+	unsigned int Type,
+	unsigned int index,
+	int* ErrCode,
+	bool verbose) 
+{
+	//return the parameters
+	return GetNeuronPtr(ID, Type, ErrCode, verbose)->GetConnectionParams(index, this, ErrCode, verbose);
+}
