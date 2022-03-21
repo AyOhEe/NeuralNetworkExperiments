@@ -52,7 +52,8 @@ bool Connection::TryAddValue(SpikingNetwork* Network, float* OutVal)
         //TODO(aria): Need to take target type into account here
         //TODO(aria): handle error codes here
         int ErrCode = 0;
-        *OutVal += Weight * (Network->GetNeuronPtr(SourceNeuron, SourceNeuronType ? 1 : 0, &ErrCode)->GetValue());
+        Neuron* NeuronPtr = Network->GetNeuronPtr(SourceNeuron, SourceNeuronType ? 1 : 0, &ErrCode);
+        *OutVal += Weight * (NeuronPtr->GetValue()) * (NeuronPtr->OutputType ? 1 : -1);
         
         //if we reached this point, the connection was valid. return true
         return true;
