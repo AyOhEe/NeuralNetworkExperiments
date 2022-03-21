@@ -1,8 +1,29 @@
 #include <Neuron.h>
 
+//sets the parameters of this neuron
+void Neuron::SetParams(NeuronParams Params) 
+{
+    OutputType = Params.OutputType;
+    MembraneResistance = Params.MembraneResistance;
+    ThresholdOffset = Params.ThresholdOffset;
+}
+
+//returns the parameters of this neuron
+Neuron::NeuronParams Neuron::GetParams()
+{
+    //return our parameters
+    return NeuronParams { OutputType, MembraneResistance, ThresholdOffset };
+}
+
 //calculates and returns(but does not store!) the new value of the neuron
 std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwork* Network, bool verbose)
 {
+    //we're currently spiking, set the new value to zero and return
+    if(GetSpikeState())
+    {
+        return std::make_pair(0.0f, TimeSinceLastFire + 1);
+    }
+
     //calculate and apply value falloff
     float NewValue = Value - (Value / MembraneResistance);
     unsigned long long int NewTimeSinceLastFire = TimeSinceLastFire + 1;
@@ -22,12 +43,10 @@ std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwor
         }
     }
 
-    //if we're past our spike threshold, 
+    //are we past our spike threshold?
     if(NewValue > ThresholdOffset)
     {
-        //multiply our value by 5
-        NewValue *= 5;
-        //reset the time since last spike
+        //yes. reset the time since last spike
         NewTimeSinceLastFire = 0;
     }
 
@@ -54,6 +73,12 @@ void Neuron::SetValue(float value)
 float Neuron::GetValue()
 {
     return Value;
+}
+
+//returns the current spike state of the neuron
+bool Neuron::GetSpikeState() 
+{
+    return Value > ThresholdOffset;
 }
 
 //write the state of the neuron to File

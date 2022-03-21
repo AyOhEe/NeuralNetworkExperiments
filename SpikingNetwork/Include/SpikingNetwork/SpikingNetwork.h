@@ -78,6 +78,11 @@ public:
 	unsigned int GetNeuronID(unsigned int Index, unsigned int Type, int* ErrCode, bool verbose = false);
 	//returns the neuron's index
 	unsigned int GetNeuronIndex(unsigned int ID, unsigned int Type, int* ErrCode, bool verbose = false);
+
+	//sets the parameters of the internal neuron to those in Params
+	void SetNeuronParams(unsigned int ID, Neuron::NeuronParams Params, int* ErrCode, bool verbose);
+	//gets the parameters of the internal neuron
+	Neuron::NeuronParams GetNeuronParams(unsigned int ID, int* ErrCode, bool verbose);
 };
 
 #endif

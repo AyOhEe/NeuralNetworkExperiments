@@ -548,3 +548,19 @@ unsigned int SpikingNetwork::GetNeuronIndex(unsigned int ID, unsigned int Type, 
 		return (unsigned int)-1;
 	}
 }
+
+//TODO(aria): error codes here
+//sets the parameters of the internal neuron to those in Params
+void SpikingNetwork::SetNeuronParams(unsigned int ID, Neuron::NeuronParams Params, int* ErrCode, bool verbose)
+{
+	//TODO(aria): error codes here
+	//set the neuron's params
+	GetNeuronPtr(ID, 1, ErrCode, verbose)->SetParams(Params);
+}
+//TODO(aria): error codes here
+//gets the parameters of the internal neuron
+Neuron::NeuronParams SpikingNetwork::GetNeuronParams(unsigned int ID, int* ErrCode, bool verbose)
+{
+	//TODO(aria): error codes here
+	return GetNeuronPtr(ID, 1, ErrCode, verbose)->GetParams();
+}

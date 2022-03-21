@@ -22,7 +22,6 @@ class Neuron
 	//as do lobes
 	friend Lobe;
 
-	bool NeuronType; //the type of the neuron. false == spiking, true == capacitor
 	bool OutputType; //the output type of the neuron. false == depressive, true == potentiating
 	float Value; //the current value of the neuron
 	unsigned long long int TimeSinceLastFire; //the time sicne the neuron last fired(s^-5)
@@ -35,6 +34,18 @@ class Neuron
 
 public:
 
+	//the parameters that define a neuron
+	struct NeuronParams 
+	{
+		bool OutputType; //the output type of the neuron. false == depressive, true == potentiating
+		float MembraneResistance; //the neuron's membrane resistance
+		float ThresholdOffset; //the neuron's spike potential threshold offset
+	};
+	//sets the parameters of this neuron
+	void SetParams(NeuronParams Params);
+	//returns the parameters of this neuron
+	NeuronParams GetParams();
+
 	//calculates and returns(but does not store!) the new value of the neuron
 	std::pair<float, unsigned long long int> CalculateNewValue(SpikingNetwork* Network, bool verbose = false);
 	
@@ -44,6 +55,8 @@ public:
 	void SetValue(float value);
     //returns the value of the neuron
     float GetValue();
+	//returns the current spike state of the neuron
+	bool GetSpikeState();
 
 	//write the state of the neuron to File
 	void WriteStateToFile(std::ofstream &File);
