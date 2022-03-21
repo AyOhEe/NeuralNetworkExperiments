@@ -448,6 +448,14 @@ void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose)
 		//remove it from the stack
 		NeuronValues.pop();
 	}
+
+	//iterate through the lobes and do stdp
+	for(std::map<unsigned int, Lobe>::iterator LobeIter = Lobes.begin();
+		LobeIter != Lobes.end();
+		LobeIter++)
+	{
+		LobeIter->second.DoSTDP(this, ErrCode, verbose);
+	}
 }
 
 //TODO(aria): error codes here

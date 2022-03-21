@@ -64,8 +64,6 @@ std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwor
         NewTimeSinceLastFire = 0;
     }
 
-    //TODO(aria): handle STDP here
-
     //return the new value and new time since last fire
     return std::make_pair(NewValue, NewTimeSinceLastFire);
 }
