@@ -71,8 +71,8 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	for(unsigned int i = 0; i < LobeCount; i++)
 	{
 		//create the lobe to contain the next neurons
-		Lobes.insert(std::make_pair(UniqueLobeIndex++, Lobe()));
-		Lobe* CurrentLobe = &(Lobes[Lobes.size()]);
+		Lobes.insert(std::make_pair(UniqueLobeIndex, Lobe()));
+		Lobe* CurrentLobe = &(Lobes[UniqueLobeIndex++]);
 
 		//begin reading the genes
 		for(unsigned int j = 0; j < LobeSizes[i]; j++)

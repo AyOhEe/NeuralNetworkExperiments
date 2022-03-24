@@ -7,7 +7,8 @@
 
 int main()
 {
-	/*//create a new handler instance
+	//create a new handler instance
+	std::cout << "Begin Buffer Test!" << std::endl;
 	STDPHandler Handler = STDPHandler();
 
 	//dummy data
@@ -21,7 +22,8 @@ int main()
 	for (int i = 0; i < 5; i++)
 	{
 		std::cout << "Old Weight: " << Weights[i] << " \n\tNew Weight: " << NewWeights[i] << "\n" << std::endl;
-	}/**/
+	}
+	std::cout << "\nTest Finished!\n" << std::endl;
 
 	int ErrCode = 0;
 
