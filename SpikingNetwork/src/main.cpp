@@ -7,7 +7,7 @@
 
 int main()
 {
-	//create a new handler instance
+	/*//create a new handler instance
 	STDPHandler Handler = STDPHandler();
 
 	//dummy data
@@ -21,6 +21,25 @@ int main()
 	for (int i = 0; i < 5; i++)
 	{
 		std::cout << "Old Weight: " << Weights[i] << " \n\tNew Weight: " << NewWeights[i] << "\n" << std::endl;
+	}/**/
+
+	int ErrCode = 0;
+
+	//create a spiking network
+	SpikingNetwork ExampleNet = SpikingNetwork("Genomes/test_genome", 2, 2, &ErrCode, true);
+
+	//output some information
+	std::cout << "Neuron Info: " << ExampleNet.InputCount() << ", " << ExampleNet.NeuronCount() << ", " << ExampleNet.OutputCount() << std::endl;
+	std::cout << "Lobe Info: " << ExampleNet.LobeCount();
+
+	//feed in some dummy data
+	ExampleNet.SetInputs({5, 3}, &ErrCode, true);
+	//run the network and output the results for 100 iterations
+	for(int i = 0; i < 100; i++)
+	{
+		ExampleNet.PerformUpdate(&ErrCode, true);
+		std::vector<float> Results = ExampleNet.GetOutputs(&ErrCode, true);
+		std::cout << "Iteration " << i << ": " << Results[0] << ", " << Results[1] << std::endl;
 	}
 
 	return 0;
