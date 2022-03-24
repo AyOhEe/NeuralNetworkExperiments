@@ -461,22 +461,34 @@ void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose)
 		NeuronValues.pop();
 	}
 	//and do the same for the rest of the neurons
+	unsigned int NeuronIndex = 0;
 	for (std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
 		NeuronIter != Neurons.end();
 		NeuronIter--)
 	{
 		//set the value
 		NeuronIter->second->SetState(NeuronValues.top());
+		if(verbose)
+		{
+			std::cout << "Setting values of Neuron " << NeuronIndex << "to " << NeuronValues.top().first << ", " << NeuronValues.top().second << std::endl;
+		}
+
 		//remove it from the stack
 		NeuronValues.pop();
+		NeuronIndex++;
 	}
 
 	//iterate through the lobes and do stdp
+	unsigned int LobeIndex = 0;
 	for(std::map<unsigned int, Lobe>::iterator LobeIter = Lobes.begin();
 		LobeIter != Lobes.end();
 		LobeIter++)
 	{
 		LobeIter->second.DoSTDP(this, ErrCode, verbose);
+		if(verbose)
+		{
+			std::cout << "Doing STDP on lobe " << LobeIndex++ << std::endl;
+		}
 	}
 }
 
