@@ -5,7 +5,27 @@
 #include <vector>
 #include <algorithm>
 
-#include <CL/cl.hpp>
+int main()
+{
+	//create a new handler instance
+	STDPHandler Handler = STDPHandler();
+
+	//dummy data
+	std::vector<unsigned long long> TargetTimes = { 0, 11, 50, 0, 5 };
+	std::vector<unsigned long long> SourceTimes = { 5, 0, 25, 11, 0 };
+	std::vector<float> Weights = { 2.0f, 0.5f, 3.0f, 3.5f, 1.75f };
+
+	//run stdp
+	std::vector<float> NewWeights = Handler.DoSTDP(SourceTimes, TargetTimes, Weights);
+	//output the vector contents
+	for (int i = 0; i < 5; i++)
+	{
+		std::cout << "Old Weight: " << Weights[i] << " \n\tNew Weight: " << NewWeights[i] << "\n" << std::endl;
+	}
+
+	return 0;
+}
+
 
 //converts a tests passed int into a tests passed string for console output
 std::string ConvertTestsPassedToString(int TestsPassed, int NumTests)
@@ -20,13 +40,114 @@ std::string ConvertTestsPassedToString(int TestsPassed, int NumTests)
 	return TestsPassedString + "\u001b[94m]\u001b[0m";
 }
 
-int main()
+//TODO(aria): implement literally all of these
+//neuron tests
+bool Neuron_SetParams();
+bool Neuron_GetParams();
+
+bool Neuron_SetConnectionParams();
+bool Neuron_GetConnectionParams_();
+
+bool Neuron_CalculateNewValue();
+
+bool Neuron_SetState();
+bool Neuron_SetValue();
+bool Neuron_GetValue();
+bool Neuron_GetSpikeState();
+
+bool Neuron_WriteStateToFile();
+bool Neuron_LoadStateFromBytes();
+
+bool Neuron_GetConnectionCount();
+
+bool Neuron_Neuron();
+
+bool Neuron_AddConnectio();
+bool Neuron_RemoveConnection();
+
+//connection tests
+bool Connection_SetParams();
+bool Connection_GetParams();
+
+bool Connection_Connection();
+bool Connection_Connection();
+
+bool Connection_CreateConnection();
+
+bool Connection_TryAddValue();
+
+bool Connection_WriteConnectionToFile();
+
+//lobe tests
+bool Lobe_AddNeuron();
+bool Lobe_RemoveNeuron();
+bool Lobe_GetNeuronCount();
+
+bool Lobe_WriteLobeToChromosome();
+
+bool Lobe_DoSTDP();
+
+//STDPHandler tests
+bool STDPHandler_STDPHandler();
+bool STDPHandler_DoSTDP();
+
+bool STDPHandler_M_STDPHandler();
+bool STDPHandler_M_DoSTDP();
+
+//spikingnetwork tests
+bool SpikingNetwork_SpikingNetwork();
+bool SpikingNetwork_D_SpikingNetwork();
+
+bool SpikingNetwork_LoadMentalState();
+bool SpikingNetwork_StoreMentalState();
+
+bool SpikingNetwork_SaveNetwork();
+
+bool SpikingNetwork_InputCount();
+bool SpikingNetwork_OutputCount();
+bool SpikingNetwork_NeuronCount();
+bool SpikingNetwork_LobeCount();
+
+bool SpikingNetwork_AddLobe();
+bool SpikingNetwork_RemoveLobe();
+bool SpikingNetwork_GetLobeNeuronCount();
+
+bool SpikingNetwork_AddNeuronToLobe();
+
+bool SpikingNetwork_AddNeuron();
+bool SpikingNetwork_RemoveNeuron();
+bool SpikingNetwork_AddConnection();
+bool SpikingNetwork_RemoveConnection();
+bool SpikingNetwork_GetNeuronConnectionCount();
+
+bool SpikingNetwork_SetInputs();
+bool SpikingNetwork_GetOutputs();
+bool SpikingNetwork_PerformUpdate();
+
+bool SpikingNetwork_GetNeuronPtr();
+bool SpikingNetwork_GetNeuronID();
+bool SpikingNetwork_GetNeuronIndex();
+
+bool SpikingNetwork_SetNeuronParams();
+bool SpikingNetwork_GetNeuronParams();
+
+bool SpikingNetwork_SetConnectionParams();
+bool SpikingNetwork_GetConnectionParams();
+
+//TODO(aria): this
+void DoUnitTests()
 {
 	//TODO(aria): this
 	/*----------------------*/
 	/*-----Neuron Tests-----*/
 	/*----------------------*/
 #pragma region Neuron Tests
+
+	std::cout << "Begining Neuron tests!" << std::endl;
+	unsigned int NeuronTestsPassed = 0;
+
+	/*Neuron::Neuron(unsigned char*)*/
+	std::cout << "\u001b[32mBegin Test 1\u001b[0m" << std::endl;
 
 #pragma endregion
 
