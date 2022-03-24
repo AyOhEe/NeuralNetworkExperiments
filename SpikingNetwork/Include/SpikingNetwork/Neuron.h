@@ -80,6 +80,8 @@ public:
 
 	//creates a neuron from a byte sequence
 	Neuron(unsigned char* bytes);
+	//creates a neuron from a parameter set
+	Neuron(NeuronParams Params);
 
 	//adds a connection to the neuron
 	void AddConnection(Connection NewConn);

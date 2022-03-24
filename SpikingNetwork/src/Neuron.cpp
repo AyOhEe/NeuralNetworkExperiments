@@ -199,6 +199,13 @@ Neuron::Neuron(unsigned char* bytes)
 	MembraneResistance = *((float*)&IntMembraneResistance);
 	ThresholdOffset = *((float*)&IntThresholdOffset);
 }
+//creates a neuron from a parameter set
+Neuron::Neuron(NeuronParams Params) 
+{
+    OutputType = Params.OutputType;
+    MembraneResistance = Params.MembraneResistance;
+    ThresholdOffset = Params.ThresholdOffset;
+}
 
 //adds a connection to the neuron
 void Neuron::AddConnection(Connection NewConn) 
