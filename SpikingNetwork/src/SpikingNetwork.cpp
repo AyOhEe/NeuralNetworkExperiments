@@ -101,7 +101,15 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	}
 	delete[] Bytes;
 
-	//TODO(aria): inputs and outputs here
+	//create the input and output neurons
+	for(int i = 0; i < inputs; i++)
+	{
+		InputNeurons.push_back(Neuron(NeuronParams{ true, 1, 0 }));
+	}
+	for (int i = 0; i < outputs; i++)
+	{
+		OutputNeurons.push_back(Neuron(NeuronParams{ true, 1, 0 }));
+	}
 
 	//read the connection chromosome
 	Bytes = new unsigned char[13];
