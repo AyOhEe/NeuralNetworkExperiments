@@ -32,7 +32,7 @@ int main()
 
 	//output some information
 	std::cout << "Neuron Info: " << ExampleNet.InputCount() << ", " << ExampleNet.NeuronCount() << ", " << ExampleNet.OutputCount() << std::endl;
-	std::cout << "Lobe Info: " << ExampleNet.LobeCount();
+	std::cout << "Lobe Info: " << ExampleNet.LobeCount() << std::endl;
 
 	//feed in some dummy data
 	ExampleNet.SetInputs({5, 3}, &ErrCode, true);

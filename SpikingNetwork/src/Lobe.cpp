@@ -46,6 +46,10 @@ void Lobe::WriteLobeToChromosome(std::ofstream& File)
 //does STDP to all neurons in this lobe
 void Lobe::DoSTDP(SpikingNetwork* Net, int* ErrCode, bool verbose) 
 {
+    //only do anything if we actually have neurons
+    if (Neurons.size() == 0)
+        return;
+
     //get an stdp handler
     STDPHandler Handler = STDPHandler();
 
@@ -60,7 +64,7 @@ void Lobe::DoSTDP(SpikingNetwork* Net, int* ErrCode, bool verbose)
     {
         //iterate through it's connections
         for(std::vector<Connection>::iterator ConnIter = (*NeuronIter)->SourceConnections.begin();
-            ConnIter != (*NeuronIter)->SourceConnections.begin();
+            ConnIter != (*NeuronIter)->SourceConnections.end();
             ConnIter++)
         { 
             //store the target time, source time and connection weight

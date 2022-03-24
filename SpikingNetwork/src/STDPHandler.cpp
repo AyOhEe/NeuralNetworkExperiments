@@ -64,14 +64,18 @@ std::vector<float> __STDPHandler::DoSTDP(
 	std::vector<unsigned long long>& TargetTimes,
 	std::vector<float>& Weights) 
 {
-	//make sure the source and target times and weights all have the same length
-	if (!(SourceTimes.size() == TargetTimes.size() && SourceTimes.size() == Weights.size()))
+	//make sure the source and target times and weights all have the same, non-zero length
+	if (!(SourceTimes.size() == TargetTimes.size() && SourceTimes.size() == Weights.size())) 
+	{
 		throw std::invalid_argument("STDPHandler::DoSTDP: SourceTimes, TargetTimes and Weights must match in size!");
+	}
+	if (SourceTimes.size() == 0)
+	{
+		throw std::invalid_argument("STDPHandler::DoSTDP: Must be given data! Was given vectors of length 0!");
+	}
 		
 	//vector to store the new weights in
 	std::vector<float> NewWeights = std::vector<float>(Weights.size());
-	//vector to store the weight deltas in
-	std::vector<float> Deltas = std::vector<float>(Weights.size());
 
 	//create the buffers
 	cl::Buffer SourceTimeBuffer(
@@ -109,8 +113,8 @@ std::vector<float> __STDPHandler::DoSTDP(
 	errCheck(CLCommandQueue.enqueueNDRangeKernel(STDPKernel, cl::NullRange, cl::NDRange(SourceTimes.size())), __LINE__);
 	errCheck(CLCommandQueue.finish(), __LINE__);
 	//read back the results
-	errCheck(CLCommandQueue.enqueueReadBuffer(NewWeightsBuffer, CL_FALSE, 0, sizeof(float) * NewWeights.size(), NewWeights.data()), __LINE__);
-	errCheck(CLCommandQueue.finish(), __LINE__);
+	errCheck(CLCommandQueue.enqueueReadBuffer(NewWeightsBuffer, CL_TRUE, 0, sizeof(float) * NewWeights.size(), NewWeights.data()), __LINE__);
+	//errCheck(CLCommandQueue.finish(), __LINE__);
 
 	//return the new weights
 	return NewWeights;
