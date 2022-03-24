@@ -9,7 +9,7 @@ if __name__ == "__main__":
     graph_frequency = 1 # how often a graph is made
     display_frequency = 10 # how often the best network of a generation is displayed
 
-    node_count_punishment = 0 # how much networks are punished for having a high node count
+    node_count_punishment = 0.5 # how much networks are punished for having a high node count
                               # helps prevent useless nodes in a network by
                               # encouraging the removal of useless nodes
 

@@ -1,0 +1,42 @@
+Genomes are constructed out of several different chromosomes, which can be expanded to meet different needs
+
+Currently, genomes are constructed of
+	- Chromosome 1: Neurons
+	- Chromosome 2: Connections
+
+Networks can also store mental states, and as such genomes may have an optional third chromosome
+	- Chromosome 3: Mental state
+
+this document uses some shorthand documented below:
+	b - boolean flag
+	i - integer
+	f - float
+	0 - empty values
+	[xby] - x bits of data type y 
+	[xBy] - x bytes of data type y
+	[xyi]*[uvw] - [xyi] sequences of [uvw] data
+
+Chromosomes contain genes of fixed size, for the entire length of the chromosome
+Each chromosome contains a different type of gene, detailed below:
+	- Neuron Gene [1b0][1bb][6b0][4Bf][4Bf]
+		- Section 1: One empty bits. if you need an extra flag, put it here
+		- Section 2: Neuron output type bit. 0 = depressive, 1 = potentiating
+		- Section 3: Six empty bits. if you need more bit flags, put them here
+		- Section 4: Four bytes, Controlling the membrane resistance
+		- Section 5: Four bytes, Controlling the spike potential threshold offset
+	- Connection Gene [1bb][1bb][6b0][4Bi][4Bi][4Bf]
+		- Section 1: Source type bit. 0 = Input Neuron, 1 = Internal Neuron
+		- Section 2: target type bit. 0 = Internal Neuron, 1 = Output Neuron
+		- Section 3: Six empty bits. if you need more bit flags, put them here
+		- Section 4: Four Bytes, controling the source index
+		- Section 5: Four Bytes, controling the target index
+		- Section 6: Four Bytes, controlling the weight 
+					 final weight ranges from 0.0 to 4.0. negative weights are expressed by the source neuron being depressive
+	- Mental Gene [4Bf][8Bi]
+		- Section 1: Four Bytes, controling the value to initialise the neuron with
+		- Section 2: Eight Bytes, The time, in hundredths of milliseconds(s^-5) since the neuron last spiked
+		
+in addition, the neuron chromosome contains some additional data at the start not fitting a gene
+[4Bi]*[4Bi]
+	- Section 1: the number of lobes in the network
+	- Section 2: the number of neurons in the lobe for each lobe in the network
