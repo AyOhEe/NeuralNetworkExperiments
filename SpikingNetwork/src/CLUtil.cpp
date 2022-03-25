@@ -1,5 +1,11 @@
 #include "CLUtil.h"
 
+void CLUtil::errCheck(cl_int errCode, int l)
+{
+	int line = l;
+	_ASSERT(errCode == 0);
+}
+
 //creates a program in opencl from the source file at file
 cl::Program CLUtil::CreateProgram(std::string file)
 {
@@ -23,6 +29,28 @@ cl::Program CLUtil::CreateProgram(std::string file)
 
 	//make the context and program from the device and sources
 	cl::Context context(devices);
+	cl::Program program(context, sources);
+
+	//build the program and output the build log
+	errCheck(program.build("-cl-std=CL1.2"), __LINE__);
+
+	//done!
+	return program;
+}
+
+
+//creates a program in opencl from the source file at file with context
+cl::Program CLUtil::CreateProgram(std::string file, cl::Context context) 
+{
+	/*-----KERNEL IMPORT-----*/
+	//get the .cl file as a string
+	std::ifstream helloWorldFile(file);
+	std::string src(std::istreambuf_iterator<char>(helloWorldFile), (std::istreambuf_iterator<char>()));
+
+	//define program sources
+	cl::Program::Sources sources(1, std::make_pair(src.c_str(), src.length() + 1));
+
+	//make the program from the context and sources
 	cl::Program program(context, sources);
 
 	//build the program and output the build log
