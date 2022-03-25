@@ -7,6 +7,7 @@
 #include <CL/cl.hpp>
 
 #include "Definitions.h"
+#include "CLUtil.h"
 
 //the actual manager for OpenCL and STDP
 class __STDPHandler
