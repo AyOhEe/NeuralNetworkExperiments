@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iterator>
 
+#include "Definitions.h"
 #include "Neuron.h"
 #include "Lobe.h"
 
@@ -33,6 +34,8 @@ class SpikingNetwork
 	std::vector<Neuron> OutputNeurons;
 	//all of the lobes in the network
 	std::map<unsigned int, Lobe> Lobes;
+	//the lobe containing the output neurons
+	Lobe* OutputLobe; 
 
 	//the index for all neurons ever added to this network
 	unsigned int UniqueNeuronIndex;

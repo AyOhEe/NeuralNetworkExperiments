@@ -35,7 +35,7 @@ std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwor
     //we're currently spiking, set the new value to zero and return
     if(GetSpikeState())
     {
-        return std::make_pair(0.0f, TimeSinceLastFire + 1);
+        return std::make_pair(0.0f, 1);
     }
 
     //calculate and apply value falloff
@@ -58,7 +58,7 @@ std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwor
     }
 
     //are we past our spike threshold?
-    if(NewValue > ThresholdOffset)
+    if(NewValue > ThresholdOffset + 1)
     {
         //yes. reset the time since last spike
         NewTimeSinceLastFire = 0;
@@ -90,7 +90,7 @@ float Neuron::GetValue()
 //returns the current spike state of the neuron
 bool Neuron::GetSpikeState() 
 {
-    return Value > ThresholdOffset;
+    return Value > ThresholdOffset + 1;
 }
 
 //write the state of the neuron to File
@@ -202,6 +202,7 @@ Neuron::Neuron(unsigned char* bytes)
     //initialise all of our other variables
     Value = 0;
     TimeSinceLastFire = 0;
+    SourceConnections = std::vector<Connection>();
 }
 //creates a neuron from a parameter set
 Neuron::Neuron(NeuronParams Params) 
@@ -214,6 +215,7 @@ Neuron::Neuron(NeuronParams Params)
     //initialise all of our other variables
     Value = 0;
     TimeSinceLastFire = 0;
+    SourceConnections = std::vector<Connection>();
 }
 
 //adds a connection to the neuron

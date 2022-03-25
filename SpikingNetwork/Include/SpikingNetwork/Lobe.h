@@ -3,7 +3,10 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iostream>
+#include <iomanip>
 
+#include "Definitions.h"
 #include "Neuron.h"
 #include "STDPHandler.h"
 

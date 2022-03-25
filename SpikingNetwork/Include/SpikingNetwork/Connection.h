@@ -4,11 +4,16 @@
 #include <exception>
 #include <iterator>
 
+#include "Definitions.h"
+#include "Neuron.h"
 #include "SpikingNetwork.h"
 
 //forward definitions
 class SpikingNetwork;
 class Lobe;
+class Neuron;
+
+float GetNeuronValue(Neuron* TargetNeuron);
 
 struct ConnectionParams
 {

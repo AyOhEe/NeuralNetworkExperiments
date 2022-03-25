@@ -101,14 +101,19 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	}
 	delete[] Bytes;
 
-	//create the input and output neurons
+	//create the input and output neurons and the output lobe
 	for(int i = 0; i < inputs; i++)
 	{
 		InputNeurons.push_back(Neuron(NeuronParams{ true, 1, 0 }));
 	}
+	OutputLobe = new Lobe();
 	for (int i = 0; i < outputs; i++)
 	{
 		OutputNeurons.push_back(Neuron(NeuronParams{ true, 1, 0 }));
+	}
+	for(int i = 0; i < outputs; i++)
+	{
+		OutputLobe->AddNeuron(&OutputNeurons[i]);
 	}
 
 	//read the connection chromosome
@@ -117,8 +122,11 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	{
 		//read in the gene
 		ConnectionChromosome.read((char*)Bytes, 13);
-		//create the connection
-		Connection::CreateConnection(Bytes, this);
+		if (!ConnectionChromosome.eof()) 
+		{
+			//create the connection
+			Connection::CreateConnection(Bytes, this);
+		}
 	}
 	delete[] Bytes;
 
@@ -136,6 +144,9 @@ SpikingNetwork::~SpikingNetwork()
 	{
 		delete NeuronIter->second;
 	}
+
+	//and destroy the output lobe
+	delete OutputLobe;
 }
 
 //TODO(aria): error codes here
@@ -451,21 +462,29 @@ void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose)
 	}
 
 	//set the values of the output neurons
-	for(std::vector<Neuron>::iterator NeuronIter = OutputNeurons.end();
-		NeuronIter != OutputNeurons.end();
-		NeuronIter--)
+	std::vector<Neuron>::iterator OutputNeuronIter = OutputNeurons.end();
+	unsigned int NeuronIndex = 0;
+	while(OutputNeuronIter != OutputNeurons.begin())
 	{
+		OutputNeuronIter--;
+
 		//set the value
-		NeuronIter->SetState(NeuronValues.top());
+		OutputNeuronIter->SetState(NeuronValues.top());
+		if (verbose)
+		{
+			std::cout << "Setting values of Output Neuron " << NeuronIndex << "to " << NeuronValues.top().first << ", " << NeuronValues.top().second << std::endl;
+		}
 		//remove it from the stack
 		NeuronValues.pop();
+		NeuronIndex++;
 	}
 	//and do the same for the rest of the neurons
-	unsigned int NeuronIndex = 0;
-	for (std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
-		NeuronIter != Neurons.end();
-		NeuronIter--)
+	NeuronIndex = 0;
+	std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.end();
+	while (NeuronIter != Neurons.begin())
 	{
+		NeuronIter--;
+
 		//set the value
 		NeuronIter->second->SetState(NeuronValues.top());
 		if(verbose)
@@ -490,6 +509,8 @@ void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose)
 			std::cout << "Doing STDP on lobe " << LobeIndex++ << std::endl;
 		}
 	}
+	//do stdp for output lobe
+	OutputLobe->DoSTDP(this, ErrCode, verbose);
 }
 
 //TODO(aria): error codes here
