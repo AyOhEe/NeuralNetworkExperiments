@@ -33,6 +33,12 @@
     <ClCompile Include="src\STDPHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\FrequencyConverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CLUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\SpikingNetwork\STDPHandler.h">
@@ -51,6 +57,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\SpikingNetwork\Definitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SpikingNetwork\FrequencyConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SpikingNetwork\CLUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

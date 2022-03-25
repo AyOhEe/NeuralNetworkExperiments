@@ -145,7 +145,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\CLUtil.cpp" />
     <ClCompile Include="src\Connection.cpp" />
+    <ClCompile Include="src\FrequencyConverter.cpp" />
     <ClCompile Include="src\Lobe.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SpikingNetwork.cpp" />
@@ -153,8 +155,10 @@
     <ClCompile Include="src\STDPHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\SpikingNetwork\CLUtil.h" />
     <ClInclude Include="Include\SpikingNetwork\Connection.h" />
     <ClInclude Include="Include\SpikingNetwork\Definitions.h" />
+    <ClInclude Include="Include\SpikingNetwork\FrequencyConverter.h" />
     <ClInclude Include="Include\SpikingNetwork\Lobe.h" />
     <ClInclude Include="Include\SpikingNetwork\Neuron.h" />
     <ClInclude Include="Include\SpikingNetwork\SpikingNetwork.h" />
