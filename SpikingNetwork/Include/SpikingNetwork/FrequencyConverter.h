@@ -3,6 +3,7 @@
 
 #include <CL/cl.hpp>
 #include <deque>
+#include <iostream>
 
 #include "CLUtil.h"
 
@@ -17,13 +18,13 @@ class __FrequencyConverter
 
 public:
 	//creates the __FrequencyConverter
-	__FrequencyConverter();
+	__FrequencyConverter(bool verbose = false);
 
 	//returns the values for input frequencies 
 	std::vector<float> FreqToOutput(std::vector<float> &Frequencies, unsigned long long UpdateStep);
 
 	//returns the most prevalent frequencies for the output histories
-	std::vector<float> OutputHistToFreq(std::vector<std::deque<float>*> &History);
+	std::vector<float> OutputHistToFreq(std::vector<std::deque<float>*> &History, unsigned int NFrequencyBands);
 };
 
 //the interface class for the frequency converter
@@ -36,13 +37,13 @@ class FrequencyConverter
 
 public:
 	//creates the FrequencyConverter
-	FrequencyConverter();
+	FrequencyConverter(bool verbose = false);
 
 	//returns the values for input frequencies 
 	std::vector<float> FreqToOutput(std::vector<float>& Frequencies);
 
 	//returns the most prevalent frequencies for the output histories
-	std::vector<float> OutputHistToFreq(std::vector<std::deque<float>*>& History);
+	std::vector<float> OutputHistToFreq(std::vector<std::deque<float>*>& History, unsigned int NFrequencyBands);
 
 	//increments updatestep by 1
 	void TriggerUpdate();
