@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 
+#include "Definitions.h"
 #include "Connection.h"
 #include "SpikingNetwork.h"
 #include "Lobe.h"

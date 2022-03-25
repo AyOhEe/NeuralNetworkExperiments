@@ -58,7 +58,7 @@ std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwor
     }
 
     //are we past our spike threshold?
-    if(NewValue > ThresholdOffset)
+    if(NewValue > ThresholdOffset + 5)
     {
         //yes. reset the time since last spike
         NewTimeSinceLastFire = 0;

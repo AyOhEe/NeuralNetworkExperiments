@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iterator>
 
+#include "Definitions.h"
 #include "Neuron.h"
 #include "Lobe.h"
 

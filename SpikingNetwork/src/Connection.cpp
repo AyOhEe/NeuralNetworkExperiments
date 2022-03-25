@@ -1,5 +1,14 @@
 #include <Connection.h>
 
+float GetNeuronValue(Neuron* TargetNeuron)
+{
+    #ifdef SPIKING_NETWORK_USE_SPIKE_STATE
+    return TargetNeuron->GetSpikeState() ? 1 : 0;
+    #else
+    return TargetNeuron->GetValue();
+    #endif
+}
+
 //sets the parameters of the connection
 void Connection::SetParams(ConnectionParams Params, SpikingNetwork* Net, int* ErrCode, bool verbose) 
 {
@@ -72,7 +81,7 @@ bool Connection::TryAddValue(SpikingNetwork* Network, float* OutVal)
         //TODO(aria): alter this to use a constant value along with spike state
         int ErrCode = 0;
         Neuron* NeuronPtr = Network->GetNeuronPtr(SourceNeuron, SourceNeuronType ? 1 : 0, &ErrCode);
-        *OutVal += Weight * (NeuronPtr->GetValue()) * (NeuronPtr->OutputType ? 1 : -1);
+        *OutVal += Weight * GetNeuronValue(NeuronPtr) * (NeuronPtr->OutputType ? 1 : -1);
         
         //if we reached this point, the connection was valid. return true
         return true;

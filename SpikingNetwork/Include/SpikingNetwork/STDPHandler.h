@@ -6,6 +6,8 @@
 #include <vector>
 #include <CL/cl.hpp>
 
+#include "Definitions.h"
+
 //the actual manager for OpenCL and STDP
 class __STDPHandler
 {

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <fstream>
 
+#include "Definitions.h"
 #include "Neuron.h"
 #include "STDPHandler.h"
 
