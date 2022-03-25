@@ -33,7 +33,7 @@ Connection::Connection(unsigned char* bytes, SpikingNetwork* Net)
 {
     //calculate our information
     bool SourceType = (bytes[0] & 0b10000000) == 0b10000000;
-    unsigned int SourceIndex = (bytes[1] << 24) + (bytes[2] << 16) + (bytes[3] << 8) + bytes[5];
+    unsigned int SourceIndex = (bytes[1] << 24) + (bytes[2] << 16) + (bytes[3] << 8) + bytes[4];
     unsigned int IntWeight = (bytes[9] << 24) + (bytes[10] << 16) + (bytes[11] << 8) + bytes[12];
 
     //store our weight

@@ -202,6 +202,7 @@ Neuron::Neuron(unsigned char* bytes)
     //initialise all of our other variables
     Value = 0;
     TimeSinceLastFire = 0;
+    SourceConnections = std::vector<Connection>();
 }
 //creates a neuron from a parameter set
 Neuron::Neuron(NeuronParams Params) 
@@ -214,6 +215,7 @@ Neuron::Neuron(NeuronParams Params)
     //initialise all of our other variables
     Value = 0;
     TimeSinceLastFire = 0;
+    SourceConnections = std::vector<Connection>();
 }
 
 //adds a connection to the neuron
