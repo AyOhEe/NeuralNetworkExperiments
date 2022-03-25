@@ -50,6 +50,9 @@
     <ClInclude Include="Include\SpikingNetwork\Connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\SpikingNetwork\Definitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Genome.txt">

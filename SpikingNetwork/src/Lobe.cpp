@@ -77,16 +77,30 @@ void Lobe::DoSTDP(SpikingNetwork* Net, int* ErrCode, bool verbose)
     }
 
     //hand it to the STDPHandler
-    Weights = Handler.DoSTDP(SourceTimes, TargetTimes, Weights);
+    std::vector<float> NewWeights = Handler.DoSTDP(SourceTimes, TargetTimes, Weights);
+
+    if (verbose) 
+    {
+        std::cout << "STDP Data: " << std::endl;
+        for (int i = 0; i < SourceTimes.size(); i++)
+        {
+            std::cout
+                << std::left << std::setw(10) << std::setfill(' ') << SourceTimes[i]
+                << std::left << std::setw(10) << std::setfill(' ') << TargetTimes[i]
+                << std::left << std::setw(10) << std::setfill(' ') << Weights[i]
+                << std::left << std::setw(10) << std::setfill(' ') << NewWeights[i]
+                << std::endl;
+        }
+    }
 
     //replace the weights
-    std::vector<float>::iterator WeightIter = Weights.begin(); 
+    std::vector<float>::iterator WeightIter = NewWeights.begin(); 
     std::vector<Neuron*>::iterator NeuronIter = Neurons.begin();
-    while(WeightIter != Weights.end() && NeuronIter != Neurons.end())
+    while(WeightIter != NewWeights.end() && NeuronIter != Neurons.end())
     {
         //iterate through the connections in the current neuron
         for(std::vector<Connection>::iterator ConnIter = (*NeuronIter)->SourceConnections.begin();
-            ConnIter != (*NeuronIter)->SourceConnections.begin();
+            ConnIter != (*NeuronIter)->SourceConnections.end();
             ConnIter++)
         {
             ConnIter->Weight = *(WeightIter++);

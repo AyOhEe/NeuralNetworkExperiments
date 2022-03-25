@@ -451,21 +451,23 @@ void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose)
 	}
 
 	//set the values of the output neurons
-	for(std::vector<Neuron>::iterator NeuronIter = OutputNeurons.end();
-		NeuronIter != OutputNeurons.end();
-		NeuronIter--)
+	std::vector<Neuron>::iterator OutputNeuronIter = OutputNeurons.end();
+	while(OutputNeuronIter != OutputNeurons.begin())
 	{
+		OutputNeuronIter--;
+
 		//set the value
-		NeuronIter->SetState(NeuronValues.top());
+		OutputNeuronIter->SetState(NeuronValues.top());
 		//remove it from the stack
 		NeuronValues.pop();
 	}
 	//and do the same for the rest of the neurons
 	unsigned int NeuronIndex = 0;
-	for (std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
-		NeuronIter != Neurons.end();
-		NeuronIter--)
+	std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.end();
+	while (NeuronIter != Neurons.begin())
 	{
+		NeuronIter--;
+
 		//set the value
 		NeuronIter->second->SetState(NeuronValues.top());
 		if(verbose)

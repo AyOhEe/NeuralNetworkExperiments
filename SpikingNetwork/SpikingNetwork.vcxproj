@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\SpikingNetwork\Connection.h" />
+    <ClInclude Include="Include\SpikingNetwork\Definitions.h" />
     <ClInclude Include="Include\SpikingNetwork\Lobe.h" />
     <ClInclude Include="Include\SpikingNetwork\Neuron.h" />
     <ClInclude Include="Include\SpikingNetwork\SpikingNetwork.h" />
