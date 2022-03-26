@@ -14,6 +14,7 @@ class __FrequencyConverter
 	cl::Context CLContext;
 	cl::Kernel FrequencyConvertKernel;
 	cl::Kernel OutputConvertKernel;
+	cl::Kernel FourierSummationKernel;
 	cl::CommandQueue CLCommandQueue;
 
 public:
@@ -24,7 +25,7 @@ public:
 	std::vector<float> FreqToOutput(std::vector<float> &Frequencies, unsigned long long UpdateStep);
 
 	//returns the most prevalent frequencies for the output histories
-	std::vector<float> OutputHistToFreq(std::vector<std::deque<float>*> &History, unsigned int NFrequencyBands);
+	std::vector<float> OutputHistToFreq(std::vector<std::deque<float>*> &History, unsigned int NFrequencyBands, float FrequencyBandSize = 0.25f);
 };
 
 //the interface class for the frequency converter
@@ -43,7 +44,7 @@ public:
 	std::vector<float> FreqToOutput(std::vector<float>& Frequencies);
 
 	//returns the most prevalent frequencies for the output histories
-	std::vector<float> OutputHistToFreq(std::vector<std::deque<float>*>& History, unsigned int NFrequencyBands);
+	std::vector<float> OutputHistToFreq(std::vector<std::deque<float>*>& History, unsigned int NFrequencyBands, float FrequencyBandSize = 0.25f);
 
 	//increments updatestep by 1
 	void TriggerUpdate();
