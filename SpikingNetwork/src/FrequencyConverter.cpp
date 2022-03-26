@@ -13,8 +13,9 @@ __FrequencyConverter::__FrequencyConverter(bool verbose)
 	std::vector<cl::Device> devices = FrequencyProgram.getInfo<CL_PROGRAM_DEVICES>();
 	cl::Device device = devices.front();
 
-	//create the other program with the same context
-	cl::Program OutputProgram = CreateProgram("OutputToFrequency.cl", CLContext);
+	//create the other programs with the same context
+	cl::Program OutputProgram = CreateProgram("OutputToFourierComponents.cl", CLContext);
+	cl::Program SummationProgram = CreateProgram("FourierComponentSummation.cl", CLContext);
 
 	if(verbose)
 	{
@@ -23,11 +24,14 @@ __FrequencyConverter::__FrequencyConverter(bool verbose)
 		std::cout << FrequencyProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
 		std::cout << "OutputProgram Build Logs" << std::endl;
 		std::cout << OutputProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
+		std::cout << "SummationProgram Build Logs" << std::endl;
+		std::cout << SummationProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
 	}
 
 	//create the kernels
 	FrequencyConvertKernel = cl::Kernel(FrequencyProgram, "Main");
 	OutputConvertKernel = cl::Kernel(OutputProgram, "Main");
+	FourierSummationKernel = cl::Kernel(SummationProgram, "Main");
 	//create the command queue
 	CLCommandQueue = cl::CommandQueue(CLContext, device);
 }
@@ -75,7 +79,7 @@ std::vector<float> __FrequencyConverter::FreqToOutput(std::vector<float>& Freque
 }
 
 //returns the most prevalent frequencies for the output histories
-std::vector<float> __FrequencyConverter::OutputHistToFreq(std::vector<std::deque<float>*>& History, unsigned int NFrequencyBands) 
+std::vector<float> __FrequencyConverter::OutputHistToFreq(std::vector<std::deque<float>*>& History, unsigned int NFrequencyBands, float FrequencyBandSize) 
 {
 	//make sure we're being fed valid input
 	if (History.size() == 0)
@@ -115,26 +119,62 @@ std::vector<float> __FrequencyConverter::OutputHistToFreq(std::vector<std::deque
 		cl::Buffer WorkingBuffer(
 			CLContext,
 			CL_MEM_READ_WRITE | CL_MEM_HOST_NO_ACCESS | CL_MEM_ALLOC_HOST_PTR,
+			sizeof(cl_float2) * NFrequencyBands * HistoryVector.size(),
+			nullptr
+		);
+		cl::Buffer CondensedBuffer(
+			CLContext,
+			CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
 			sizeof(float) * NFrequencyBands,
 			nullptr
 		);
 
 		//set kernel args
-		cl_float Result = 0; //where the final result will be stored
 		errCheck(OutputConvertKernel.setArg(0, HistoryBuffer), __LINE__);
 		errCheck(OutputConvertKernel.setArg(1, WorkingBuffer), __LINE__);
-		errCheck(OutputConvertKernel.setArg(2, Result), __LINE__);
+		errCheck(OutputConvertKernel.setArg(2, 0.25f), __LINE__);
 
-		//run the kernel
+		errCheck(FourierSummationKernel.setArg(0, WorkingBuffer), __LINE__);
+		errCheck(FourierSummationKernel.setArg(1, HistoryVector.size()), __LINE__);
+		errCheck(FourierSummationKernel.setArg(2, CondensedBuffer), __LINE__);
+
+		//run the kernels
 		errCheck(CLCommandQueue.enqueueNDRangeKernel(
 			OutputConvertKernel, 
 			cl::NullRange, 
 			cl::NDRange(HistoryVector.size(), NFrequencyBands)), __LINE__
 		);
 		errCheck(CLCommandQueue.finish(), __LINE__);
+		errCheck(CLCommandQueue.enqueueNDRangeKernel(
+			FourierSummationKernel,
+			cl::NullRange,
+			cl::NDRange(NFrequencyBands)), __LINE__
+		);
+		errCheck(CLCommandQueue.finish(), __LINE__);
+		//read back the computed fourier transform data
+		std::vector<float> FourierData = std::vector<float>(NFrequencyBands);
+		errCheck(CLCommandQueue.enqueueReadBuffer(
+			CondensedBuffer,
+			true,
+			0,
+			sizeof(float) * FourierData.size(),
+			FourierData.data()), __LINE__
+		);
+
+		//iterate through the values and find the maximum frequency
+		float MaxFrequencyBand = -1;
+		float MaxValue = -1;
+		for(int i = 0; i < FourierData.size(); i++)
+		{
+			if(FourierData[i] > MaxValue)
+			{
+				MaxFrequencyBand = i;
+				MaxValue = FourierData[i];
+			}
+		}
 
 		//append the result to the frequency vector
-		Frequencies.push_back(Result);
+		Frequencies.push_back(MaxFrequencyBand * FrequencyBandSize);
 	}
 
 	//return the frequencies
@@ -159,9 +199,9 @@ std::vector<float> FrequencyConverter::FreqToOutput(std::vector<float>& Frequenc
 }
 
 //returns the most prevalent frequencies for the output histories
-std::vector<float> FrequencyConverter::OutputHistToFreq(std::vector<std::deque<float>*>& History, unsigned int NFrequencyBands)
+std::vector<float> FrequencyConverter::OutputHistToFreq(std::vector<std::deque<float>*>& History, unsigned int NFrequencyBands, float FrequencyBandSize)
 {
-	return Converter->OutputHistToFreq(History, NFrequencyBands);
+	return Converter->OutputHistToFreq(History, NFrequencyBands, FrequencyBandSize);
 }
 
 //increments updatestep by 1
