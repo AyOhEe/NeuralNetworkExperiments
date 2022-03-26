@@ -1,4 +1,4 @@
-__kernel void Main(__global float* HistoryBuffer, __global float2* WorkingBuffer, __constant float FrequencyBinSize) 
+__kernel void Main(__global float* HistoryBuffer, __global float2* WorkingBuffer, float FrequencyBinSize) 
 {
 	/*-----FOURIER CALCULATIONS-----*/
 	//get the ids of this kernel
@@ -11,7 +11,7 @@ __kernel void Main(__global float* HistoryBuffer, __global float2* WorkingBuffer
 	int N = get_global_size(0);
 
 	//get the frequency that this kernel is looking for
-	float LookingFrequency = *FrequencyBinSize * FrequencyBandID;
+	float LookingFrequency = FrequencyBinSize * FrequencyBandID;
 
 	//do the fourier transform for this datapoint and frequency band
 	float FourierStep = LookingFrequency * HistoryValueID * (M_PI_F * 2)/N;

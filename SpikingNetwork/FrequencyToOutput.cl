@@ -1,4 +1,4 @@
-__kernel void Main(__global float* FrequencyBuffer, __global float* OutputBuffer, __constant ulong UpdateStep)
+__kernel void Main(__global float* FrequencyBuffer, __global float* OutputBuffer, ulong UpdateStep)
 {
 	//get the kernel id
 	int ID = get_global_id(0);

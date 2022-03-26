@@ -35,12 +35,12 @@ int main()
 	std::cout << "Lobe Info: " << ExampleNet.LobeCount() << std::endl;
 
 	//feed in some dummy data
-	ExampleNet.SetInputs({5, 3}, &ErrCode, true);
+	ExampleNet.SetInputs({5, 3}, &ErrCode);
 	//run the network and output the results for 100 iterations
-	for(int i = 0; i < 100; i++)
+	for(int i = 0; i < 10; i++)
 	{
-		ExampleNet.PerformUpdate(&ErrCode, true);
-		std::vector<float> Results = ExampleNet.GetOutputs(&ErrCode, true);
+		ExampleNet.PerformUpdate(&ErrCode);
+		std::vector<float> Results = ExampleNet.GetOutputs(&ErrCode);
 		std::cout << "Iteration " << i << ": " << Results[0] << ", " << Results[1] << std::endl;
 	}
 

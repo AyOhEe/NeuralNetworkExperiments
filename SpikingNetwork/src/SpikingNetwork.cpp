@@ -167,6 +167,8 @@ SpikingNetwork::~SpikingNetwork()
 //loads a mental state from a file
 void SpikingNetwork::LoadMentalState(std::string StatePath, int* ErrCode, bool verbose)
 {
+	//TODO(aria): make SpikingNetwork::LoadMentalState read in output history
+	
 	//try to open the file
 	//TODO(aria): replace "/" with system path separator
 	std::ifstream StateFile(
@@ -179,6 +181,12 @@ void SpikingNetwork::LoadMentalState(std::string StatePath, int* ErrCode, bool v
 		//TODO(aria): error codes
 		return;
 	}
+
+	//read the number of history deques and see if it matches ours
+		//it doesn't match. throw
+		
+		//it matches. iterate through our deques and load the history into them
+
 
 	//iterate through all of the internal neurons and store their states
 	char StateBytes[12];
@@ -217,6 +225,11 @@ void SpikingNetwork::StoreMentalState(std::string StatePath, int* ErrCode, bool 
 		//TODO(aria): error codes
 		return;
 	}
+
+	//TODO(aria): make SpikingNetwork::StoreMentalState store output history
+	//write the number of history deques we have to the file
+	//iterate through our history deques
+		//write the contents of the deque to the file
 
 	//iterate through all of the internal neurons and write their states to the file
 	for (std::map<unsigned int, Neuron*>::iterator NeuronIter = Neurons.begin();
