@@ -8,6 +8,9 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	UniqueNeuronIndex = 0;
 	UniqueLobeIndex = 0;
 
+	//create the frequency converter instance
+	FreqConverter = FrequencyConverter();
+
 	//try to open the files
 	//TODO(aria): replace "/" with system path separator
 	std::ifstream NeuronChromosome = std::ifstream(
@@ -110,6 +113,9 @@ SpikingNetwork::SpikingNetwork(std::string GenomePath, int inputs, int outputs, 
 	for (int i = 0; i < outputs; i++)
 	{
 		OutputNeurons.push_back(Neuron(NeuronParams{ true, 1, 0 }));
+
+		//while we're making neurons, also create the history deques
+		OutputHistory.push_back(new std::deque<float>());
 	}
 	for(int i = 0; i < outputs; i++)
 	{
@@ -145,8 +151,16 @@ SpikingNetwork::~SpikingNetwork()
 		delete NeuronIter->second;
 	}
 
-	//and destroy the output lobe
+	//destroy the output lobe
 	delete OutputLobe;
+
+	//destroy the history deques
+	for(std::vector<std::deque<float>*>::iterator HistoryIter = OutputHistory.begin();
+		HistoryIter != OutputHistory.end();
+		HistoryIter++)
+	{
+		delete *HistoryIter;
+	}
 }
 
 //TODO(aria): error codes here
@@ -419,10 +433,13 @@ unsigned int SpikingNetwork::GetNeuronConnectionCount(unsigned int ID, unsigned 
 //sets the input values
 void SpikingNetwork::SetInputs(std::vector<float> inputs, int* ErrCode, bool verbose)
 {
+	//get the actual values we'll be setting the neurons to
+	std::vector<float> ActualInput = FreqConverter.FreqToOutput(inputs);
+
 	//iterate through the input neurons and input vector. end when we hit the end of either
-	std::vector<float>::iterator  InputIter  = inputs.begin();
+	std::vector<float>::iterator  InputIter  = ActualInput.begin();
 	std::vector<Neuron>::iterator NeuronIter = InputNeurons.begin();
-	for (; NeuronIter != InputNeurons.end() || InputIter != inputs.end(); NeuronIter++, InputIter++) 
+	for (; NeuronIter != InputNeurons.end() || InputIter != ActualInput.end(); NeuronIter++, InputIter++)
 	{
 		NeuronIter->SetValue(*InputIter);
 	}
@@ -438,9 +455,24 @@ std::vector<float> SpikingNetwork::GetOutputs(int* ErrCode, bool verbose)
 	{
 		Values.push_back(NeuronIter->GetValue());
 	}
+
+	//store the values in the output history
+	std::vector<std::deque<float>*>::iterator HistoryIter = OutputHistory.begin();
+	std::vector<float>::iterator ValueIter = Values.begin();
+	for(; HistoryIter != OutputHistory.end() || ValueIter != Values.end(); HistoryIter++, ValueIter++)
+	{
+		//store the value
+		(*HistoryIter)->push_front(*ValueIter);
+		//if there are more than 128 values in the history, remove the oldest value
+		if ((*HistoryIter)->size() > 128)
+			(*HistoryIter)->pop_back();
+	}
+
+	//convert the output history into frequencies
+	std::vector<float> Frequencies = FreqConverter.OutputHistToFreq(OutputHistory, 32, 0.25f);
 	
 	//return the value vector
-	return Values;
+	return Frequencies;
 }
 //performs an update on the network
 void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose) 
@@ -511,6 +543,9 @@ void SpikingNetwork::PerformUpdate(int* ErrCode, bool verbose)
 	}
 	//do stdp for output lobe
 	OutputLobe->DoSTDP(this, ErrCode, verbose);
+
+	//perform an update on the frequency converter
+	FreqConverter.TriggerUpdate();
 }
 
 //TODO(aria): error codes here

@@ -13,6 +13,7 @@
 #include "Definitions.h"
 #include "Neuron.h"
 #include "Lobe.h"
+#include "FrequencyConverter.h"
 
 //forward definitions
 class Neuron;
@@ -20,6 +21,7 @@ struct NeuronParams;
 class Connection;
 struct ConnectionParams;
 class Lobe;
+class FrequencyConverter;
 
 //network class that uses spiking neurons and STDP
 class SpikingNetwork 
@@ -35,12 +37,18 @@ class SpikingNetwork
 	//all of the lobes in the network
 	std::map<unsigned int, Lobe> Lobes;
 	//the lobe containing the output neurons
-	Lobe* OutputLobe; 
+	Lobe* OutputLobe;
 
+	//the past values of the output neurons
+	std::vector<std::deque<float>*> OutputHistory;
+ 
 	//the index for all neurons ever added to this network
 	unsigned int UniqueNeuronIndex;
 	//the index for all lobes ever added to this network
 	unsigned int UniqueLobeIndex;
+
+	//the frequency converter instance for this network
+	FrequencyConverter FreqConverter;
 
 public:
 	
