@@ -3,30 +3,48 @@
 using namespace CLUtil;
 
 //creates the __STDPHandler
-__FrequencyConverter::__FrequencyConverter(bool verbose) 
+__FrequencyConverter::__FrequencyConverter() 
 {
 	//create the program
-	cl::Program FrequencyProgram = CreateProgram("FrequencyToOutput.cl");
+	std::pair<cl_int, cl::Program> ProgramPair = CreateProgram("FrequencyToOutput.cl");
+	cl::Program FrequencyProgram = ProgramPair.second;
 
 	//get context and device
 	CLContext = FrequencyProgram.getInfo<CL_PROGRAM_CONTEXT>();
 	std::vector<cl::Device> devices = FrequencyProgram.getInfo<CL_PROGRAM_DEVICES>();
 	cl::Device device = devices.front();
 
-	//create the other programs with the same context
-	cl::Program OutputProgram = CreateProgram("OutputToFourierComponents.cl", CLContext);
-	cl::Program SummationProgram = CreateProgram("FourierComponentSummation.cl", CLContext);
-
-	if(verbose)
+	//output build logs if the build failed
+	if(ProgramPair.first == -11)
 	{
-		//output build logs
 		std::cout << "FrequencyProgram Build Logs" << std::endl;
 		std::cout << FrequencyProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
+		throw std::exception();
+	}
+	errCheck(ProgramPair.first, __LINE__);
+
+	//create the other programs with the same context
+	ProgramPair = CreateProgram("OutputToFourierComponents.cl", CLContext);
+	cl::Program OutputProgram = ProgramPair.second;
+	//output build logs if the build failed
+	if (ProgramPair.first == -11)
+	{
 		std::cout << "OutputProgram Build Logs" << std::endl;
 		std::cout << OutputProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
+		throw std::exception();
+	}
+	errCheck(ProgramPair.first, __LINE__);
+
+	ProgramPair = CreateProgram("FourierComponentSummation.cl", CLContext);
+	cl::Program SummationProgram = ProgramPair.second;
+	//output build logs if the build failed
+	if (ProgramPair.first == -11)
+	{
 		std::cout << "SummationProgram Build Logs" << std::endl;
 		std::cout << SummationProgram.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
+		throw std::exception();
 	}
+	errCheck(ProgramPair.first, __LINE__);
 
 	//create the kernels
 	FrequencyConvertKernel = cl::Kernel(FrequencyProgram, "Main");
@@ -185,11 +203,11 @@ std::vector<float> __FrequencyConverter::OutputHistToFreq(std::vector<std::deque
 __FrequencyConverter* FrequencyConverter::Converter = (__FrequencyConverter*)nullptr;
 
 //creates the FrequencyConverter
-FrequencyConverter::FrequencyConverter(bool verbose) 
+FrequencyConverter::FrequencyConverter() 
 {
 	//if we don't have a frequency converter, create one
 	if (Converter == (__FrequencyConverter*)nullptr)
-		Converter = new __FrequencyConverter(verbose);
+		Converter = new __FrequencyConverter();
 }
 
 //returns the values for input frequencies 

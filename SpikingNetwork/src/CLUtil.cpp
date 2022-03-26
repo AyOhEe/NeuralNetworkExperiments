@@ -3,11 +3,12 @@
 void CLUtil::errCheck(cl_int errCode, int l)
 {
 	int line = l;
+	if(errCode == -11)
 	_ASSERT(errCode == 0);
 }
 
 //creates a program in opencl from the source file at file
-cl::Program CLUtil::CreateProgram(std::string file)
+std::pair<cl_int, cl::Program> CLUtil::CreateProgram(std::string file)
 {
 	/*-----GET DEVICE FOR USE-----*/
 	//get all platforms supported on this computer
@@ -32,15 +33,15 @@ cl::Program CLUtil::CreateProgram(std::string file)
 	cl::Program program(context, sources);
 
 	//build the program and output the build log
-	errCheck(program.build("-cl-std=CL1.2"), __LINE__);
+	cl_int errCode = program.build("-cl-std=CL1.2");
 
 	//done!
-	return program;
+	return std::make_pair(errCode, program);
 }
 
 
 //creates a program in opencl from the source file at file with context
-cl::Program CLUtil::CreateProgram(std::string file, cl::Context context) 
+std::pair<cl_int, cl::Program> CLUtil::CreateProgram(std::string file, cl::Context context)
 {
 	/*-----KERNEL IMPORT-----*/
 	//get the .cl file as a string
@@ -54,8 +55,8 @@ cl::Program CLUtil::CreateProgram(std::string file, cl::Context context)
 	cl::Program program(context, sources);
 
 	//build the program and output the build log
-	errCheck(program.build("-cl-std=CL1.2"), __LINE__);
+	cl_int errCode = program.build("-cl-std=CL1.2");
 
 	//done!
-	return program;
+	return std::make_pair(errCode, program);
 }

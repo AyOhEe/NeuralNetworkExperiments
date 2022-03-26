@@ -6,12 +6,22 @@ using namespace CLUtil;
 __STDPHandler::__STDPHandler() 
 {
 	//create the program
-	cl::Program Program = CreateProgram("STDP.cl");
+	std::pair<cl_int, cl::Program> ProgramPair = CreateProgram("STDP.cl");
+	cl::Program Program = ProgramPair.second;
 
 	//get context and device
 	CLContext = Program.getInfo<CL_PROGRAM_CONTEXT>();
 	std::vector<cl::Device> devices = Program.getInfo<CL_PROGRAM_DEVICES>();
 	cl::Device device = devices.front();
+
+	//output build logs if the build failed
+	if (ProgramPair.first == -11)
+	{
+		std::cout << "FrequencyProgram Build Logs" << std::endl;
+		std::cout << Program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
+		throw std::exception();
+	}
+	errCheck(ProgramPair.first, __LINE__);
 
 	//create the kernel
 	STDPKernel = cl::Kernel(Program, "Main");

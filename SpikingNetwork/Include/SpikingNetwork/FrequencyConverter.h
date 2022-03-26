@@ -19,7 +19,7 @@ class __FrequencyConverter
 
 public:
 	//creates the __FrequencyConverter
-	__FrequencyConverter(bool verbose = false);
+	__FrequencyConverter();
 
 	//returns the values for input frequencies 
 	std::vector<float> FreqToOutput(std::vector<float> &Frequencies, unsigned long long UpdateStep);
@@ -38,7 +38,7 @@ class FrequencyConverter
 
 public:
 	//creates the FrequencyConverter
-	FrequencyConverter(bool verbose = false);
+	FrequencyConverter();
 
 	//returns the values for input frequencies 
 	std::vector<float> FreqToOutput(std::vector<float>& Frequencies);
