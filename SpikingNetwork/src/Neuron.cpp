@@ -58,7 +58,7 @@ std::pair<float, unsigned long long int> Neuron::CalculateNewValue(SpikingNetwor
     }
 
     //are we past our spike threshold?
-    if(NewValue > ThresholdOffset + 1)
+    if(NewValue > ThresholdOffset)
     {
         //yes. reset the time since last spike
         NewTimeSinceLastFire = 0;
@@ -90,7 +90,7 @@ float Neuron::GetValue()
 //returns the current spike state of the neuron
 bool Neuron::GetSpikeState() 
 {
-    return Value > ThresholdOffset + 1;
+    return Value > ThresholdOffset;
 }
 
 //write the state of the neuron to File
