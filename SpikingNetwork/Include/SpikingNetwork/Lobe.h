@@ -19,6 +19,9 @@ class Lobe
 {
 	//the neurons that belong to this lobe
 	std::vector<Neuron*> Neurons;
+
+	//returns the spike history of this lobe
+	std::vector<std::vector<bool>> GetSpikeHistory();
 public:
 	
 	//add a neuron to the lobe
@@ -34,7 +37,8 @@ public:
 	//does STDP to all neurons in this lobe
 	void DoSTDP(SpikingNetwork* Net, int* ErrCode, bool verbose);
 
-	//TODO(aria): add "fire together wire together" method to lobe class
+	//adds connections between neurons that have consistently fired at the same or similar times
+	static void DoHebianCheck(Lobe LobeA, Lobe LobeB, bool* ConnectionMapping);
 };
 
 #endif
