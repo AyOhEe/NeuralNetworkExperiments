@@ -17,7 +17,7 @@ __STDPHandler::__STDPHandler()
 	//output build logs if the build failed
 	if (ProgramPair.first == -11)
 	{
-		std::cout << "FrequencyProgram Build Logs" << std::endl;
+		std::cout << "STDPHandler Build Logs" << std::endl;
 		std::cout << Program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
 		throw std::exception();
 	}
