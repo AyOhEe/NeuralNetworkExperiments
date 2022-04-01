@@ -2,8 +2,10 @@
 #define HEBIAN_CONNECTOR_H
 
 #include <vector>
+#include <iostream>
 
 #include <CL/cl.hpp>
+#include <CLUtil.h>
 
 //the actual manager for OpenCL and Hebian Connection
 class __HebianConnector
